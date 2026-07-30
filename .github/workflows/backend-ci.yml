@@ -1,0 +1,47 @@
+name: Backend CI
+
+on:
+  push:
+    paths:
+      - "backend/**"
+      - "docs/api/**"
+      - ".github/workflows/backend-ci.yml"
+  pull_request:
+    paths:
+      - "backend/**"
+      - "docs/api/**"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build-test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    defaults:
+      run:
+        working-directory: backend
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: "10.0.x"
+      - run: dotnet restore FinanzasInteligentes.sln
+      - run: dotnet build FinanzasInteligentes.sln -c Release --no-restore
+      - run: dotnet test FinanzasInteligentes.sln -c Release --no-build --logger "trx;LogFileName=tests.trx"
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: test-results
+          path: backend/**/TestResults/*.trx
+
+  containers:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    needs: build-test
+    steps:
+      - uses: actions/checkout@v4
+      - run: docker build -f backend/Dockerfile.Api -t finanzas-api:${{ github.sha }} .
+      - run: docker build -f backend/Dockerfile.Worker -t finanzas-worker:${{ github.sha }} .
+      - run: docker build -f backend/Dockerfile.Migrator -t finanzas-migrator:${{ github.sha }} .

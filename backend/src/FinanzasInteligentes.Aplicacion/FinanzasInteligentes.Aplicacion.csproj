@@ -1,0 +1,9 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="../FinanzasInteligentes.BuildingBlocks/FinanzasInteligentes.BuildingBlocks.csproj" />
+    <ProjectReference Include="../FinanzasInteligentes.Dominio/FinanzasInteligentes.Dominio.csproj" />
+  </ItemGroup>
+</Project>

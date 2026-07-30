@@ -1,0 +1,94 @@
+name: finanzas-inteligentes-production
+
+services:
+  migrator:
+    build:
+      context: ../..
+      dockerfile: backend/Dockerfile.Migrator
+    environment:
+      FINANZAS_MIGRACIONES_POSTGRESQL: ${MIGRATOR_DATABASE_URL:?Configure MIGRATOR_DATABASE_URL}
+    restart: "no"
+
+  api:
+    build:
+      context: ../..
+      dockerfile: backend/Dockerfile.Api
+    environment:
+      ASPNETCORE_ENVIRONMENT: Production
+      ASPNETCORE_URLS: http://+:8080
+      ConnectionStrings__PostgreSql: ${API_DATABASE_URL:?Configure API_DATABASE_URL}
+      Jwt__SigningKey: ${JWT_SIGNING_KEY:?Configure JWT_SIGNING_KEY}
+      Archivos__Ruta: /app/private-storage
+      Archivos__PublicBaseUrl: ${PUBLIC_API_URL:?Configure PUBLIC_API_URL}
+      Archivos__SigningKey: ${ARCHIVOS_SIGNING_KEY:?Configure ARCHIVOS_SIGNING_KEY}
+      Seguridad__TokenPushKey: ${TOKEN_PUSH_ENCRYPTION_KEY:?Configure TOKEN_PUSH_ENCRYPTION_KEY}
+      ReverseProxy__Enabled: "true"
+      ReverseProxy__KnownProxies__0: ${REVERSE_PROXY_IP:?Configure REVERSE_PROXY_IP}
+      DataProtection__KeysPath: /app/data-protection-keys
+      DataProtection__CertificatePath: /run/secrets/data-protection.pfx
+      DataProtection__CertificatePassword: ${DATA_PROTECTION_CERTIFICATE_PASSWORD:?Configure DATA_PROTECTION_CERTIFICATE_PASSWORD}
+      Correo__Habilitado: "true"
+      Correo__Region: ${AWS_REGION:?Configure AWS_REGION}
+      Correo__Remitente: ${SES_FROM_ADDRESS:?Configure SES_FROM_ADDRESS}
+      Correo__UrlAplicacion: ${PUBLIC_APP_URL:?Configure PUBLIC_APP_URL}
+      GooglePlay__Habilitado: "true"
+      GooglePlay__PermitirProveedorInterno: "false"
+      GooglePlay__PackageName: ${GOOGLE_PLAY_PACKAGE_NAME:?Configure GOOGLE_PLAY_PACKAGE_NAME}
+      GooglePlay__RtdnAudience: ${GOOGLE_PLAY_RTDN_AUDIENCE:?Configure GOOGLE_PLAY_RTDN_AUDIENCE}
+      GooglePlay__RtdnServiceAccountEmail: ${GOOGLE_PLAY_RTDN_SERVICE_ACCOUNT_EMAIL:?Configure GOOGLE_PLAY_RTDN_SERVICE_ACCOUNT_EMAIL}
+      GooglePlay__Productos__premium-mensual: ${GOOGLE_PLAY_PRODUCT_MONTHLY:?Configure GOOGLE_PLAY_PRODUCT_MONTHLY}
+      GooglePlay__Productos__premium-anual: ${GOOGLE_PLAY_PRODUCT_YEARLY:?Configure GOOGLE_PLAY_PRODUCT_YEARLY}
+      GOOGLE_APPLICATION_CREDENTIALS: /run/secrets/google-play-service-account.json
+      AWS_ACCESS_KEY_ID: ${AWS_ACCESS_KEY_ID:-}
+      AWS_SECRET_ACCESS_KEY: ${AWS_SECRET_ACCESS_KEY:-}
+      AWS_SESSION_TOKEN: ${AWS_SESSION_TOKEN:-}
+    ports:
+      - "127.0.0.1:8080:8080"
+    volumes:
+      - private-storage:/app/private-storage
+      - data-protection-keys:/app/data-protection-keys
+      - ./secrets/data-protection.pfx:/run/secrets/data-protection.pfx:ro
+      - ./secrets/google-play-service-account.json:/run/secrets/google-play-service-account.json:ro
+    depends_on:
+      migrator:
+        condition: service_completed_successfully
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "--fail", "--silent", "http://localhost:8080/salud/vivo"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 20s
+    security_opt:
+      - no-new-privileges:true
+
+  worker:
+    build:
+      context: ../..
+      dockerfile: backend/Dockerfile.Worker
+    environment:
+      DOTNET_ENVIRONMENT: Production
+      ConnectionStrings__PostgreSql: ${WORKER_DATABASE_URL:?Configure WORKER_DATABASE_URL}
+      Archivos__Ruta: /app/private-storage
+      Archivos__PublicBaseUrl: ${PUBLIC_API_URL:?Configure PUBLIC_API_URL}
+      Archivos__SigningKey: ${ARCHIVOS_SIGNING_KEY:?Configure ARCHIVOS_SIGNING_KEY}
+      Seguridad__TokenPushKey: ${TOKEN_PUSH_ENCRYPTION_KEY:?Configure TOKEN_PUSH_ENCRYPTION_KEY}
+      Correo__Habilitado: "true"
+      Correo__Region: ${AWS_REGION:?Configure AWS_REGION}
+      Correo__Remitente: ${SES_FROM_ADDRESS:?Configure SES_FROM_ADDRESS}
+      Correo__UrlAplicacion: ${PUBLIC_APP_URL:?Configure PUBLIC_APP_URL}
+      AWS_ACCESS_KEY_ID: ${AWS_ACCESS_KEY_ID:-}
+      AWS_SECRET_ACCESS_KEY: ${AWS_SECRET_ACCESS_KEY:-}
+      AWS_SESSION_TOKEN: ${AWS_SESSION_TOKEN:-}
+    volumes:
+      - private-storage:/app/private-storage
+    depends_on:
+      migrator:
+        condition: service_completed_successfully
+    restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
+
+volumes:
+  private-storage:
+  data-protection-keys:

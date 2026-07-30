@@ -1,0 +1,647 @@
+{
+  "info": {
+    "_postman_id": "8b53a465-6bc4-4f72-b0bc-e4b988fd56fb",
+    "name": "Finanzas Inteligentes - Prueba completa Paso 9",
+    "description": "Prueba local encadenada: salud, registro, inicio de sesión, cuenta, categoría, ingreso, gasto, movimientos, tablero y reporte. Ejecute la colección en orden con la API disponible en http://localhost:8080.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "01 - Comprobar API",
+      "item": [
+        {
+          "name": "Salud - proceso vivo",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/salud/vivo",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "salud",
+                "vivo"
+              ]
+            },
+            "description": "Comprueba que el proceso de la API está ejecutándose."
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('La API está viva', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Salud - PostgreSQL listo",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/salud/listo",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "salud",
+                "listo"
+              ]
+            },
+            "description": "Comprueba que la API puede conectarse a PostgreSQL."
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('PostgreSQL está disponible', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "02 - Identidad",
+      "item": [
+        {
+          "name": "Registrar usuario de prueba",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const unique = `${Date.now()}-${Math.floor(Math.random() * 100000)}`;",
+                  "pm.collectionVariables.set('testEmail', `prueba.${unique}@example.com`);",
+                  "pm.collectionVariables.set('currentDate', new Date().toISOString().slice(0, 10));",
+                  "['userId', 'accessToken', 'refreshToken', 'accountId', 'categoryId', 'incomeId', 'expenseId'].forEach(function (name) {",
+                  "    pm.collectionVariables.unset(name);",
+                  "});"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Usuario creado', function () {",
+                  "    pm.response.to.have.status(201);",
+                  "});",
+                  "const json = pm.response.json();",
+                  "pm.expect(json.id, 'El usuario debe devolver id').to.be.a('string').and.not.empty;",
+                  "pm.collectionVariables.set('userId', json.id);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"correo\": \"{{testEmail}}\",\n  \"nombre\": \"Usuario Postman\",\n  \"contrasena\": \"{{testPassword}}\",\n  \"moneda\": \"PYG\",\n  \"idioma\": \"es\",\n  \"zonaHoraria\": \"America/Asuncion\",\n  \"aceptaTerminos\": true\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{apiBaseUrl}}/usuarios",
+              "host": [
+                "{{apiBaseUrl}}"
+              ],
+              "path": [
+                "usuarios"
+              ]
+            },
+            "description": "Genera un correo diferente en cada ejecución y registra un usuario."
+          },
+          "response": []
+        },
+        {
+          "name": "Iniciar sesión",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Sesión creada', function () {",
+                  "    pm.response.to.have.status(201);",
+                  "});",
+                  "const json = pm.response.json();",
+                  "pm.expect(json.accessToken, 'La sesión debe devolver accessToken').to.be.a('string').and.not.empty;",
+                  "pm.collectionVariables.set('accessToken', json.accessToken);",
+                  "pm.collectionVariables.set('refreshToken', json.refreshToken);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"correo\": \"{{testEmail}}\",\n  \"contrasena\": \"{{testPassword}}\",\n  \"dispositivo\": {\n    \"identificador\": \"postman-local-01\",\n    \"nombre\": \"Postman local\",\n    \"plataforma\": \"windows\",\n    \"versionSistema\": \"11\",\n    \"versionAplicacion\": \"0.1.0\"\n  },\n  \"recordarDispositivo\": true\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{apiBaseUrl}}/sesiones",
+              "host": [
+                "{{apiBaseUrl}}"
+              ],
+              "path": [
+                "sesiones"
+              ]
+            },
+            "description": "Inicia sesión y guarda accessToken y refreshToken como variables de colección."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "03 - Preparar finanzas",
+      "item": [
+        {
+          "name": "Crear cuenta principal",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Cuenta creada', function () {",
+                  "    pm.response.to.have.status(201);",
+                  "});",
+                  "const json = pm.response.json();",
+                  "pm.expect(json.id, 'La cuenta debe devolver id').to.be.a('string').and.not.empty;",
+                  "pm.collectionVariables.set('accountId', json.id);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre\": \"Cuenta principal Postman\",\n  \"tipo\": \"cuenta-ahorro\",\n  \"saldoInicial\": 1000000,\n  \"moneda\": \"PYG\",\n  \"color\": \"#2563EB\",\n  \"icono\": \"wallet\",\n  \"incluidaEnTotal\": true\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{apiBaseUrl}}/cuentas",
+              "host": [
+                "{{apiBaseUrl}}"
+              ],
+              "path": [
+                "cuentas"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Crear categoría general",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Categoría creada', function () {",
+                  "    pm.response.to.have.status(201);",
+                  "});",
+                  "const json = pm.response.json();",
+                  "pm.expect(json.id, 'La categoría debe devolver id').to.be.a('string').and.not.empty;",
+                  "pm.collectionVariables.set('categoryId', json.id);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre\": \"Prueba Postman\",\n  \"tipo\": \"ambos\",\n  \"icono\": \"test\",\n  \"color\": \"#10B981\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{apiBaseUrl}}/categorias",
+              "host": [
+                "{{apiBaseUrl}}"
+              ],
+              "path": [
+                "categorias"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "04 - Registrar movimientos",
+      "item": [
+        {
+          "name": "Registrar ingreso",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Ingreso registrado', function () {",
+                  "    pm.response.to.have.status(201);",
+                  "});",
+                  "const json = pm.response.json();",
+                  "pm.expect(json.tipo).to.eql('ingreso');",
+                  "pm.collectionVariables.set('incomeId', json.id);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"ambito\": \"privado\",\n  \"cuentaId\": \"{{accountId}}\",\n  \"tipo\": \"ingreso\",\n  \"monto\": 2000000,\n  \"descripcion\": \"Ingreso generado desde Postman\",\n  \"fecha\": \"{{currentDate}}\",\n  \"categoriaIds\": [\"{{categoryId}}\"]\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{apiBaseUrl}}/movimientos",
+              "host": [
+                "{{apiBaseUrl}}"
+              ],
+              "path": [
+                "movimientos"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Registrar gasto",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Gasto registrado', function () {",
+                  "    pm.response.to.have.status(201);",
+                  "});",
+                  "const json = pm.response.json();",
+                  "pm.expect(json.tipo).to.eql('gasto');",
+                  "pm.collectionVariables.set('expenseId', json.id);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"ambito\": \"privado\",\n  \"cuentaId\": \"{{accountId}}\",\n  \"tipo\": \"gasto\",\n  \"monto\": 300000,\n  \"descripcion\": \"Gasto generado desde Postman\",\n  \"fecha\": \"{{currentDate}}\",\n  \"categoriaIds\": [\"{{categoryId}}\"]\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{apiBaseUrl}}/movimientos",
+              "host": [
+                "{{apiBaseUrl}}"
+              ],
+              "path": [
+                "movimientos"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "05 - Consultar resultados",
+      "item": [
+        {
+          "name": "Listar movimientos",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Movimientos disponibles', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "const json = pm.response.json();",
+                  "const data = Array.isArray(json) ? json : (json.datos || []);",
+                  "pm.expect(data.length, 'Deben existir al menos ingreso y gasto').to.be.at.least(2);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{apiBaseUrl}}/movimientos",
+              "host": [
+                "{{apiBaseUrl}}"
+              ],
+              "path": [
+                "movimientos"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Consultar tablero privado",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Tablero calculado', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "const json = pm.response.json();",
+                  "pm.expect(json.ambito).to.eql('privado');",
+                  "pm.expect(json.ingresos).to.eql(2000000);",
+                  "pm.expect(json.gastos).to.eql(300000);",
+                  "pm.expect(json.balance).to.eql(1700000);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{apiBaseUrl}}/tableros-financieros?ambito=privado",
+              "host": [
+                "{{apiBaseUrl}}"
+              ],
+              "path": [
+                "tableros-financieros"
+              ],
+              "query": [
+                {
+                  "key": "ambito",
+                  "value": "privado"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Consultar reporte mensual",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Reporte calculado', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "const json = pm.response.json();",
+                  "pm.expect(json.ambito).to.eql('privado');",
+                  "pm.expect(json.rango).to.eql('mes');",
+                  "pm.expect(json.ingresos).to.eql(2000000);",
+                  "pm.expect(json.gastos).to.eql(300000);",
+                  "pm.expect(json.balance).to.eql(1700000);",
+                  "pm.expect(json.distribucion).to.be.an('array').that.is.not.empty;"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{apiBaseUrl}}/reportes-financieros?rango=mes",
+              "host": [
+                "{{apiBaseUrl}}"
+              ],
+              "path": [
+                "reportes-financieros"
+              ],
+              "query": [
+                {
+                  "key": "rango",
+                  "value": "mes"
+                }
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    }
+  ],
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:8080",
+      "type": "string"
+    },
+    {
+      "key": "apiBaseUrl",
+      "value": "{{baseUrl}}/api/v1",
+      "type": "string"
+    },
+    {
+      "key": "testPassword",
+      "value": "PruebaLocal-2026!",
+      "type": "string"
+    },
+    {
+      "key": "testEmail",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "currentDate",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "userId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "accessToken",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "refreshToken",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "accountId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "categoryId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "incomeId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "expenseId",
+      "value": "",
+      "type": "string"
+    }
+  ]
+}

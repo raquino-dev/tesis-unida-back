@@ -1,0 +1,7 @@
+FROM mcr.microsoft.com/dotnet/sdk:10.0
+WORKDIR /repo/backend
+COPY backend/ ./
+RUN dotnet tool restore
+RUN dotnet restore src/FinanzasInteligentes.Infraestructura/FinanzasInteligentes.Infraestructura.csproj
+RUN dotnet build src/FinanzasInteligentes.Infraestructura/FinanzasInteligentes.Infraestructura.csproj --no-restore
+ENTRYPOINT ["dotnet", "ef", "database", "update", "--project", "src/FinanzasInteligentes.Infraestructura/FinanzasInteligentes.Infraestructura.csproj", "--no-build"]

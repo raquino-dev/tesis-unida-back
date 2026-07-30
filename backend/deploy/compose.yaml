@@ -1,0 +1,106 @@
+name: finanzas-inteligentes
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: finanzas
+      POSTGRES_USER: finanzas_migrador
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Configure POSTGRES_PASSWORD}
+      FINANZAS_API_PASSWORD: ${FINANZAS_API_PASSWORD:?Configure FINANZAS_API_PASSWORD}
+      FINANZAS_WORKER_PASSWORD: ${FINANZAS_WORKER_PASSWORD:?Configure FINANZAS_WORKER_PASSWORD}
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+      - ./postgres/01-roles.sh:/docker-entrypoint-initdb.d/01-roles.sh:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U finanzas_migrador -d finanzas"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+
+  migrator:
+    build:
+      context: ../..
+      dockerfile: backend/Dockerfile.Migrator
+    environment:
+      FINANZAS_MIGRACIONES_POSTGRESQL: Host=postgres;Port=5432;Database=finanzas;Username=finanzas_migrador;Password=${POSTGRES_PASSWORD}
+    depends_on:
+      postgres:
+        condition: service_healthy
+    restart: "no"
+
+  redis:
+    image: redis:7-alpine
+    command: ["redis-server", "--appendonly", "yes"]
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data:/data
+
+  minio:
+    image: minio/minio:latest
+    command: ["server", "/data", "--console-address", ":9001"]
+    environment:
+      MINIO_ROOT_USER: ${MINIO_ROOT_USER:?Configure MINIO_ROOT_USER}
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD:?Configure MINIO_ROOT_PASSWORD}
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    volumes:
+      - minio-data:/data
+
+  api:
+    build:
+      context: ../..
+      dockerfile: backend/Dockerfile.Api
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+      ConnectionStrings__PostgreSql: Host=postgres;Port=5432;Database=finanzas;Username=finanzas_api_local;Password=${FINANZAS_API_PASSWORD}
+      Jwt__SigningKey: ${JWT_SIGNING_KEY:?Configure JWT_SIGNING_KEY}
+      Archivos__Ruta: /app/private-storage
+      Archivos__PublicBaseUrl: http://localhost:8080
+      Archivos__SigningKey: ${ARCHIVOS_SIGNING_KEY:?Configure ARCHIVOS_SIGNING_KEY}
+      Seguridad__TokenPushKey: ${TOKEN_PUSH_ENCRYPTION_KEY:?Configure TOKEN_PUSH_ENCRYPTION_KEY}
+      ReverseProxy__Enabled: "false"
+      DataProtection__KeysPath: /app/data-protection-keys
+    ports:
+      - "8080:8080"
+    volumes:
+      - private-storage:/app/private-storage
+      - data-protection-keys:/app/data-protection-keys
+    depends_on:
+      migrator:
+        condition: service_completed_successfully
+      redis:
+        condition: service_started
+      minio:
+        condition: service_started
+
+  worker:
+    build:
+      context: ../..
+      dockerfile: backend/Dockerfile.Worker
+    environment:
+      ConnectionStrings__PostgreSql: Host=postgres;Port=5432;Database=finanzas;Username=finanzas_worker_local;Password=${FINANZAS_WORKER_PASSWORD}
+      Archivos__Ruta: /app/private-storage
+      Archivos__PublicBaseUrl: http://localhost:8080
+      Archivos__SigningKey: ${ARCHIVOS_SIGNING_KEY:?Configure ARCHIVOS_SIGNING_KEY}
+      Seguridad__TokenPushKey: ${TOKEN_PUSH_ENCRYPTION_KEY:?Configure TOKEN_PUSH_ENCRYPTION_KEY}
+    volumes:
+      - private-storage:/app/private-storage
+    depends_on:
+      migrator:
+        condition: service_completed_successfully
+      redis:
+        condition: service_started
+      minio:
+        condition: service_started
+
+volumes:
+  postgres-data:
+  redis-data:
+  minio-data:
+  private-storage:
+  data-protection-keys:
