@@ -10,6 +10,7 @@ La implementación inicial se encuentra en [`backend`](../../backend/README.md) 
 - [Arquitectura técnica](ARQUITECTURA_TECNICA.md)
 - [Modelo de datos y migraciones PostgreSQL](MIGRACIONES_POSTGRESQL.md)
 - [Plan de implementación por etapas](PLAN_IMPLEMENTACION.md)
+- [Identidad, OTP, sesiones y biometría](IDENTIDAD_Y_SEGURIDAD.md)
 - [Contrato REST](../api/README.md)
 - [Trazabilidad no funcional](../api/TRAZABILIDAD_RNF.md)
 

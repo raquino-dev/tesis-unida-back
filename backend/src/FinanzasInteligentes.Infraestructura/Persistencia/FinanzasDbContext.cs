@@ -278,9 +278,7 @@ public sealed class FinanzasDbContext(DbContextOptions<FinanzasDbContext> option
         tarjeta.Property(x => x.Id).HasColumnName("id");
         tarjeta.Property(x => x.UsuarioId).HasColumnName("usuario_id");
         tarjeta.Property(x => x.CuentaPagoId).HasColumnName("cuenta_pago_id");
-        tarjeta.Property(x => x.Nombre).HasColumnName("nombre").HasMaxLength(120);
-        tarjeta.Property(x => x.Emisor).HasColumnName("emisor").HasMaxLength(120);
-        tarjeta.Property(x => x.UltimosCuatro).HasColumnName("ultimos_cuatro").HasMaxLength(4);
+        tarjeta.Property(x => x.Alias).HasColumnName("alias").HasMaxLength(120);
         tarjeta.Property(x => x.DiaCierre).HasColumnName("dia_cierre");
         tarjeta.Property(x => x.DiaVencimiento).HasColumnName("dia_vencimiento");
         tarjeta.Property(x => x.LimiteCredito).HasColumnName("limite_credito");
@@ -290,7 +288,7 @@ public sealed class FinanzasDbContext(DbContextOptions<FinanzasDbContext> option
         tarjeta.Property(x => x.EliminadoEn).HasColumnName("eliminado_en");
         tarjeta.Ignore(x => x.CreditoDisponible);
         ConfigurarMutable(tarjeta);
-        tarjeta.HasIndex(x => new { x.UsuarioId, x.Nombre })
+        tarjeta.HasIndex(x => new { x.UsuarioId, x.Alias })
             .IsUnique().HasFilter("eliminado_en IS NULL");
         tarjeta.HasOne<Cuenta>().WithMany()
             .HasForeignKey(x => x.CuentaPagoId)

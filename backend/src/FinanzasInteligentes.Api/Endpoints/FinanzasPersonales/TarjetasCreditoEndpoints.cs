@@ -71,8 +71,8 @@ public static class TarjetasCreditoEndpoints
         CancellationToken cancellationToken)
     {
         var response = await handler.Handle(new(
-            context.UsuarioId(), context.TraceIdentifier, request.Nombre, request.Emisor,
-            request.UltimosCuatro, request.CuentaPagoId, request.DiaCierre,
+            context.UsuarioId(), context.TraceIdentifier, request.Alias,
+            request.CuentaPagoId, request.DiaCierre,
             request.DiaVencimiento, request.LimiteCredito, request.Moneda, request.Color),
             cancellationToken);
         context.Response.Headers.ETag = ETagExtensions.Formatear(response.Version);
@@ -101,8 +101,8 @@ public static class TarjetasCreditoEndpoints
         if (!context.Request.TryObtenerVersionIfMatch(out var version))
             return ETagExtensions.IfMatchInvalido(context);
         var response = await handler.Handle(new(
-            context.UsuarioId(), tarjetaId, version, request.Nombre, request.Emisor,
-            request.UltimosCuatro, request.CuentaPagoId, request.DiaCierre,
+            context.UsuarioId(), tarjetaId, version, request.Alias,
+            request.CuentaPagoId, request.DiaCierre,
             request.DiaVencimiento, request.LimiteCredito, request.Moneda, request.Color),
             cancellationToken);
         context.Response.Headers.ETag = ETagExtensions.Formatear(response.Version);

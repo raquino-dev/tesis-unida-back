@@ -117,6 +117,18 @@ public sealed class MovimientoRecurrente : MutableEntity
         Touch();
     }
 
+    public void CambiarEstado(string estado)
+    {
+        if (estado is not ("activa" or "pausada" or "finalizada"))
+            throw new DomainException("estado_invalido", "El estado de la recurrencia no es válido.");
+        if (Estado == "finalizada" && estado != "finalizada")
+            throw new DomainException(
+                "recurrencia_finalizada", "Una recurrencia finalizada no puede reanudarse.");
+        if (Estado == estado) return;
+        Estado = estado;
+        Touch();
+    }
+
     public void Eliminar()
     {
         EliminadoEn ??= DateTimeOffset.UtcNow;

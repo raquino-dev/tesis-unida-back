@@ -2,6 +2,7 @@ using FinanzasInteligentes.Aplicacion.Abstracciones;
 using FinanzasInteligentes.Aplicacion.Excepciones;
 using FinanzasInteligentes.Aplicacion.Identidad.Modelos;
 using FinanzasInteligentes.Dominio.Identidad;
+using FinanzasInteligentes.Dominio.Seguridad;
 
 namespace FinanzasInteligentes.Aplicacion.Identidad.CrearSesion;
 
@@ -20,6 +21,7 @@ public sealed record DispositivoSesion(
 
 public sealed class CrearSesionHandler(
     IIdentidadRepository identidad,
+    ISeguridadRepository seguridad,
     IPasswordService passwords,
     ITokenService tokens,
     IUnidadDeTrabajo unidadDeTrabajo)
@@ -29,9 +31,18 @@ public sealed class CrearSesionHandler(
         var correo = command.Correo.Trim().ToLowerInvariant();
 
         var usuario = await identidad.BuscarUsuarioPorCorreo(correo, cancellationToken);
-        if (usuario is null || usuario.Estado != "activo" ||
-            !passwords.Verificar(usuario.HashContrasena, command.Contrasena))
+        if (usuario is null || usuario.Estado != "activo")
             throw new AuthenticationException("credenciales_invalidas", "Las credenciales no son válidas.");
+        if (!passwords.Verificar(usuario.HashContrasena, command.Contrasena))
+        {
+            seguridad.Agregar(EventoSeguridad.Crear(
+                usuario.Id, "inicio-sesion-fallido",
+                "Se rechazó un inicio de sesión por credenciales inválidas.", false,
+                dispositivo: command.Dispositivo?.Nombre));
+            await unidadDeTrabajo.GuardarCambios(cancellationToken);
+            throw new AuthenticationException(
+                "credenciales_invalidas", "Las credenciales no son válidas.");
+        }
 
         var sesionId = Guid.CreateVersion7();
         var token = tokens.Emitir(usuario, sesionId);
@@ -46,6 +57,10 @@ public sealed class CrearSesionHandler(
             command.Dispositivo?.Nombre ?? "Dispositivo desconocido",
             command.Dispositivo?.Plataforma ?? "desconocida");
         identidad.Agregar(sesion);
+        seguridad.Agregar(EventoSeguridad.Crear(
+            usuario.Id, "inicio-sesion",
+            "Se inició una sesión correctamente.", true,
+            dispositivo: sesion.NombreDispositivo));
 
         await unidadDeTrabajo.GuardarCambios(cancellationToken);
 

@@ -1,9 +1,7 @@
 namespace FinanzasInteligentes.Api.Contratos.FinanzasPersonales;
 
 public sealed record TarjetaCreditoRequest(
-    string Nombre,
-    string Emisor,
-    string UltimosCuatro,
+    string Alias,
     Guid CuentaPagoId,
     long DiaCierre,
     long DiaVencimiento,
@@ -12,9 +10,7 @@ public sealed record TarjetaCreditoRequest(
     string Color);
 
 public sealed record TarjetaCreditoPatchRequest(
-    string? Nombre = null,
-    string? Emisor = null,
-    string? UltimosCuatro = null,
+    string? Alias = null,
     Guid? CuentaPagoId = null,
     long? DiaCierre = null,
     long? DiaVencimiento = null,

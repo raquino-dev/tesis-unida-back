@@ -39,9 +39,9 @@ public interface IFinanzasRepository
         bool soloLectura,
         CancellationToken cancellationToken);
 
-    Task<bool> ExisteTarjetaCreditoConNombre(
+    Task<bool> ExisteTarjetaCreditoConAlias(
         Guid usuarioId,
-        string nombre,
+        string alias,
         Guid? exceptoTarjetaId,
         CancellationToken cancellationToken);
 

@@ -20,13 +20,15 @@ public static class FinanzasMappings
         new(
             movimiento.Id, "privado", movimiento.CuentaId, movimiento.Tipo, movimiento.Monto,
             movimiento.Moneda, movimiento.Descripcion, movimiento.Fecha, movimiento.Estado,
-            movimiento.CreadoEn, movimiento.Version);
+            movimiento.CreadoEn, movimiento.Version,
+            movimiento.Categorias.Select(x => x.Id).ToArray(),
+            movimiento.DocumentoId, movimiento.RecurrenciaId);
 
     public static TarjetaCreditoResponse ToResponse(
         this TarjetaCredito tarjeta,
         Cuenta cuentaPago) =>
         new(
-            tarjeta.Id, tarjeta.Nombre, tarjeta.Emisor, tarjeta.UltimosCuatro,
+            tarjeta.Id, tarjeta.Alias,
             new(cuentaPago.Id, cuentaPago.Nombre, cuentaPago.Tipo),
             tarjeta.DiaCierre, tarjeta.DiaVencimiento, tarjeta.LimiteCredito,
             tarjeta.SaldoUtilizado, tarjeta.CreditoDisponible, tarjeta.Moneda,

@@ -36,6 +36,7 @@ public sealed class MovimientoRecurrentePatchRequest
     }
 
     public string? Frecuencia { get; init; }
+    public string? Estado { get; init; }
 
     public long? CantidadOcurrencias
     {

@@ -10,6 +10,7 @@ using FinanzasInteligentes.Infraestructura.Procesamiento.Recurrencias;
 using FinanzasInteligentes.Infraestructura.Procesamiento.Suscripciones;
 using FinanzasInteligentes.Infraestructura.Seguridad;
 using FinanzasInteligentes.Infraestructura.Suscripciones;
+using FinanzasInteligentes.Infraestructura.Notificaciones;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -54,6 +55,7 @@ public static class DependencyInjection
         services.AddSingleton<IPasswordService, PasswordService>();
         services.AddSingleton<IPoliticaContrasena, PoliticaContrasena>();
         services.AddSingleton<ISeguridadFlujosConfiguracion, SeguridadFlujosConfiguracion>();
+        services.AddSingleton<IHasherTokenUnSoloUso, HasherTokenUnSoloUso>();
         services.AddSingleton<ITokenService, JwtTokenService>();
 
         return services;
@@ -107,6 +109,11 @@ public static class DependencyInjection
             .Validate(x => Uri.TryCreate(x.UrlAplicacion, UriKind.Absolute, out _),
                 "Correo:UrlAplicacion debe ser una URL absoluta.")
             .ValidateOnStart();
+        services.AddOptions<FirebaseOptions>()
+            .Bind(configuration.GetSection(FirebaseOptions.SectionName))
+            .Validate(x => !x.Habilitado || !string.IsNullOrWhiteSpace(x.ProjectId),
+                "Firebase:ProjectId es obligatorio cuando Firebase está habilitado.")
+            .ValidateOnStart();
 
         services.AddDbContext<FinanzasDbContext>(options =>
             options.UseNpgsql(connectionString, npgsql =>
@@ -140,6 +147,7 @@ public static class DependencyInjection
         services.AddScoped<ISeguridadRepository, SeguridadRepository>();
         services.AddSingleton<IProtectorTokenPush, ProtectorTokenPush>();
         services.AddSingleton<ICorreoSender, SesCorreoSender>();
+        services.AddScoped<IPushNotificationSender, FirebasePushSender>();
 
         return services;
     }

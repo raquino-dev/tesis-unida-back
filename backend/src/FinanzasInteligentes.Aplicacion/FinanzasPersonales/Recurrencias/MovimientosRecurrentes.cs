@@ -88,7 +88,7 @@ public sealed class MovimientosRecurrentesHandler(
         IReadOnlyCollection<Guid>? categoriaIds, string? descripcion,
         DateOnly? fechaInicio, DateOnly? fechaFin, bool fechaFinEspecificada,
         string? frecuencia, long? cantidadOcurrencias,
-        bool cantidadOcurrenciasEspecificada, CancellationToken ct)
+        bool cantidadOcurrenciasEspecificada, string? estado, CancellationToken ct)
     {
         var entity = await Existente(usuarioId, recurrenteId, false, ct);
         VerificarVersion(entity.Version, version);
@@ -112,10 +112,19 @@ public sealed class MovimientosRecurrentesHandler(
                 "recurrencia_duplicada",
                 "Ya existe una recurrencia activa con la misma cuenta y descripción.");
 
-        entity.Actualizar(
-            cuentaId, tipo, monto, descripcion, fechaInicio,
-            fechaFin, fechaFinEspecificada, frecuencia,
-            cantidadOcurrencias, cantidadOcurrenciasEspecificada, categorias);
+        var hayCambiosDeContenido =
+            cuentaId is not null || tipo is not null || monto is not null ||
+            categoriaIds is not null || descripcion is not null || fechaInicio is not null ||
+            fechaFinEspecificada || frecuencia is not null || cantidadOcurrenciasEspecificada;
+        if (hayCambiosDeContenido)
+            entity.Actualizar(
+                cuentaId, tipo, monto, descripcion, fechaInicio,
+                fechaFin, fechaFinEspecificada, frecuencia,
+                cantidadOcurrencias, cantidadOcurrenciasEspecificada, categorias);
+        if (estado is not null)
+            entity.CambiarEstado(estado);
+        if (!hayCambiosDeContenido && estado is null)
+            throw new DomainException("actualizacion_vacia", "Debe indicar al menos un campo.");
         await unidadDeTrabajo.GuardarCambios(ct);
         return Map(entity, cuenta);
     }

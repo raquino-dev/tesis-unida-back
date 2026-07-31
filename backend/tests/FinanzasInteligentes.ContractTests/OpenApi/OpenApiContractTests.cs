@@ -18,6 +18,17 @@ public sealed partial class OpenApiContractTests
         Assert.DoesNotContain("x-etapa: 0", yaml);
     }
 
+    [Fact]
+    public void TarjetasUsanSoloAliasYSinDatosDelPlastico()
+    {
+        var yaml = File.ReadAllText(OpenApiPath);
+
+        Assert.Contains("TarjetaCreditoRequest:", yaml);
+        Assert.Contains("alias:", yaml);
+        Assert.DoesNotContain("ultimosCuatro:", yaml);
+        Assert.DoesNotContain("emisor:", yaml);
+    }
+
     [GeneratedRegex(@"(?m)^\s{6}operationId: ")]
     private static partial Regex OperationIdRegex();
 

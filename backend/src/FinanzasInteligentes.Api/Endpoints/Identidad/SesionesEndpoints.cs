@@ -9,9 +9,13 @@ public static class SesionesEndpoints
 {
     public static IEndpointRouteBuilder MapSesiones(this IEndpointRouteBuilder endpoints)
     {
-        endpoints.MapPost("/sesiones", Crear).AllowAnonymous().WithTags("Sesiones");
+        endpoints.MapPost("/sesiones", Crear)
+            .RequireRateLimiting("autenticacion")
+            .AllowAnonymous().WithTags("Sesiones");
         endpoints.MapGet("/sesiones", Listar).WithTags("Sesiones");
-        endpoints.MapPost("/sesiones/renovaciones", Renovar).AllowAnonymous().WithTags("Sesiones");
+        endpoints.MapPost("/sesiones/renovaciones", Renovar)
+            .RequireRateLimiting("autenticacion")
+            .AllowAnonymous().WithTags("Sesiones");
         endpoints.MapDelete("/sesiones/{sesionId:guid}", Revocar).WithTags("Sesiones");
         return endpoints;
     }

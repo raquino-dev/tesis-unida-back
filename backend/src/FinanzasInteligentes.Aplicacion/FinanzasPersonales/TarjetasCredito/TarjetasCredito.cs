@@ -13,9 +13,7 @@ public sealed record ObtenerTarjetaCreditoQuery(Guid UsuarioId, Guid TarjetaId);
 public sealed record CrearTarjetaCreditoCommand(
     Guid UsuarioId,
     string CorrelationId,
-    string Nombre,
-    string Emisor,
-    string UltimosCuatro,
+    string Alias,
     Guid CuentaPagoId,
     long DiaCierre,
     long DiaVencimiento,
@@ -26,9 +24,7 @@ public sealed record ActualizarTarjetaCreditoCommand(
     Guid UsuarioId,
     Guid TarjetaId,
     long VersionEsperada,
-    string? Nombre,
-    string? Emisor,
-    string? UltimosCuatro,
+    string? Alias,
     Guid? CuentaPagoId,
     long? DiaCierre,
     long? DiaVencimiento,
@@ -113,13 +109,13 @@ public sealed class CrearTarjetaCreditoHandler(
     {
         var cuenta = await ObtenerTarjetaCreditoHandler.ObtenerCuentaPago(
             finanzas, command.UsuarioId, command.CuentaPagoId, cancellationToken);
-        if (await finanzas.ExisteTarjetaCreditoConNombre(
-            command.UsuarioId, command.Nombre.Trim(), null, cancellationToken))
+        if (await finanzas.ExisteTarjetaCreditoConAlias(
+            command.UsuarioId, command.Alias.Trim(), null, cancellationToken))
             throw new ConflictException(
-                "tarjeta_duplicada", "Ya existe una tarjeta con ese nombre.");
+                "tarjeta_duplicada", "Ya existe una tarjeta con ese alias.");
 
         var tarjeta = TarjetaCredito.Crear(
-            command.UsuarioId, command.Nombre, command.Emisor, command.UltimosCuatro,
+            command.UsuarioId, command.Alias,
             command.CuentaPagoId, command.DiaCierre, command.DiaVencimiento,
             command.LimiteCredito, command.Moneda, command.Color);
         finanzas.Agregar(tarjeta);
@@ -145,17 +141,17 @@ public sealed class ActualizarTarjetaCreditoHandler(
         if (tarjeta.Version != command.VersionEsperada)
             throw new PreconditionFailedException(
                 "etag_desactualizado", "La versión de la tarjeta está desactualizada.");
-        if (command.Nombre is not null &&
-            await finanzas.ExisteTarjetaCreditoConNombre(
-                command.UsuarioId, command.Nombre.Trim(), tarjeta.Id, cancellationToken))
+        if (command.Alias is not null &&
+            await finanzas.ExisteTarjetaCreditoConAlias(
+                command.UsuarioId, command.Alias.Trim(), tarjeta.Id, cancellationToken))
             throw new ConflictException(
-                "tarjeta_duplicada", "Ya existe una tarjeta con ese nombre.");
+                "tarjeta_duplicada", "Ya existe una tarjeta con ese alias.");
 
         var cuentaId = command.CuentaPagoId ?? tarjeta.CuentaPagoId;
         var cuenta = await ObtenerTarjetaCreditoHandler.ObtenerCuentaPago(
             finanzas, command.UsuarioId, cuentaId, cancellationToken);
         tarjeta.Actualizar(
-            command.Nombre, command.Emisor, command.UltimosCuatro, command.CuentaPagoId,
+            command.Alias, command.CuentaPagoId,
             command.DiaCierre, command.DiaVencimiento, command.LimiteCredito,
             command.Moneda, command.Color);
         await unidadDeTrabajo.GuardarCambios(cancellationToken);

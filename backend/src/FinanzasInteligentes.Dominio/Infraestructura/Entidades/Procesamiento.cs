@@ -29,8 +29,13 @@ public sealed class EventoOutbox : Entity
             DisponibleEn = DateTimeOffset.UtcNow
         };
 
-    public void MarcarProcesado()
+    public void MarcarProcesado(bool eliminarPayloadSensible = false)
     {
+        if (eliminarPayloadSensible)
+        {
+            Payload.Dispose();
+            Payload = JsonDocument.Parse("""{"redactado":true}""");
+        }
         Estado = "procesado";
         ProcesadoEn = DateTimeOffset.UtcNow;
     }
