@@ -13,7 +13,7 @@ Este roadmap convierte el alcance, RF-01..21 y RNF-01..25 en una secuencia ejecu
 | Procesamiento | Worker y outbox iniciales | Leases, deduplicación, reintentos, consumidores y concurrencia segura |
 | Pruebas | 8 pruebas: 3 unitarias, 1 integración de modelo, 3 arquitectura y 1 contrato | Cobertura funcional, PostgreSQL, seguridad, concurrencia, carga y móvil |
 | Aplicación móvil | No está incluida en este repositorio | Crear e integrar la aplicación Flutter Android 10+ |
-| Infraestructura piloto | Docker Compose local con PostgreSQL, Redis y MinIO | Supabase, S3, SES, Hetzner, Nginx, Cloudflare, systemd y observabilidad |
+| Infraestructura piloto | Docker Compose local con PostgreSQL | Supabase, S3, Textract, SES, Lightsail, Nginx, Cloudflare, systemd y observabilidad |
 | Evidencia RNF | Matriz y criterios definidos | Ejecutar pruebas y adjuntar resultados del ambiente objetivo |
 
 La cobertura documental no debe usarse como porcentaje de avance de implementación. Como referencia de planificación, el producto ejecutable está todavía en la fase de fundación/MVP inicial.
@@ -347,9 +347,9 @@ testers y evidencia en dispositivos reales.
 
 - proyecto Supabase y roles mínimos para API, Worker y migrador;
 - buckets S3 privados, cifrado, CORS restringido y lifecycle;
-- Redis para el entorno piloto;
+- caché diferida hasta que métricas reales justifiquen Redis;
 - Amazon SES con dominio verificado;
-- VPS Hetzner CX33 endurecido;
+- instancia AWS Lightsail North Virginia endurecida;
 - Docker Compose de piloto sin bases locales innecesarias;
 - Nginx, TLS, Cloudflare y acceso directo a la API bloqueado;
 - unidad systemd para recuperar servicios;
@@ -431,7 +431,7 @@ Este incremento entrega una base operable y reduce el mayor riesgo actual: descu
 
 ## 6. Acciones que requieren al responsable del proyecto
 
-- habilitar cuentas y presupuestos de Supabase, AWS, Hetzner, Cloudflare y Google Play;
+- habilitar cuentas y presupuestos de Supabase, AWS Lightsail, Cloudflare y Google Play;
 - habilitar Firebase Cloud Messaging y Google Play Billing de prueba;
 - aportar dominio para SES, TLS y correo;
 - ejecutar el gate de Textract con 30–50 comprobantes y custodiar credenciales de prueba;

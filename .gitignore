@@ -7,18 +7,50 @@
 **/.env
 **/.env.*
 !**/.env.example
+!**/.env.*.example
 backend/deploy/-env.txt
+**/appsettings.*.local.json
 **/secrets/*
 !**/secrets/.gitignore
+**/credentials*.json
+**/service-account*.json
+**/*serviceAccount*.json
+**/*service-account*.json
+**/.aws/
+**/aws-credentials
 *.pfx
 *.p12
+*.pem
 *.key
+*.snk
+*.jks
+*.keystore
 
 # Claves persistidas de ASP.NET Core
 **/data-protection-keys/
 
+# Logs, pruebas, cobertura y publicación local
+**/logs/
+*.log
+**/TestResults/
+**/coverage/
+**/coverage.*
+**/publish/
+**/artifacts/
+
+# Bases de datos y respaldos locales
+*.db
+*.sqlite
+*.sqlite3
+*.dump
+*.bak
+
 # IDE y sistema operativo
 .vs/
 .vscode/
+.idea/
+.fleet/
 *.user
+*.suo
 .DS_Store
+Thumbs.db

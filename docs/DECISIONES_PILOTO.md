@@ -133,8 +133,8 @@ son reales; solamente el instrumento de pago pertenece al ambiente de prueba.
 | Correo | Amazon SES | Acceso de producción antes del piloto |
 | Push | Firebase Cloud Messaging | API HTTP v1 |
 | Facturación | Google Play Billing | License testers y productos de prueba |
-| Caché | Redis | Servicio privado accesible sólo por API/Worker |
-| Servidor | Hetzner CX33, Ubuntu 24.04 | Docker Compose y systemd |
+| Caché | Sin Redis en el piloto | PostgreSQL/outbox cubren la carga de 10 usuarios; se reevalúa con métricas |
+| Servidor | AWS Lightsail, Ubuntu 24.04, North Virginia | Docker Compose y systemd |
 | Proxy/TLS | Nginx y Cloudflare | HTTPS y origen restringido |
 | Distribución | Google Play Internal Testing | Cuentas Google autorizadas |
 
@@ -220,7 +220,7 @@ La plantilla de recolección está en
 - crear proyecto Firebase y credenciales de servicio para FCM HTTP v1;
 - crear Supabase Pro y probar restauración;
 - habilitar AWS, bucket S3, Textract y salida de sandbox de SES;
-- adquirir/configurar Hetzner, dominio, DNS y Cloudflare;
+- adquirir/configurar Lightsail en North Virginia, dominio, DNS y Cloudflare;
 - ejecutar la evaluación OCR con 30–50 comprobantes anonimizados;
 - aprobar consentimiento, política de privacidad, retención y encuestas;
 - reclutar diez participantes con cuenta Google y Android 10+.

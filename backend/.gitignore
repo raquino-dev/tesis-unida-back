@@ -9,12 +9,21 @@
 !**/.env.*.example
 **/appsettings.*.local.json
 secrets.json
+**/secrets/*
+!**/secrets/.gitignore
+**/credentials*.json
+**/service-account*.json
+**/*serviceAccount*.json
+**/*service-account*.json
+**/.aws/
+**/aws-credentials
 
 # Certificados y claves
 *.pfx
 *.p12
 *.pem
 *.key
+*.snk
 *.jks
 *.keystore
 
@@ -22,13 +31,23 @@ secrets.json
 **/bin/
 **/obj/
 **/TestResults/
+**/coverage/
+**/coverage.*
+**/publish/
+**/artifacts/
 *.user
 *.suo
+
+# Logs y estado criptográfico local
+**/logs/
+*.log
+**/data-protection-keys/
 
 # IDE
 .vs/
 .vscode/
 .idea/
+.fleet/
 
 # Bases y respaldos
 *.db

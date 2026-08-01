@@ -61,7 +61,8 @@ contrato. Entre las capacidades verificadas localmente se encuentran:
 - transacción de movimiento + saldo + outbox;
 - concurrencia optimista mediante `ETag`/`If-Match`;
 - migración EF inicial para los esquemas `identidad`, `finanzas` e `infra`;
-- PostgreSQL, Redis y MinIO preparados para desarrollo local mediante Docker Compose;
+- PostgreSQL preparado para desarrollo local mediante Docker Compose y almacenamiento
+  intercambiable local/S3;
 - verificación de Google Play Billing, RTDN y envío push FCM HTTP v1 mediante outbox.
 
 La activación de credenciales reales de proveedores, la evidencia sobre PostgreSQL
@@ -140,7 +141,10 @@ La configuración de HTTPS detrás de Nginx, encabezados reenviados y claves per
 
 El inventario de secretos, su inicialización local y las reglas de rotación se encuentran en [`SECRETOS_Y_CONFIGURACION.md`](../docs/backend/SECRETOS_Y_CONFIGURACION.md).
 
-Este Compose es el ambiente local. El piloto sustituye PostgreSQL local por Supabase y MinIO por Amazon S3, añade Amazon SES y despliega API/Worker en Hetzner CX33 detrás de Nginx y Cloudflare, con inicio supervisado por systemd. Esas piezas permanecen pendientes según [`TRAZABILIDAD_RNF.md`](../docs/api/TRAZABILIDAD_RNF.md).
+Este Compose es el ambiente local. El piloto sustituye PostgreSQL local por Supabase,
+usa Amazon S3, Textract y SES en `us-east-1`, y despliega API/Worker en AWS Lightsail
+North Virginia detrás de Nginx y Cloudflare, con inicio supervisado por systemd. La
+definición ejecutable está en `deploy/compose.production.yaml`.
 
 ## Decisiones de seguridad
 

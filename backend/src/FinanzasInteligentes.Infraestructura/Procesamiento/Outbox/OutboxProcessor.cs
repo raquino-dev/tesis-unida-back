@@ -20,6 +20,7 @@ public interface IOutboxProcessor
 public sealed class OutboxProcessor(
     FinanzasDbContext db,
     IArchivoStorage storage,
+    IProcesadorOcrDocumento ocr,
     ICorreoSender correo,
     IPushNotificationSender push,
     Microsoft.Extensions.Options.IOptions<CorreoOptions> correoOptions,
@@ -214,14 +215,31 @@ public sealed class OutboxProcessor(
         }
         else
         {
-            proceso.Completar(new
+            if (!ocr.Habilitado)
             {
-                monto = (long?)null,
-                fecha = (DateOnly?)null,
-                comercio = (string?)null,
-                categoriaSugeridaId = (Guid?)null,
-                cdcSifen = (string?)null
-            }, 0, "OCR pendiente de proveedor externo; complete los datos manualmente.");
+                proceso.Completar(new
+                {
+                    monto = (long?)null,
+                    fecha = (DateOnly?)null,
+                    comercio = (string?)null,
+                    categoriaSugeridaId = (Guid?)null,
+                    cdcSifen = (string?)null
+                }, 0, "OCR deshabilitado; complete los datos manualmente.");
+            }
+            else
+            {
+                await using var stream = await storage.Abrir(
+                    documento.ClaveObjeto, ct);
+                var resultado = await ocr.Procesar(stream, ct);
+                proceso.Completar(new
+                {
+                    monto = resultado.Monto,
+                    fecha = resultado.Fecha,
+                    comercio = resultado.Comercio,
+                    categoriaSugeridaId = (Guid?)null,
+                    cdcSifen = (string?)null
+                }, resultado.Confianza, resultado.Advertencias.ToArray());
+            }
         }
     }
 

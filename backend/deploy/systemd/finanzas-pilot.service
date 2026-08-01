@@ -1,0 +1,17 @@
+[Unit]
+Description=Finanzas Inteligentes pilot
+Requires=docker.service
+After=docker.service network-online.target
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+WorkingDirectory=/opt/finanzas/deploy
+ExecStart=/opt/finanzas/deploy/scripts/deploy.sh
+ExecStop=/usr/bin/docker compose --project-directory /opt/finanzas/deploy --env-file /opt/finanzas/deploy/.env.production -f /opt/finanzas/deploy/compose.production.yaml down
+TimeoutStartSec=600
+TimeoutStopSec=120
+
+[Install]
+WantedBy=multi-user.target

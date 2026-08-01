@@ -51,19 +51,21 @@ El creador de un grupo recibe el rol `propietario`, que representa al administra
 | Backend | ASP.NET Core .NET 10 |
 | Persistencia del piloto | PostgreSQL administrado mediante Supabase |
 | Archivos | Amazon S3 privado |
-| Caché | Redis |
+| Caché | No requerida para el piloto; PostgreSQL es la fuente de verdad |
 | Correo | Amazon SES |
 | OCR | Amazon Textract AnalyzeExpense, condicionado a evaluación local |
 | Push | Firebase Cloud Messaging |
 | Facturación | Google Play Billing con license testers |
-| Servidor | VPS Hetzner CX33 |
+| Servidor | AWS Lightsail en North Virginia |
 | Contenedores | Docker Compose |
 | Supervisión | systemd |
 | Reverse proxy | Nginx |
 | DNS/protección externa | Cloudflare |
 | Distribución | Google Play Internal Testing |
 
-PostgreSQL, Redis y MinIO en Docker Compose son dependencias locales de desarrollo. MinIO sustituye a S3 únicamente en entornos locales. La aplicación Flutter nunca accede directamente a Supabase, Redis o S3: toda autorización y regla de negocio pasa por la API.
+PostgreSQL y MinIO pueden utilizarse como dependencias locales de desarrollo. Redis no se
+despliega mientras las mediciones no demuestren su necesidad. La aplicación Flutter nunca
+accede directamente a Supabase o S3: toda autorización y regla de negocio pasa por la API.
 
 ## 4. Exclusiones
 
