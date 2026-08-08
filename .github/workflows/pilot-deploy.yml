@@ -130,4 +130,4 @@ jobs:
                -e 's|^WORKER_IMAGE=.*|WORKER_IMAGE=$REGISTRY/finanzas-worker:$IMAGE_TAG|' \
                -e 's|^MIGRATOR_IMAGE=.*|MIGRATOR_IMAGE=$REGISTRY/finanzas-migrator:$IMAGE_TAG|' \
                .env.production && \
-             ./scripts/deploy.sh"
+             sudo ./scripts/deploy.sh"
