@@ -1,12 +1,13 @@
 name: Deploy pilot
 
 on:
+  push:
+    branches:
+      - main
+    paths:
+      - "backend/**"
+      - ".github/workflows/pilot-deploy.yml"
   workflow_dispatch:
-    inputs:
-      ref:
-        description: Commit or tag to deploy
-        required: true
-        default: main
 
 permissions:
   contents: read
@@ -25,7 +26,8 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          ref: ${{ inputs.ref }}
+          # El piloto se despliega únicamente desde la rama protegida main.
+          ref: main
 
       - uses: actions/setup-dotnet@v4
         with:
@@ -68,7 +70,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          ref: ${{ inputs.ref }}
+          ref: main
 
       - name: Configure SSH
         env:
