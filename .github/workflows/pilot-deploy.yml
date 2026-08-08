@@ -122,12 +122,16 @@ jobs:
           REGISTRY: ghcr.io/${{ github.repository_owner }}
         run: |
           printf '%s' "$GHCR_READ_TOKEN" | ssh "$PILOT_USER@$PILOT_HOST" \
-            "docker login ghcr.io -u '${{ github.actor }}' --password-stdin"
+            "sudo docker login ghcr.io -u '${{ github.actor }}' --password-stdin"
           ssh "$PILOT_USER@$PILOT_HOST" \
             "cd /opt/finanzas/deploy && \
              sed -i.bak \
-               -e 's|^API_IMAGE=.*|API_IMAGE=$REGISTRY/finanzas-api:$IMAGE_TAG|' \
-               -e 's|^WORKER_IMAGE=.*|WORKER_IMAGE=$REGISTRY/finanzas-worker:$IMAGE_TAG|' \
-               -e 's|^MIGRATOR_IMAGE=.*|MIGRATOR_IMAGE=$REGISTRY/finanzas-migrator:$IMAGE_TAG|' \
+               -e '/^API_IMAGE=/d' \
+               -e '/^WORKER_IMAGE=/d' \
+               -e '/^MIGRATOR_IMAGE=/d' \
                .env.production && \
+             printf '\\nAPI_IMAGE=%s\\nWORKER_IMAGE=%s\\nMIGRATOR_IMAGE=%s\\n' \
+               '$REGISTRY/finanzas-api:$IMAGE_TAG' \
+               '$REGISTRY/finanzas-worker:$IMAGE_TAG' \
+               '$REGISTRY/finanzas-migrator:$IMAGE_TAG' >> .env.production && \
              sudo ./scripts/deploy.sh"
