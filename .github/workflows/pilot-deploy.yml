@@ -95,7 +95,23 @@ jobs:
              tar -xzf /tmp/finanzas-deploy.tgz -C /opt/finanzas/deploy && \
              sudo install -o ubuntu -g ubuntu -m 600 \
                /opt/finanzas/repo/backend/deploy/.env.production \
-               /opt/finanzas/deploy/.env.production"
+               /opt/finanzas/deploy/.env.production && \
+             mkdir -p /opt/finanzas/deploy/secrets && \
+             sudo install -o ubuntu -g ubuntu -m 600 \
+               /opt/finanzas/repo/backend/deploy/secrets/supabase-ca.crt \
+               /opt/finanzas/deploy/secrets/supabase-ca.crt && \
+             sudo install -o ubuntu -g ubuntu -m 600 \
+               /opt/finanzas/repo/backend/deploy/secrets/data-protection.pfx \
+               /opt/finanzas/deploy/secrets/data-protection.pfx && \
+             sudo install -o ubuntu -g ubuntu -m 600 \
+               /opt/finanzas/repo/backend/deploy/secrets/google-service-account.json \
+               /opt/finanzas/deploy/secrets/google-service-account.json && \
+             sudo install -o ubuntu -g ubuntu -m 600 \
+               /etc/letsencrypt/live/api.rodrigoaquino.com/fullchain.pem \
+               /opt/finanzas/deploy/secrets/tls-fullchain.pem && \
+             sudo install -o ubuntu -g ubuntu -m 600 \
+               /etc/letsencrypt/live/api.rodrigoaquino.com/privkey.pem \
+               /opt/finanzas/deploy/secrets/tls-privkey.pem"
 
       - name: Pull and deploy immutable images
         env:
