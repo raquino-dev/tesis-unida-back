@@ -2,7 +2,7 @@
 
 ## 1. Objetivo y alcance
 
-La arquitectura debe soportar todos los endpoints documentados sin trasladar todavía la complejidad operativa de microservicios al proyecto. La aplicación Flutter nunca debe conectarse directamente a PostgreSQL, Redis o S3; toda autorización y regla de negocio se ejecuta en la API.
+La arquitectura debe soportar todos los endpoints documentados sin trasladar todavía la complejidad operativa de microservicios al proyecto. La aplicación Flutter nunca debe conectarse directamente a PostgreSQL o S3; toda autorización y regla de negocio se ejecuta en la API.
 
 La solución se divide por capacidades de negocio:
 
@@ -22,18 +22,25 @@ La solución se divide por capacidades de negocio:
 
 ```mermaid
 flowchart LR
-    App["Flutter"] -->|HTTPS /api/v1| API["API .NET 10"]
+    App["Flutter Android"] -->|HTTPS| CF["Cloudflare"]
+    CF --> Nginx["Nginx TLS"]
+    Nginx --> API["API .NET 10"]
     API --> PG[("PostgreSQL / Supabase")]
-    API --> Redis[("Redis")]
     API --> S3[("S3 privado")]
     API -->|outbox / trabajos| PG
     Worker["Worker .NET 10"] -->|reclama trabajos| PG
-    Worker --> Redis
     Worker --> S3
-    Worker --> Ext["OCR / correo / push"]
+    Worker --> Textract["Textract"]
+    Worker --> SES["SES"]
+    Worker --> FCM["Firebase FCM"]
+    App --> Play["Google Play Billing"]
+    API --> PlayApi["Google Play Developer API"]
 ```
 
-En desarrollo local se levantan `api`, `worker`, PostgreSQL, Redis y MinIO mediante Docker Compose. En el piloto, API y Worker se ejecutan en un VPS Hetzner CX33 y consumen PostgreSQL administrado por Supabase, Redis, Amazon S3 y Amazon SES. La API atiende solicitudes breves; el Worker procesa:
+En desarrollo local se levantan `api`, `worker` y PostgreSQL mediante Docker Compose; el
+almacenamiento local implementa el mismo puerto que S3. En el piloto, API, Worker y Nginx
+se ejecutan en una instancia Lightsail de North Virginia y consumen Supabase Pro, S3,
+Textract y SES en `us-east-1`. La API atiende solicitudes breves; el Worker procesa:
 
 - OCR y lectura de XML SIFEN;
 - exportaciones;
@@ -86,7 +93,7 @@ Responsabilidades por capa:
 
 - **Dominio:** entidades, objetos de valor, invariantes y eventos de dominio; no referencia EF, HTTP ni proveedores.
 - **Aplicación:** casos de uso, comandos, consultas, DTO, autorización por caso de uso y puertos.
-- **Infraestructura:** EF Core, Redis, S3, JWT y adaptadores externos.
+- **Infraestructura:** EF Core, S3, JWT y adaptadores externos.
 - **Endpoints:** rutas, binding, códigos HTTP, ProblemDetails y OpenAPI.
 
 Los módulos no acceden directamente a tablas de otro módulo. La interacción síncrona se hace mediante interfaces de aplicación y la asíncrona mediante eventos almacenados en outbox.

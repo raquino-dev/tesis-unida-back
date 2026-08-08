@@ -1,0 +1,17 @@
+{
+  "Rules": [
+    {
+      "ID": "expire-logical-backups",
+      "Status": "Enabled",
+      "Filter": {
+        "Prefix": "piloto/"
+      },
+      "Expiration": {
+        "Days": 35
+      },
+      "NoncurrentVersionExpiration": {
+        "NoncurrentDays": 7
+      }
+    }
+  ]
+}

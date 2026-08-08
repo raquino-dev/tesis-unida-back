@@ -1,0 +1,111 @@
+name: Deploy pilot
+
+on:
+  workflow_dispatch:
+    inputs:
+      ref:
+        description: Commit or tag to deploy
+        required: true
+        default: main
+
+permissions:
+  contents: read
+  packages: write
+
+concurrency:
+  group: pilot-production
+  cancel-in-progress: false
+
+jobs:
+  verify-build-push:
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    outputs:
+      image_tag: ${{ steps.meta.outputs.tag }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.ref }}
+
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: "10.0.x"
+
+      - name: Test backend
+        working-directory: backend
+        run: |
+          dotnet restore FinanzasInteligentes.sln
+          dotnet test FinanzasInteligentes.sln -c Release --no-restore
+
+      - id: meta
+        name: Select immutable image tag
+        run: echo "tag=${GITHUB_SHA}" >> "$GITHUB_OUTPUT"
+
+      - name: Login to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build and push images
+        env:
+          REGISTRY: ghcr.io/${{ github.repository_owner }}
+          TAG: ${{ steps.meta.outputs.tag }}
+        run: |
+          docker build -f backend/Dockerfile.Api -t "$REGISTRY/finanzas-api:$TAG" .
+          docker build -f backend/Dockerfile.Worker -t "$REGISTRY/finanzas-worker:$TAG" .
+          docker build -f backend/Dockerfile.Migrator -t "$REGISTRY/finanzas-migrator:$TAG" .
+          docker push "$REGISTRY/finanzas-api:$TAG"
+          docker push "$REGISTRY/finanzas-worker:$TAG"
+          docker push "$REGISTRY/finanzas-migrator:$TAG"
+
+  deploy:
+    needs: verify-build-push
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    environment: pilot
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.ref }}
+
+      - name: Configure SSH
+        env:
+          SSH_PRIVATE_KEY: ${{ secrets.PILOT_SSH_PRIVATE_KEY }}
+          SSH_KNOWN_HOSTS: ${{ secrets.PILOT_SSH_KNOWN_HOSTS }}
+        run: |
+          install -m 700 -d ~/.ssh
+          install -m 600 /dev/null ~/.ssh/id_ed25519
+          printf '%s\n' "$SSH_PRIVATE_KEY" > ~/.ssh/id_ed25519
+          printf '%s\n' "$SSH_KNOWN_HOSTS" > ~/.ssh/known_hosts
+
+      - name: Upload deployment definition
+        env:
+          PILOT_HOST: ${{ secrets.PILOT_HOST }}
+          PILOT_USER: ${{ secrets.PILOT_USER }}
+        run: |
+          tar -C backend/deploy -czf /tmp/finanzas-deploy.tgz \
+            compose.production.yaml nginx scripts
+          scp /tmp/finanzas-deploy.tgz "$PILOT_USER@$PILOT_HOST:/tmp/finanzas-deploy.tgz"
+          ssh "$PILOT_USER@$PILOT_HOST" \
+            "mkdir -p /opt/finanzas/deploy && tar -xzf /tmp/finanzas-deploy.tgz -C /opt/finanzas/deploy"
+
+      - name: Pull and deploy immutable images
+        env:
+          PILOT_HOST: ${{ secrets.PILOT_HOST }}
+          PILOT_USER: ${{ secrets.PILOT_USER }}
+          GHCR_READ_TOKEN: ${{ secrets.GHCR_READ_TOKEN }}
+          IMAGE_TAG: ${{ needs.verify-build-push.outputs.image_tag }}
+          REGISTRY: ghcr.io/${{ github.repository_owner }}
+        run: |
+          printf '%s' "$GHCR_READ_TOKEN" | ssh "$PILOT_USER@$PILOT_HOST" \
+            "docker login ghcr.io -u '${{ github.actor }}' --password-stdin"
+          ssh "$PILOT_USER@$PILOT_HOST" \
+            "cd /opt/finanzas/deploy && \
+             sed -i.bak \
+               -e 's|^API_IMAGE=.*|API_IMAGE=$REGISTRY/finanzas-api:$IMAGE_TAG|' \
+               -e 's|^WORKER_IMAGE=.*|WORKER_IMAGE=$REGISTRY/finanzas-worker:$IMAGE_TAG|' \
+               -e 's|^MIGRATOR_IMAGE=.*|MIGRATOR_IMAGE=$REGISTRY/finanzas-migrator:$IMAGE_TAG|' \
+               .env.production && \
+             ./scripts/deploy.sh"

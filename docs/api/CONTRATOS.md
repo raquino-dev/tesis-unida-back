@@ -342,9 +342,7 @@ El desafío es de un solo uso, está ligado a usuario, credencial, dispositivo y
 
 ```json
 {
-  "nombre": "Itaú Mastercard",
-  "emisor": "Itaú",
-  "ultimosCuatro": "1234",
+  "alias": "Compras del hogar",
   "cuentaPagoId": "019b-account-...",
   "diaCierre": 20,
   "diaVencimiento": 5,
@@ -357,9 +355,7 @@ El desafío es de un solo uso, está ligado a usuario, credencial, dispositivo y
 ```json
 {
   "id": "019b-card-...",
-  "nombre": "Itaú Mastercard",
-  "emisor": "Itaú",
-  "ultimosCuatro": "1234",
+  "alias": "Compras del hogar",
   "cuentaPago": { "id": "019b-account-...", "nombre": "Caja de ahorro", "tipo": "cuenta-ahorro" },
   "diaCierre": 20,
   "diaVencimiento": 5,
@@ -481,6 +477,8 @@ XML SIFEN utiliza `tipo: "sifen"` y completa `cdcSifen`, timbrado, RUC, número 
 ### MovimientoRecurrenteResponse
 
 Agrega `id`, `ocurrenciasCompletadas`, `proximaEjecucion`, `estado` y `version`.
+El `PATCH` también acepta `estado: "activa" | "pausada" | "finalizada"` para
+pausar, reanudar o finalizar la recurrencia con control `If-Match`.
 
 ```json
 {

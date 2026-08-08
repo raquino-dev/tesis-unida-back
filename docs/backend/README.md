@@ -10,6 +10,7 @@ La implementación inicial se encuentra en [`backend`](../../backend/README.md) 
 - [Arquitectura técnica](ARQUITECTURA_TECNICA.md)
 - [Modelo de datos y migraciones PostgreSQL](MIGRACIONES_POSTGRESQL.md)
 - [Plan de implementación por etapas](PLAN_IMPLEMENTACION.md)
+- [Identidad, OTP, sesiones y biometría](IDENTIDAD_Y_SEGURIDAD.md)
 - [Contrato REST](../api/README.md)
 - [Trazabilidad no funcional](../api/TRAZABILIDAD_RNF.md)
 
@@ -22,7 +23,7 @@ La primera versión será un **monolito modular**, no un conjunto de microservic
 - una API ASP.NET Core .NET 10;
 - un Worker .NET 10 desplegable por separado;
 - PostgreSQL administrado en Supabase para el piloto, con un esquema por módulo;
-- Redis para caché y coordinación efímera;
+- PostgreSQL/outbox para coordinación durable; Redis queda diferido por métricas;
 - Amazon S3 privado para documentos;
 - Amazon SES para correo;
 - patrón outbox y cola persistente en PostgreSQL al inicio.
@@ -52,6 +53,6 @@ Esta forma de despliegue mantiene simples las transacciones financieras y la ope
 | Identificadores | UUID v7 generados por la aplicación |
 | Dinero en PYG | `bigint`, sin decimales |
 | Archivos | Objetos privados en S3; PostgreSQL conserva sólo metadatos |
-| Desarrollo local | PostgreSQL, Redis y MinIO mediante Docker Compose |
-| Despliegue piloto | Hetzner CX33, Docker Compose, systemd, Nginx y Cloudflare |
+| Desarrollo local | PostgreSQL y almacenamiento local mediante Docker Compose |
+| Despliegue piloto | AWS Lightsail North Virginia, Docker Compose, systemd, Nginx y Cloudflare |
 | Eliminación financiera | Anulación o compensación; no borrado físico |

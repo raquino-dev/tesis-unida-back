@@ -1,6 +1,8 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <ItemGroup>
+    <PackageReference Include="AWSSDK.S3" />
     <PackageReference Include="AWSSDK.SimpleEmailV2" />
+    <PackageReference Include="AWSSDK.Textract" />
     <PackageReference Include="Google.Apis.AndroidPublisher.v3" />
     <FrameworkReference Include="Microsoft.AspNetCore.App" />
   </ItemGroup>

@@ -12,3 +12,19 @@ public interface IArchivoStorage
 
     bool ValidarUrl(string clave, long expiraUnix, string firma);
 }
+
+public sealed record ResultadoOcrDocumento(
+    long? Monto,
+    DateOnly? Fecha,
+    string? Comercio,
+    double Confianza,
+    IReadOnlyCollection<string> Advertencias);
+
+public interface IProcesadorOcrDocumento
+{
+    bool Habilitado { get; }
+
+    Task<ResultadoOcrDocumento> Procesar(
+        Stream contenido,
+        CancellationToken ct);
+}

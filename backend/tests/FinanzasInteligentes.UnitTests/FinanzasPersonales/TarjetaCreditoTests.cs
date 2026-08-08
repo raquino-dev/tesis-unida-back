@@ -11,18 +11,18 @@ public sealed class TarjetaCreditoTests
         var tarjeta = Crear();
 
         Assert.Equal(15_000_000, tarjeta.CreditoDisponible);
-        Assert.Equal("1234", tarjeta.UltimosCuatro);
+        Assert.Equal("Compras del hogar", tarjeta.Alias);
         Assert.Equal(1, tarjeta.Version);
     }
 
     [Fact]
-    public void CrearRechazaUltimosCuatroInvalidos()
+    public void CrearRechazaAliasVacio()
     {
         var exception = Assert.Throws<DomainException>(() => TarjetaCredito.Crear(
-            Guid.CreateVersion7(), "Tarjeta", "Banco", "12A4", Guid.CreateVersion7(),
+            Guid.CreateVersion7(), " ", Guid.CreateVersion7(),
             20, 5, 1_000_000, "PYG", "#6868A6"));
 
-        Assert.Equal("ultimos_cuatro_invalidos", exception.Code);
+        Assert.Equal("alias_invalido", exception.Code);
     }
 
     [Fact]
@@ -31,10 +31,10 @@ public sealed class TarjetaCreditoTests
         var tarjeta = Crear();
 
         tarjeta.Actualizar(
-            "Tarjeta nueva", null, null, null, 21, null, 20_000_000, null, null);
+            "Tarjeta nueva", null, 21, null, 20_000_000, null, null);
         tarjeta.Eliminar();
 
-        Assert.Equal("Tarjeta nueva", tarjeta.Nombre);
+        Assert.Equal("Tarjeta nueva", tarjeta.Alias);
         Assert.Equal(20_000_000, tarjeta.LimiteCredito);
         Assert.NotNull(tarjeta.EliminadoEn);
         Assert.Equal(3, tarjeta.Version);
@@ -42,6 +42,6 @@ public sealed class TarjetaCreditoTests
 
     private static TarjetaCredito Crear() =>
         TarjetaCredito.Crear(
-            Guid.CreateVersion7(), "Itaú Mastercard", "Itaú", "1234",
+            Guid.CreateVersion7(), "Compras del hogar",
             Guid.CreateVersion7(), 20, 5, 15_000_000, "PYG", "#6868A6");
 }

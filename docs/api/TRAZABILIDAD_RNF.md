@@ -24,9 +24,9 @@ Esta matriz convierte los RNF del alcance formal en criterios medibles. Un estad
 | RNF-07 Separación privado/familiar | Propiedad y ámbito son inequívocos; no hay filtraciones cruzadas | Pruebas de autorización, FKs/constraints y revisión UI `CT-RNF-07` | 2–4 | parcial |
 | RNF-08 Almacenamiento documental seguro | Objetos privados en S3; acceso sólo mediante URL temporal autorizada | Pruebas de carga, acceso cruzado, expiración, cifrado y eliminación `CT-RNF-08` | 5 | diseñado |
 | RNF-09 Base relacional | Toda información transaccional estructurada persiste en PostgreSQL | Migración desde base vacía e integración sobre PostgreSQL/Supabase `CT-RNF-09` | 0–8 | parcial |
-| RNF-10 Caché | Sólo lecturas repetitivas elegibles usan Redis; invalidación no altera la fuente de verdad | Métricas hit/miss y pruebas de invalidación/fallback `CT-RNF-10` | 6 | diseñado |
+| RNF-10 Caché | El piloto opera sin caché externa; Redis sólo se incorpora ante un cuello de botella medido | Evidencia de latencia/carga y decisión de mantener o incorporar caché `CT-RNF-10` | 8 | diferido por decisión |
 | RNF-11 Modularidad | Dominio no depende de API/Infraestructura y endpoints no acceden directamente a EF | `FinanzasInteligentes.ArchitectureTests` en cada build `CT-RNF-11` | 0–8 | verificado |
-| RNF-12 VPS/containers | Todo el sistema inicia desde Docker Compose con configuración externa | `docker compose config`, arranque limpio y despliegue documentado en Hetzner `CT-RNF-12` | 0–8 | parcial |
+| RNF-12 VPS/containers | Todo el sistema inicia desde Docker Compose con configuración externa | `docker compose config`, arranque limpio y despliegue documentado en Lightsail `CT-RNF-12` | 0–8 | parcial |
 | RNF-13 Reverse proxy | API sólo se expone mediante Nginx/TLS y conserva IP/correlation headers controlados | Prueba de configuración Nginx, TLS y acceso directo bloqueado `CT-RNF-13` | 8 | diseñado |
 | RNF-14 Escalabilidad progresiva | API sin estado local durable y Worker escalable sin reclamar dos veces el mismo trabajo | Prueba con dos réplicas y outbox con lease/deduplicación `CT-RNF-14` | 0–8 | parcial |
 | RNF-15 Piloto suficiente | Los diez participantes completan los flujos definidos sin bloqueo crítico | Acta del piloto, incidencias y encuestas pre/post `EV-RNF-15` | Piloto | diseñado |

@@ -27,6 +27,16 @@ public sealed class IdentidadRepository(FinanzasDbContext db) : IIdentidadReposi
             x => x.Id == usuarioId && x.Estado == "activo" && x.AnonimizadoEn == null,
             cancellationToken);
 
+    public Task<bool> SesionEstaActiva(
+        Guid usuarioId, Guid sesionId, CancellationToken cancellationToken) =>
+        db.Sesiones.AsNoTracking().AnyAsync(
+            x => x.Id == sesionId &&
+                x.UsuarioId == usuarioId &&
+                x.UsadoEn == null &&
+                x.RevocadoEn == null &&
+                x.ExpiraEn > DateTimeOffset.UtcNow,
+            cancellationToken);
+
     public async Task<IReadOnlyCollection<Usuario>> ListarUsuarios(
         string? estado,
         string? busqueda,
@@ -74,7 +84,10 @@ public sealed class IdentidadRepository(FinanzasDbContext db) : IIdentidadReposi
         Guid usuarioId,
         CancellationToken cancellationToken) =>
         await db.Sesiones.AsNoTracking()
-            .Where(x => x.UsuarioId == usuarioId && x.RevocadoEn == null && x.ExpiraEn > DateTimeOffset.UtcNow)
+            .Where(x => x.UsuarioId == usuarioId &&
+                x.UsadoEn == null &&
+                x.RevocadoEn == null &&
+                x.ExpiraEn > DateTimeOffset.UtcNow)
             .OrderByDescending(x => x.CreadoEn)
             .ToListAsync(cancellationToken);
 
@@ -92,6 +105,19 @@ public sealed class IdentidadRepository(FinanzasDbContext db) : IIdentidadReposi
         CancellationToken cancellationToken)
     {
         var ahora = DateTimeOffset.UtcNow;
+        var conocida = await db.Sesiones.AsNoTracking().SingleOrDefaultAsync(
+            x => x.HashRefreshToken == hashRefreshToken, cancellationToken);
+        if (conocida is null) return null;
+
+        if (conocida.IdentificadorDispositivo != identificadorDispositivo ||
+            conocida.UsadoEn is not null ||
+            conocida.RevocadoEn is not null)
+        {
+            await RevocarFamiliaSesiones(
+                conocida.UsuarioId, conocida.FamiliaToken, cancellationToken);
+            return null;
+        }
+
         var actualizadas = await db.Sesiones
             .Where(x =>
                 x.HashRefreshToken == hashRefreshToken &&
@@ -103,10 +129,13 @@ public sealed class IdentidadRepository(FinanzasDbContext db) : IIdentidadReposi
                 setters => setters.SetProperty(x => x.UsadoEn, ahora),
                 cancellationToken);
 
-        return actualizadas == 1
-            ? await db.Sesiones.AsNoTracking().SingleAsync(
-                x => x.HashRefreshToken == hashRefreshToken, cancellationToken)
-            : null;
+        if (actualizadas == 1)
+            return await db.Sesiones.AsNoTracking().SingleAsync(
+                x => x.HashRefreshToken == hashRefreshToken, cancellationToken);
+
+        await RevocarFamiliaSesiones(
+            conocida.UsuarioId, conocida.FamiliaToken, cancellationToken);
+        return null;
     }
 
     public void Agregar(Usuario usuario) => db.Usuarios.Add(usuario);
@@ -145,6 +174,16 @@ public sealed class IdentidadRepository(FinanzasDbContext db) : IIdentidadReposi
 
     public Task RevocarSesiones(Guid usuarioId, CancellationToken cancellationToken) =>
         db.Sesiones.Where(x => x.UsuarioId == usuarioId && x.RevocadoEn == null)
+            .ExecuteUpdateAsync(
+                setters => setters.SetProperty(x => x.RevocadoEn, DateTimeOffset.UtcNow),
+                cancellationToken);
+
+    public Task RevocarFamiliaSesiones(
+        Guid usuarioId, Guid familiaToken, CancellationToken cancellationToken) =>
+        db.Sesiones
+            .Where(x => x.UsuarioId == usuarioId &&
+                x.FamiliaToken == familiaToken &&
+                x.RevocadoEn == null)
             .ExecuteUpdateAsync(
                 setters => setters.SetProperty(x => x.RevocadoEn, DateTimeOffset.UtcNow),
                 cancellationToken);

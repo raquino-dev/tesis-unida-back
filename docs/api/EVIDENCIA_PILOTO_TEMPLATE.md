@@ -14,9 +14,11 @@ Estado: pendiente de ejecución
 ## Participantes y privacidad
 
 - cantidad de participantes:
+- cantidad que completó:
 - versión de política aceptada:
 - evidencia anonimizada de consentimiento:
 - período del piloto:
+- duración efectiva:
 
 ## Resultados funcionales
 
@@ -24,9 +26,29 @@ Estado: pendiente de ejecución
 |---|---:|---:|---:|---|
 | Registro y sesión | | | | |
 | Finanzas personales | | | | |
+| Tarjetas por alias | | | | |
+| Transferencias internas | | | | |
+| Recurrencias | | | | |
 | Familia | | | | |
 | Suscripción Google Play | | | | |
+| Notificaciones FCM | | | | |
+| Indicador de salud financiera | | | | |
 | Documentos/exportación | | | | |
+
+## Proveedores externos
+
+| Proveedor | Escenarios ejecutados | Resultado | Evidencia anonimizada |
+|---|---|---|---|
+| Google Play Billing | aprobada, rechazada, pendiente, renovación, cancelación, restauración | | |
+| Firebase Cloud Messaging | foreground, background, aplicación cerrada | | |
+| Amazon Textract | total, fecha, comercio, corrección | | |
+| Amazon SES | OTP y recuperación | | |
+
+## Privacidad de tarjetas
+
+- consultas o formularios que solicitan datos del plástico:
+- columnas o payloads con emisor/últimos cuatro/PAN/CVV/expiración:
+- resultado esperado: cero;
 
 ## RNF
 

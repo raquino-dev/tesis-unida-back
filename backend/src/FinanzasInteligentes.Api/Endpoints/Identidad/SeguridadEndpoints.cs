@@ -8,11 +8,15 @@ public static class SeguridadEndpoints
 {
     public static IEndpointRouteBuilder MapSeguridad(this IEndpointRouteBuilder endpoints)
     {
-        endpoints.MapPost("/desafios-otp", CrearDesafio).WithTags("Seguridad OTP");
-        endpoints.MapPost("/verificaciones-otp", VerificarOtp).WithTags("Seguridad OTP");
+        endpoints.MapPost("/desafios-otp", CrearDesafio)
+            .RequireRateLimiting("otp").WithTags("Seguridad OTP");
+        endpoints.MapPost("/verificaciones-otp", VerificarOtp)
+            .RequireRateLimiting("otp").WithTags("Seguridad OTP");
         endpoints.MapPost("/recuperaciones-contrasena", SolicitarRecuperacion)
+            .RequireRateLimiting("recuperacion-contrasena")
             .AllowAnonymous().WithTags("Contraseñas");
         endpoints.MapPost("/restablecimientos-contrasena", RestablecerContrasena)
+            .RequireRateLimiting("recuperacion-contrasena")
             .AllowAnonymous().WithTags("Contraseñas");
         endpoints.MapPut("/perfil/contrasena", CambiarContrasena).WithTags("Contraseñas");
         return endpoints;

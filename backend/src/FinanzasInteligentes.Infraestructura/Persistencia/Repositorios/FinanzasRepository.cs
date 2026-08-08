@@ -94,13 +94,13 @@ public sealed class FinanzasRepository(FinanzasDbContext db) : IFinanzasReposito
             cancellationToken);
     }
 
-    public Task<bool> ExisteTarjetaCreditoConNombre(
+    public Task<bool> ExisteTarjetaCreditoConAlias(
         Guid usuarioId,
-        string nombre,
+        string alias,
         Guid? exceptoTarjetaId,
         CancellationToken cancellationToken) =>
         db.TarjetasCredito.AnyAsync(
-            x => x.UsuarioId == usuarioId && x.Nombre == nombre &&
+            x => x.UsuarioId == usuarioId && x.Alias == alias &&
                 x.EliminadoEn == null &&
                 (exceptoTarjetaId == null || x.Id != exceptoTarjetaId),
             cancellationToken);

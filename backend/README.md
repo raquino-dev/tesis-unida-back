@@ -50,18 +50,25 @@ Los endpoints sólo realizan binding HTTP y delegan en un handler. Los handlers 
 
 ## Estado funcional
 
-El primer incremento recomendado en `PLAN_IMPLEMENTACION.md` está iniciado y compilable:
+La solución está compilable y contiene las verticales de backend previstas por el
+contrato. Entre las capacidades verificadas localmente se encuentran:
 
 - fundación de API, Worker, persistencia, JWT, correlación, ProblemDetails, rate limiting y health checks;
-- registro, inicio de sesión y consulta de perfil;
+- registro, inicio de sesión, refresh rotativo, revocación y consulta de perfil;
+- OTP, recuperación/cambio de contraseña, sesiones, dispositivos y auditoría;
 - altas y consultas de cuentas y categorías;
 - altas, consultas y anulaciones de movimientos;
 - transacción de movimiento + saldo + outbox;
 - concurrencia optimista mediante `ETag`/`If-Match`;
 - migración EF inicial para los esquemas `identidad`, `finanzas` e `infra`;
-- PostgreSQL, Redis y MinIO preparados para desarrollo local mediante Docker Compose.
+- PostgreSQL preparado para desarrollo local mediante Docker Compose y almacenamiento
+  intercambiable local/S3;
+- verificación de Google Play Billing, RTDN y envío push FCM HTTP v1 mediante outbox.
 
-Los módulos Familia, Documentos, Analítica, Suscripciones, Notificaciones, OTP/biometría y las operaciones restantes del OpenAPI continúan en las etapas 1–7 del plan. No se exponen rutas ficticias: una ruta se incorpora cuando posee migración, dominio, caso de uso y prueba.
+La activación de credenciales reales de proveedores, la evidencia sobre PostgreSQL
+desplegado y las validaciones del piloto continúan según el roadmap. El detalle del bloque de
+seguridad está en
+[`IDENTIDAD_Y_SEGURIDAD.md`](../docs/backend/IDENTIDAD_Y_SEGURIDAD.md).
 
 ## Requisitos
 
@@ -88,6 +95,23 @@ export Archivos__SigningKey='otro-secreto-aleatorio-de-al-menos-32-bytes'
 export Seguridad__TokenPushKey='un-tercer-secreto-aleatorio-de-al-menos-32-bytes'
 dotnet run --project src/FinanzasInteligentes.Api
 ```
+
+Para el Worker del piloto, Google Play y Firebase usan Application Default
+Credentials de una cuenta de servicio, configurada fuera del repositorio:
+
+```bash
+export GOOGLE_APPLICATION_CREDENTIALS='/ruta/segura/cuenta-servicio.json'
+export GooglePlay__Habilitado='true'
+export GooglePlay__PackageName='com.tesis.finanzasinteligentes'
+export GooglePlay__Productos__premium-mensual='premium_monthly'
+export GooglePlay__Productos__premium-anual='premium_yearly'
+export Firebase__Habilitado='true'
+export Firebase__ProjectId='id-del-proyecto-firebase'
+```
+
+La cuenta necesita permisos mínimos para Android Publisher y FCM HTTP v1.
+`Seguridad__TokenPushKey` cifra los tokens FCM en PostgreSQL y debe conservarse
+estable entre API y Worker.
 
 Aplicar migraciones con una identidad separada:
 
@@ -117,12 +141,17 @@ La configuración de HTTPS detrás de Nginx, encabezados reenviados y claves per
 
 El inventario de secretos, su inicialización local y las reglas de rotación se encuentran en [`SECRETOS_Y_CONFIGURACION.md`](../docs/backend/SECRETOS_Y_CONFIGURACION.md).
 
-Este Compose es el ambiente local. El piloto sustituye PostgreSQL local por Supabase y MinIO por Amazon S3, añade Amazon SES y despliega API/Worker en Hetzner CX33 detrás de Nginx y Cloudflare, con inicio supervisado por systemd. Esas piezas permanecen pendientes según [`TRAZABILIDAD_RNF.md`](../docs/api/TRAZABILIDAD_RNF.md).
+Este Compose es el ambiente local. El piloto sustituye PostgreSQL local por Supabase,
+usa Amazon S3, Textract y SES en `us-east-1`, y despliega API/Worker en AWS Lightsail
+North Virginia detrás de Nginx y Cloudflare, con inicio supervisado por systemd. La
+definición ejecutable está en `deploy/compose.production.yaml`.
 
 ## Decisiones de seguridad
 
 - La clave JWT y las contraseñas de infraestructura sólo se reciben por configuración externa.
 - Las contraseñas de usuario se guardan mediante `PasswordHasher`.
 - Los refresh tokens se generan con entropía criptográfica y sólo se persiste SHA-256.
+- Los códigos OTP y tokens de recuperación se persisten mediante HMAC-SHA-256 v1.
+- Una sesión revocada deja de autorizar peticiones aunque su JWT no haya expirado.
 - Las consultas filtran siempre por el usuario autenticado.
 - Los cambios financieros y el outbox comparten una transacción.

@@ -46,6 +46,25 @@ public sealed class MovimientosRecurrentesTests
     }
 
     [Fact]
+    public void RecurrenciaPuedePausarseYReanudarsePeroNoReabrirseAlFinalizar()
+    {
+        var usuarioId = Guid.CreateVersion7();
+        var categoria = Categoria.Crear(usuarioId, "Servicios", "gasto");
+        var recurrencia = MovimientoRecurrente.Crear(
+            usuarioId, Guid.CreateVersion7(), "gasto", 180_000, "Internet",
+            new DateOnly(2026, 7, 1), null, "mensual", null, [categoria]);
+
+        recurrencia.CambiarEstado("pausada");
+        recurrencia.CambiarEstado("activa");
+        recurrencia.CambiarEstado("finalizada");
+
+        var exception = Assert.Throws<DomainException>(
+            () => recurrencia.CambiarEstado("activa"));
+        Assert.Equal("recurrencia_finalizada", exception.Code);
+        Assert.Equal("finalizada", recurrencia.Estado);
+    }
+
+    [Fact]
     public void MovimientoRecurrenteExigePeriodoYRecurrenciaJuntos()
     {
         Assert.Throws<DomainException>(() => Movimiento.Crear(

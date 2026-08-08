@@ -34,15 +34,16 @@ public sealed record MovimientoResponse(
     DateOnly Fecha,
     string Estado,
     DateTimeOffset CreadoEn,
-    long Version);
+    long Version,
+    IReadOnlyCollection<Guid> CategoriaIds,
+    Guid? DocumentoId,
+    Guid? MovimientoRecurrenteId);
 
 public sealed record CuentaPagoTarjetaResponse(Guid Id, string Nombre, string Tipo);
 
 public sealed record TarjetaCreditoResponse(
     Guid Id,
-    string Nombre,
-    string Emisor,
-    string UltimosCuatro,
+    string Alias,
     CuentaPagoTarjetaResponse CuentaPago,
     long DiaCierre,
     long DiaVencimiento,

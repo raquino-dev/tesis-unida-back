@@ -11,9 +11,7 @@ public sealed partial class TarjetaCredito : MutableEntity
 
     public Guid UsuarioId { get; private set; }
     public Guid CuentaPagoId { get; private set; }
-    public string Nombre { get; private set; } = string.Empty;
-    public string Emisor { get; private set; } = string.Empty;
-    public string UltimosCuatro { get; private set; } = string.Empty;
+    public string Alias { get; private set; } = string.Empty;
     public long DiaCierre { get; private set; }
     public long DiaVencimiento { get; private set; }
     public long LimiteCredito { get; private set; }
@@ -26,9 +24,7 @@ public sealed partial class TarjetaCredito : MutableEntity
 
     public static TarjetaCredito Crear(
         Guid usuarioId,
-        string nombre,
-        string emisor,
-        string ultimosCuatro,
+        string alias,
         Guid cuentaPagoId,
         long diaCierre,
         long diaVencimiento,
@@ -36,14 +32,12 @@ public sealed partial class TarjetaCredito : MutableEntity
         string moneda,
         string color)
     {
-        Validar(usuarioId, nombre, emisor, ultimosCuatro, cuentaPagoId, diaCierre,
+        Validar(usuarioId, alias, cuentaPagoId, diaCierre,
             diaVencimiento, limiteCredito, moneda, color);
         return new()
         {
             UsuarioId = usuarioId,
-            Nombre = nombre.Trim(),
-            Emisor = emisor.Trim(),
-            UltimosCuatro = ultimosCuatro,
+            Alias = alias.Trim(),
             CuentaPagoId = cuentaPagoId,
             DiaCierre = diaCierre,
             DiaVencimiento = diaVencimiento,
@@ -54,9 +48,7 @@ public sealed partial class TarjetaCredito : MutableEntity
     }
 
     public void Actualizar(
-        string? nombre,
-        string? emisor,
-        string? ultimosCuatro,
+        string? alias,
         Guid? cuentaPagoId,
         long? diaCierre,
         long? diaVencimiento,
@@ -64,15 +56,13 @@ public sealed partial class TarjetaCredito : MutableEntity
         string? moneda,
         string? color)
     {
-        if (nombre is null && emisor is null && ultimosCuatro is null && cuentaPagoId is null &&
+        if (alias is null && cuentaPagoId is null &&
             diaCierre is null && diaVencimiento is null && limiteCredito is null &&
             moneda is null && color is null)
             throw new DomainException(
                 "actualizacion_vacia", "Debe indicar al menos un campo para actualizar.");
 
-        var nuevoNombre = nombre ?? Nombre;
-        var nuevoEmisor = emisor ?? Emisor;
-        var nuevosUltimosCuatro = ultimosCuatro ?? UltimosCuatro;
+        var nuevoAlias = alias ?? Alias;
         var nuevaCuentaPagoId = cuentaPagoId ?? CuentaPagoId;
         var nuevoDiaCierre = diaCierre ?? DiaCierre;
         var nuevoDiaVencimiento = diaVencimiento ?? DiaVencimiento;
@@ -80,12 +70,10 @@ public sealed partial class TarjetaCredito : MutableEntity
         var nuevaMoneda = moneda ?? Moneda;
         var nuevoColor = color ?? Color;
 
-        Validar(UsuarioId, nuevoNombre, nuevoEmisor, nuevosUltimosCuatro, nuevaCuentaPagoId,
+        Validar(UsuarioId, nuevoAlias, nuevaCuentaPagoId,
             nuevoDiaCierre, nuevoDiaVencimiento, nuevoLimite, nuevaMoneda, nuevoColor);
 
-        Nombre = nuevoNombre.Trim();
-        Emisor = nuevoEmisor.Trim();
-        UltimosCuatro = nuevosUltimosCuatro;
+        Alias = nuevoAlias.Trim();
         CuentaPagoId = nuevaCuentaPagoId;
         DiaCierre = nuevoDiaCierre;
         DiaVencimiento = nuevoDiaVencimiento;
@@ -104,9 +92,7 @@ public sealed partial class TarjetaCredito : MutableEntity
 
     private static void Validar(
         Guid usuarioId,
-        string nombre,
-        string emisor,
-        string ultimosCuatro,
+        string alias,
         Guid cuentaPagoId,
         long diaCierre,
         long diaVencimiento,
@@ -118,13 +104,8 @@ public sealed partial class TarjetaCredito : MutableEntity
             throw new DomainException("usuario_invalido", "El usuario es requerido.");
         if (cuentaPagoId == Guid.Empty)
             throw new DomainException("cuenta_pago_invalida", "La cuenta de pago es requerida.");
-        if (string.IsNullOrWhiteSpace(nombre) || nombre.Trim().Length > 120)
-            throw new DomainException("nombre_invalido", "El nombre no es válido.");
-        if (string.IsNullOrWhiteSpace(emisor) || emisor.Trim().Length > 120)
-            throw new DomainException("emisor_invalido", "El emisor no es válido.");
-        if (!UltimosCuatroRegex().IsMatch(ultimosCuatro))
-            throw new DomainException(
-                "ultimos_cuatro_invalidos", "Los últimos cuatro deben contener cuatro dígitos.");
+        if (string.IsNullOrWhiteSpace(alias) || alias.Trim().Length > 120)
+            throw new DomainException("alias_invalido", "El alias no es válido.");
         if (diaCierre is < 1 or > 31 || diaVencimiento is < 1 or > 31)
             throw new DomainException("dia_invalido", "Los días deben estar entre 1 y 31.");
         if (limiteCredito < 0)
@@ -135,9 +116,6 @@ public sealed partial class TarjetaCredito : MutableEntity
         if (!ColorRegex().IsMatch(color))
             throw new DomainException("color_invalido", "El color debe tener el formato #RRGGBB.");
     }
-
-    [GeneratedRegex(@"^\d{4}$", RegexOptions.CultureInvariant)]
-    private static partial Regex UltimosCuatroRegex();
 
     [GeneratedRegex("^#[0-9A-Fa-f]{6}$", RegexOptions.CultureInvariant)]
     private static partial Regex ColorRegex();

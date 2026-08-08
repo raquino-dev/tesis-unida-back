@@ -11,6 +11,8 @@ public interface IIdentidadRepository
 
     Task<Usuario?> ObtenerUsuario(Guid usuarioId, bool soloLectura, CancellationToken cancellationToken);
     Task<bool> UsuarioEstaActivo(Guid usuarioId, CancellationToken cancellationToken);
+    Task<bool> SesionEstaActiva(
+        Guid usuarioId, Guid sesionId, CancellationToken cancellationToken);
 
     Task<IReadOnlyCollection<Usuario>> ListarUsuarios(
         string? estado, string? busqueda, int limite, CancellationToken cancellationToken);
@@ -41,6 +43,8 @@ public interface IIdentidadRepository
         string hashToken, CancellationToken cancellationToken);
 
     Task RevocarSesiones(Guid usuarioId, CancellationToken cancellationToken);
+    Task RevocarFamiliaSesiones(
+        Guid usuarioId, Guid familiaToken, CancellationToken cancellationToken);
 
     Task<EliminacionPerfil?> ObtenerEliminacionPerfil(
         Guid usuarioId, Guid eliminacionId, bool soloLectura, CancellationToken cancellationToken);

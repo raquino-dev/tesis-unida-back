@@ -1,5 +1,6 @@
 using FinanzasInteligentes.Dominio.Excepciones;
 using FinanzasInteligentes.Dominio.Identidad;
+using FinanzasInteligentes.Dominio.Infraestructura.Entidades;
 using System.Security.Cryptography;
 using System.Text;
 
@@ -69,6 +70,20 @@ public sealed class SeguridadTests
         Assert.StartsWith($"anon-{usuario.Id:N}@", usuario.Correo);
         Assert.NotNull(usuario.AnonimizadoEn);
         Assert.Equal(3, usuario.Version);
+    }
+
+    [Fact]
+    public void OutboxEliminaOtpLuegoDeProcesarlo()
+    {
+        var evento = EventoOutbox.Crear(
+            "otp.solicitado", "desafio-otp", Guid.CreateVersion7(),
+            new { Codigo = "123456" }, "correlation");
+
+        evento.MarcarProcesado(eliminarPayloadSensible: true);
+
+        Assert.Equal("procesado", evento.Estado);
+        Assert.True(evento.Payload.RootElement.GetProperty("redactado").GetBoolean());
+        Assert.False(evento.Payload.RootElement.TryGetProperty("Codigo", out _));
     }
 
     private static DesafioOtp CrearDesafio(string codigo) =>

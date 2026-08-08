@@ -4,7 +4,9 @@
     <CentralPackageTransitivePinningEnabled>true</CentralPackageTransitivePinningEnabled>
   </PropertyGroup>
   <ItemGroup>
+    <PackageVersion Include="AWSSDK.S3" Version="4.0.101.6" />
     <PackageVersion Include="AWSSDK.SimpleEmailV2" Version="4.0.7" />
+    <PackageVersion Include="AWSSDK.Textract" Version="4.0.100.7" />
     <PackageVersion Include="Google.Apis.AndroidPublisher.v3" Version="1.75.0.4193" />
     <PackageVersion Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="10.0.3" />
     <PackageVersion Include="Microsoft.EntityFrameworkCore" Version="10.0.8" />

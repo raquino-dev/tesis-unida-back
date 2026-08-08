@@ -1,0 +1,32 @@
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Sid": "PilotDocumentObjects",
+      "Effect": "Allow",
+      "Action": [
+        "s3:GetObject",
+        "s3:PutObject",
+        "s3:DeleteObject"
+      ],
+      "Resource": "arn:aws:s3:::REPLACE_DOCUMENT_BUCKET/piloto/*"
+    },
+    {
+      "Sid": "PilotTextract",
+      "Effect": "Allow",
+      "Action": "textract:AnalyzeExpense",
+      "Resource": "*"
+    },
+    {
+      "Sid": "PilotSes",
+      "Effect": "Allow",
+      "Action": "ses:SendEmail",
+      "Resource": "*",
+      "Condition": {
+        "StringEquals": {
+          "ses:FromAddress": "REPLACE_VERIFIED_FROM_ADDRESS"
+        }
+      }
+    }
+  ]
+}

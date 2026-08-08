@@ -6,3 +6,9 @@ public interface ISeguridadFlujosConfiguracion
     int VerificacionOtpMinutos { get; }
     int RecuperacionContrasenaMinutos { get; }
 }
+
+public interface IHasherTokenUnSoloUso
+{
+    string Version { get; }
+    string Hash(string value);
+}

@@ -1,12 +1,12 @@
 # Alcance y requisitos del sistema
 
-Este documento consolida el alcance formal del proyecto para la aplicación móvil Finanzas Inteligentes y funciona como referencia de producto para el contrato API, la arquitectura y el plan de implementación.
+Este documento consolida el alcance formal del proyecto para la aplicación móvil Finanzas Inteligentes y funciona como referencia de producto para el contrato API, la arquitectura y el plan de implementación. Las decisiones cerradas de proveedores, piloto y criterios de éxito se encuentran en [`DECISIONES_PILOTO.md`](DECISIONES_PILOTO.md).
 
 ## 1. Objetivo y validación
 
 El proyecto comprende el diseño e implementación de una aplicación móvil Android orientada a la gestión inteligente de gastos personales y al control financiero familiar.
 
-La validación se realizará en Asunción durante 2026 mediante una prueba piloto controlada con diez usuarios reales. Se utilizarán encuestas antes y después del uso para evaluar:
+La validación se realizará en Asunción durante 2026 mediante una prueba piloto controlada de 28 días con diez usuarios adultos. Se utilizarán encuestas antes y después del uso para evaluar:
 
 - facilidad de uso;
 - utilidad percibida;
@@ -28,14 +28,18 @@ La aplicación diferenciará finanzas privadas y familiares e incluirá:
 - dashboards y reportes por semana, mes y rango personalizado;
 - comparación entre gasto real y presupuesto;
 - movimientos recurrentes;
+- tarjetas identificadas únicamente mediante un alias, sin datos del plástico;
+- transferencias contables entre cuentas propias, sin movimiento real de dinero;
 - exportación obligatoria en PDF y Excel (`xlsx`), con CSV como formato adicional;
 - proyecciones mensuales y por categoría;
 - alertas, recomendaciones y observaciones explicables;
+- indicador de salud financiera versionado y explicable, sin finalidad crediticia;
+- notificaciones push transaccionales mediante Firebase Cloud Messaging;
 - marca `preliminar` cuando la proyección use menos de tres meses de histórico;
 - categorías predefinidas y personalizables;
 - grupos, invitaciones por identificador o correo, integrantes y eliminación;
 - JWT, refresh tokens, biometría, OTP adaptativo y auditoría básica;
-- soporte futuro para capacidades gratuitas y premium.
+- capacidades gratuitas y premium con Google Play Billing en ambiente de prueba.
 
 El creador de un grupo recibe el rol `propietario`, que representa al administrador principal mencionado en los requisitos. Puede delegar administración operativa mediante el rol `administrador`, pero continúa siendo el único autorizado para transferir la propiedad o eliminar el grupo.
 
@@ -47,16 +51,21 @@ El creador de un grupo recibe el rol `propietario`, que representa al administra
 | Backend | ASP.NET Core .NET 10 |
 | Persistencia del piloto | PostgreSQL administrado mediante Supabase |
 | Archivos | Amazon S3 privado |
-| Caché | Redis |
+| Caché | No requerida para el piloto; PostgreSQL es la fuente de verdad |
 | Correo | Amazon SES |
-| Servidor | VPS Hetzner CX33 |
+| OCR | Amazon Textract AnalyzeExpense, condicionado a evaluación local |
+| Push | Firebase Cloud Messaging |
+| Facturación | Google Play Billing con license testers |
+| Servidor | AWS Lightsail en North Virginia |
 | Contenedores | Docker Compose |
 | Supervisión | systemd |
 | Reverse proxy | Nginx |
 | DNS/protección externa | Cloudflare |
-| Distribución | Google Play, beta interna |
+| Distribución | Google Play Internal Testing |
 
-PostgreSQL, Redis y MinIO en Docker Compose son dependencias locales de desarrollo. MinIO sustituye a S3 únicamente en entornos locales. La aplicación Flutter nunca accede directamente a Supabase, Redis o S3: toda autorización y regla de negocio pasa por la API.
+PostgreSQL y MinIO pueden utilizarse como dependencias locales de desarrollo. Redis no se
+despliega mientras las mediciones no demuestren su necesidad. La aplicación Flutter nunca
+accede directamente a Supabase o S3: toda autorización y regla de negocio pasa por la API.
 
 ## 4. Exclusiones
 
@@ -65,8 +74,12 @@ Quedan fuera del alcance inicial:
 - integración directa con bancos o billeteras;
 - transferencias monetarias reales;
 - administración de fondos bancarios;
+- almacenamiento de emisor, últimos cuatro dígitos, PAN, CVV, expiración, nombre impreso, token bancario o cualquier dato del plástico;
+- cobros reales durante el piloto;
+- score crediticio o consulta de centrales de riesgo;
 - aplicación para iOS;
 - aplicación web para usuarios finales;
+- panel web administrativo;
 - entrenamiento de modelos complejos de inteligencia artificial;
 - machine learning no interpretable;
 - motor antifraude avanzado;
@@ -84,7 +97,7 @@ Las transferencias documentadas por la API representan movimientos contables ent
 | RF-02 | Recuperación y cambio de contraseña |
 | RF-03 | Creación de grupos y asignación automática del propietario/administrador principal |
 | RF-04 | Invitación, exclusión de miembros y eliminación del grupo |
-| RF-05 | Ingresos y gastos en ámbitos privado y familiar |
+| RF-05 | Cuentas, tarjetas por alias, transferencias internas, recurrencias, ingresos y gastos en ámbitos privado y familiar |
 | RF-06 | Registro manual de transacciones |
 | RF-07 | Registro mediante imagen/PDF y OCR |
 | RF-08 | Registro mediante XML de comprobantes electrónicos |
@@ -96,11 +109,11 @@ Las transferencias documentadas por la API representan movimientos contables ent
 | RF-14 | Dashboards y reportes individuales y familiares |
 | RF-15 | Exportaciones PDF y Excel |
 | RF-16 | Proyecciones mensuales y por categoría |
-| RF-17 | Alertas, recomendaciones y observaciones comprensibles |
+| RF-17 | Alertas, push transaccional, indicador de salud financiera, recomendaciones y observaciones comprensibles |
 | RF-18 | Autenticación biométrica |
 | RF-19 | OTP en acciones sensibles o riesgo alto |
 | RF-20 | Eventos de seguridad y auditoría básica |
-| RF-21 | Soporte para capacidades gratuitas y premium |
+| RF-21 | Capacidades gratuitas y premium mediante Google Play Billing en ambiente de prueba |
 
 La trazabilidad detallada está en [`api/TRAZABILIDAD_RF.md`](api/TRAZABILIDAD_RF.md).
 

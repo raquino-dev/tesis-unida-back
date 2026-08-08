@@ -79,7 +79,7 @@ public static class MovimientosRecurrentesEndpoints
             request.Tipo, request.Monto, request.CategoriaIds, request.Descripcion,
             request.FechaInicio, request.FechaFin, request.FechaFinEspecificada,
             request.Frecuencia, request.CantidadOcurrencias,
-            request.CantidadOcurrenciasEspecificada, ct);
+            request.CantidadOcurrenciasEspecificada, request.Estado, ct);
         context.Response.Headers.ETag = ETagExtensions.Formatear(response.Version);
         return Results.Ok(response);
     }

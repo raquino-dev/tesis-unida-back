@@ -24,4 +24,5 @@ public interface ISeguridadRepository
 public interface IProtectorTokenPush
 {
     string Proteger(string token);
+    string Desproteger(string tokenProtegido);
 }

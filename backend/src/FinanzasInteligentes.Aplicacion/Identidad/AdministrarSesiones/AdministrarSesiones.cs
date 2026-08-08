@@ -49,11 +49,17 @@ public sealed class RenovarSesionHandler(
     public async Task<SesionResponse> Handle(
         RenovarSesionCommand command, CancellationToken cancellationToken)
     {
+        await using var transaction = await unidadDeTrabajo.IniciarTransaccion(cancellationToken);
         var hash = Convert.ToHexStringLower(
             SHA256.HashData(Encoding.UTF8.GetBytes(command.RefreshToken)));
         var anterior = await identidad.ConsumirSesionPorRefreshToken(
-            hash, command.IdentificadorDispositivo, cancellationToken)
-            ?? throw new AuthenticationException("refresh_token_invalido", "El refresh token no es válido.");
+            hash, command.IdentificadorDispositivo, cancellationToken);
+        if (anterior is null)
+        {
+            await transaction.Confirmar(cancellationToken);
+            throw new AuthenticationException(
+                "refresh_token_invalido", "El refresh token no es válido.");
+        }
 
         var usuario = await identidad.ObtenerUsuario(anterior.UsuarioId, false, cancellationToken)
             ?? throw new AuthenticationException("usuario_no_encontrado", "El usuario no existe.");
@@ -73,6 +79,7 @@ public sealed class RenovarSesionHandler(
             anterior.PlataformaDispositivo, anterior.FamiliaToken);
         identidad.Agregar(nueva);
         await unidadDeTrabajo.GuardarCambios(cancellationToken);
+        await transaction.Confirmar(cancellationToken);
 
         return new(
             nueva.Id, token.AccessToken, token.RefreshToken, "Bearer",

@@ -13,7 +13,7 @@ Este roadmap convierte el alcance, RF-01..21 y RNF-01..25 en una secuencia ejecu
 | Procesamiento | Worker y outbox iniciales | Leases, deduplicación, reintentos, consumidores y concurrencia segura |
 | Pruebas | 8 pruebas: 3 unitarias, 1 integración de modelo, 3 arquitectura y 1 contrato | Cobertura funcional, PostgreSQL, seguridad, concurrencia, carga y móvil |
 | Aplicación móvil | No está incluida en este repositorio | Crear e integrar la aplicación Flutter Android 10+ |
-| Infraestructura piloto | Docker Compose local con PostgreSQL, Redis y MinIO | Supabase, S3, SES, Hetzner, Nginx, Cloudflare, systemd y observabilidad |
+| Infraestructura piloto | Docker Compose local con PostgreSQL | Supabase, S3, Textract, SES, Lightsail, Nginx, Cloudflare, systemd y observabilidad |
 | Evidencia RNF | Matriz y criterios definidos | Ejecutar pruebas y adjuntar resultados del ambiente objetivo |
 
 La cobertura documental no debe usarse como porcentaje de avance de implementación. Como referencia de planificación, el producto ejecutable está todavía en la fase de fundación/MVP inicial.
@@ -45,13 +45,15 @@ Las duraciones son estimaciones para una persona con dedicación completa. Inclu
 ### Hito 0 — Decisiones y gestión del proyecto
 
 **Duración estimada:** 3–5 días.
+**Estado:** decisiones de alcance y proveedores aprobadas el 29 de julio de 2026; consultar [`DECISIONES_PILOTO.md`](DECISIONES_PILOTO.md).
 
 **Acciones**
 
 - convertir RF, RNF y operaciones OpenAPI en backlog trazable;
 - definir criterios de aceptación de usabilidad y “degradación crítica”;
-- seleccionar proveedor OCR y estrategia de biometría Android;
-- decidir si las suscripciones del piloto serán simuladas o usarán Google Play Billing;
+- ejecutar el gate de 30–50 comprobantes para confirmar Amazon Textract;
+- aplicar biometría Android como reautorización local;
+- configurar Google Play Billing con license testers;
 - definir retención, anonimización, borrado y recuperación;
 - aprobar plantillas de correo, alertas y textos de consentimiento;
 - crear repositorio/flujo Git, revisión de código y CI.
@@ -94,6 +96,9 @@ Las duraciones son estimaciones para una persona con dedicación completa. Inclu
 **Duración estimada:** 2–3 semanas.  
 **RF:** RF-01, 02, 18, 19 y 20.  
 **RNF:** RNF-01, 02, 20 y 23.
+**Estado:** implementación e integración móvil completadas; resta validación con
+SES y dispositivos Android en el ambiente del piloto. Consultar
+[`backend/IDENTIDAD_Y_SEGURIDAD.md`](backend/IDENTIDAD_Y_SEGURIDAD.md).
 
 **Capacidades**
 
@@ -102,7 +107,7 @@ Las duraciones son estimaciones para una persona con dedicación completa. Inclu
 - recuperación/restablecimiento sin enumeración de usuarios;
 - dispositivos confiables;
 - desafío y verificación OTP con HMAC versionado;
-- registro, desafío y revocación de credenciales biométricas;
+- reautorización biométrica local sin almacenar credenciales biométricas en backend;
 - eventos de seguridad y auditoría;
 - eliminación/anonimización de perfil;
 - rate limits específicos por riesgo y operación.
@@ -125,6 +130,9 @@ Las duraciones son estimaciones para una persona con dedicación completa. Inclu
 **Duración estimada:** 3–4 semanas.  
 **RF:** RF-05, 06 y 10.  
 **Capacidades adicionales:** cuentas, tarjetas, transferencias y recurrencias.
+**Estado:** CRUD móvil/API integrado para cuentas, categorías, movimientos,
+tarjetas por alias, transferencias internas y recurrencias; resta ejecutar las
+pruebas de PostgreSQL/Worker y concurrencia del hito en el ambiente objetivo.
 
 **Capacidades**
 
@@ -132,7 +140,7 @@ Las duraciones son estimaciones para una persona con dedicación completa. Inclu
 - categorías predefinidas e inmutables;
 - actualización y eliminación/anulación con ETag;
 - idempotencia real en altas;
-- tarjetas sin almacenar PAN/CVV;
+- tarjetas identificadas por alias, sin emisor, últimos cuatro, PAN, CVV ni ningún dato del plástico;
 - transferencias contables internas atómicas;
 - movimientos recurrentes generados por Worker;
 - filtros, cursores, saldos y conciliación.
@@ -154,6 +162,9 @@ Las duraciones son estimaciones para una persona con dedicación completa. Inclu
 
 **Duración estimada:** 3–5 semanas; puede comenzar cuando el hito 2 estabilice sus contratos.  
 **RNF:** RNF-06 y 25.
+**Estado:** aplicación Flutter conectada mediante repositorios intercambiables
+mock/API; análisis estático, pruebas y APK debug verificados localmente. La
+validación sobre dispositivo Android y ambiente desplegado queda para el piloto.
 
 **Aplicación**
 
@@ -177,6 +188,11 @@ Las duraciones son estimaciones para una persona con dedicación completa. Inclu
 **Duración estimada:** 3–4 semanas.  
 **RF:** RF-03, 04, 05, 10 y 13.  
 **RNF:** RNF-07 y 23.
+**Estado:** flujo móvil/API integrado para grupos, integrantes, invitaciones con
+token y código, cuentas compartidas, categorías familiares, movimientos, caja,
+retiros con OTP y presupuestos. Los grupos nuevos reciben categorías iniciales.
+Restan las pruebas sobre PostgreSQL real y las pruebas de concurrencia/atomicidad,
+reservadas para el cierre del flujo completo.
 
 **Capacidades**
 
@@ -206,6 +222,10 @@ Las duraciones son estimaciones para una persona con dedicación completa. Inclu
 
 **Duración estimada:** 2–3 semanas.  
 **RF:** RF-11 y 12.
+**Estado:** presupuestos privados y familiares, resumen, metas privadas y
+compartidas y aportes están integrados entre Flutter y API con ETag e
+idempotencia. Las pruebas de concurrencia se ejecutarán al finalizar el flujo
+completo.
 
 **Capacidades**
 
@@ -226,6 +246,13 @@ Las duraciones son estimaciones para una persona con dedicación completa. Inclu
 ### Hito 7 — Documentos, OCR, SIFEN y exportaciones
 
 **Duración estimada:** 4–6 semanas.  
+**Estado:** contrato HTTP y flujo móvil/API integrados para carga multipart con
+SHA-256, procesamiento asíncrono, XML SIFEN, revisión/corrección, asociación del
+documento al movimiento, reprocesamiento, descarga segura y exportaciones PDF/XLSX.
+El parser SIFEN reconoce el CDC tanto en elementos como en atributos. Resta
+confirmar Amazon Textract mediante el gate de 30–50 comprobantes, configurar el
+almacenamiento S3 del piloto y ejecutar las pruebas reales con API, Worker y
+PostgreSQL desplegados.
 **RF:** RF-07, 08, 09 y 15.  
 **RNF:** RNF-03, 05, 08, 16 y 22.
 
@@ -256,6 +283,12 @@ Las duraciones son estimaciones para una persona con dedicación completa. Inclu
 **Duración estimada:** 3–4 semanas.  
 **RF:** RF-14, 16 y 17.  
 **RNF:** RNF-04, 10 y 17.
+**Estado:** dashboard, reportes, proyección mensual, alertas explicables y
+indicador de salud financiera versionado están integrados entre Flutter y API.
+Flutter muestra factores positivos/negativos, recomendaciones, período y versión
+del modelo; las alertas pueden marcarse como leídas y archivarse con ETag. Restan
+las pruebas de reconciliación y rendimiento sobre PostgreSQL/Worker reales, la
+caché Redis y la validación de las variantes analíticas familiares en el piloto.
 
 **Capacidades**
 
@@ -282,19 +315,26 @@ Las duraciones son estimaciones para una persona con dedicación completa. Inclu
 **RF:** RF-21.  
 **RNF:** RNF-14 y 23.
 
+**Estado local al 30 de julio de 2026:** implementación integrada. Quedan como
+gates externos la configuración de Play Console/Firebase, pruebas con license
+testers y evidencia en dispositivos reales.
+
 **Capacidades**
 
 - planes y matriz de capacidades;
 - suscripción, cancelación y restauración idempotentes;
-- validación del proveedor seleccionado;
+- Google Play Billing con compra de prueba, verificación backend y reconocimiento;
+- sincronización de renovaciones, cancelaciones y restauraciones;
+- Real-time Developer Notifications;
 - notificaciones por outbox;
-- Amazon SES y, si corresponde, push móvil;
+- Amazon SES y push móvil mediante Firebase Cloud Messaging;
 - preferencias y horario silencioso.
 
 **Pruebas obligatorias**
 
 - una única suscripción activa/en gracia;
 - nunca se confía en el plan informado por el cliente;
+- compra aprobada, rechazada, pendiente, renovada, cancelada y restaurada verificadas;
 - eventos repetidos no duplican efectos;
 - una caída de SES/proveedor no revierte la operación principal.
 
@@ -307,9 +347,9 @@ Las duraciones son estimaciones para una persona con dedicación completa. Inclu
 
 - proyecto Supabase y roles mínimos para API, Worker y migrador;
 - buckets S3 privados, cifrado, CORS restringido y lifecycle;
-- Redis para el entorno piloto;
+- caché diferida hasta que métricas reales justifiquen Redis;
 - Amazon SES con dominio verificado;
-- VPS Hetzner CX33 endurecido;
+- instancia AWS Lightsail North Virginia endurecida;
 - Docker Compose de piloto sin bases locales innecesarias;
 - Nginx, TLS, Cloudflare y acceso directo a la API bloqueado;
 - unidad systemd para recuperar servicios;
@@ -325,7 +365,7 @@ Las duraciones son estimaciones para una persona con dedicación completa. Inclu
 
 ### Hito 11 — Endurecimiento, beta y evidencia final
 
-**Duración estimada:** 3–5 semanas, más el período de observación de disponibilidad.  
+**Duración estimada:** 3–5 semanas, más los 28 días del piloto.
 **RF:** verificación final RF-01..21.  
 **RNF:** verificación final RNF-01..25.
 
@@ -391,10 +431,10 @@ Este incremento entrega una base operable y reduce el mayor riesgo actual: descu
 
 ## 6. Acciones que requieren al responsable del proyecto
 
-- aprobar las decisiones de producto del hito 0;
-- habilitar cuentas y presupuestos de Supabase, AWS, Hetzner, Cloudflare y Google Play;
+- habilitar cuentas y presupuestos de Supabase, AWS Lightsail, Cloudflare y Google Play;
+- habilitar Firebase Cloud Messaging y Google Play Billing de prueba;
 - aportar dominio para SES, TLS y correo;
-- seleccionar proveedor OCR y credenciales de prueba;
+- ejecutar el gate de Textract con 30–50 comprobantes y custodiar credenciales de prueba;
 - definir responsable de privacidad y retención;
 - reclutar los diez participantes;
 - aprobar encuestas, consentimiento y criterios de éxito;
@@ -418,4 +458,3 @@ El proyecto puede declararse al 100 % únicamente si se cumplen simultáneamente
 | Rendimiento | Límites RNF-16, 17, 18, 20 y 22 satisfechos |
 | Operación | Backup, restauración, disponibilidad y recuperación comprobados |
 | Piloto | Diez participantes, encuestas pre/post e informe final |
-

@@ -7272,15 +7272,9 @@ components:
       type: object
       additionalProperties: false
       properties:
-        nombre:
+        alias:
           type: string
-          example: Itaú Mastercard
-        emisor:
-          type: string
-          example: Itaú
-        ultimosCuatro:
-          type: string
-          example: '1234'
+          example: Compras del hogar
         cuentaPagoId:
           type: string
           format: uuid
@@ -7306,9 +7300,7 @@ components:
           pattern: "^#[0-9A-Fa-f]{6}$"
           example: "#6868A6"
       required:
-      - nombre
-      - emisor
-      - ultimosCuatro
+      - alias
       - cuentaPagoId
       - diaCierre
       - diaVencimiento
@@ -7322,15 +7314,9 @@ components:
         id:
           type: string
           format: uuid
-        nombre:
+        alias:
           type: string
-          example: Itaú Mastercard
-        emisor:
-          type: string
-          example: Itaú
-        ultimosCuatro:
-          type: string
-          example: '1234'
+          example: Compras del hogar
         cuentaPago:
           type: object
           additionalProperties: false
@@ -7383,9 +7369,7 @@ components:
           example: 1
       required:
       - id
-      - nombre
-      - emisor
-      - ultimosCuatro
+      - alias
       - cuentaPago
       - diaCierre
       - diaVencimiento
@@ -9983,15 +9967,9 @@ components:
       additionalProperties: false
       minProperties: 1
       properties:
-        nombre:
+        alias:
           type: string
-          example: Itaú Mastercard
-        emisor:
-          type: string
-          example: Itaú
-        ultimosCuatro:
-          type: string
-          example: '1234'
+          example: Compras del hogar
         cuentaPagoId:
           type: string
           format: uuid
@@ -10090,6 +10068,12 @@ components:
           type:
           - string
           - 'null'
+        estado:
+          type: string
+          enum:
+          - activa
+          - pausada
+          - finalizada
     PresupuestoPatchRequest:
       type: object
       additionalProperties: false

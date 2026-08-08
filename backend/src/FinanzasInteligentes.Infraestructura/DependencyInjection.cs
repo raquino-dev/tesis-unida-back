@@ -10,6 +10,7 @@ using FinanzasInteligentes.Infraestructura.Procesamiento.Recurrencias;
 using FinanzasInteligentes.Infraestructura.Procesamiento.Suscripciones;
 using FinanzasInteligentes.Infraestructura.Seguridad;
 using FinanzasInteligentes.Infraestructura.Suscripciones;
+using FinanzasInteligentes.Infraestructura.Notificaciones;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -54,6 +55,7 @@ public static class DependencyInjection
         services.AddSingleton<IPasswordService, PasswordService>();
         services.AddSingleton<IPoliticaContrasena, PoliticaContrasena>();
         services.AddSingleton<ISeguridadFlujosConfiguracion, SeguridadFlujosConfiguracion>();
+        services.AddSingleton<IHasherTokenUnSoloUso, HasherTokenUnSoloUso>();
         services.AddSingleton<ITokenService, JwtTokenService>();
 
         return services;
@@ -90,6 +92,26 @@ public static class DependencyInjection
             .Validate(x => x.CantidadMaximaPorUsuario is >= 10 and <= 10_000,
                 "Documentos:CantidadMaximaPorUsuario debe estar entre 10 y 10000.")
             .ValidateOnStart();
+        services.AddOptions<S3StorageOptions>()
+            .Bind(configuration.GetSection(S3StorageOptions.SectionName))
+            .Validate(
+                x => !x.Habilitado ||
+                    !string.IsNullOrWhiteSpace(x.Bucket),
+                "S3:Bucket es obligatorio cuando S3 está habilitado.")
+            .Validate(
+                x => !x.Habilitado ||
+                    string.Equals(x.Region, "us-east-1",
+                        StringComparison.OrdinalIgnoreCase),
+                "El piloto centralizado requiere S3:Region=us-east-1.")
+            .ValidateOnStart();
+        services.AddOptions<TextractOptions>()
+            .Bind(configuration.GetSection(TextractOptions.SectionName))
+            .Validate(
+                x => !x.Habilitado ||
+                    string.Equals(x.Region, "us-east-1",
+                        StringComparison.OrdinalIgnoreCase),
+                "El piloto centralizado requiere Textract:Region=us-east-1.")
+            .ValidateOnStart();
 
         services.AddOptions<SeguridadOptions>()
             .Bind(configuration.GetSection(SeguridadOptions.SectionName))
@@ -106,6 +128,11 @@ public static class DependencyInjection
                 "Correo:Region es obligatoria cuando SES está habilitado.")
             .Validate(x => Uri.TryCreate(x.UrlAplicacion, UriKind.Absolute, out _),
                 "Correo:UrlAplicacion debe ser una URL absoluta.")
+            .ValidateOnStart();
+        services.AddOptions<FirebaseOptions>()
+            .Bind(configuration.GetSection(FirebaseOptions.SectionName))
+            .Validate(x => !x.Habilitado || !string.IsNullOrWhiteSpace(x.ProjectId),
+                "Firebase:ProjectId es obligatorio cuando Firebase está habilitado.")
             .ValidateOnStart();
 
         services.AddDbContext<FinanzasDbContext>(options =>
@@ -135,11 +162,18 @@ public static class DependencyInjection
         services.AddScoped<IAnaliticaProcessor, AnaliticaProcessor>();
         services.AddScoped<ISuscripcionesProcessor, SuscripcionesProcessor>();
         services.AddScoped<IDocumentosRepository, DocumentosRepository>();
-        services.AddSingleton<IArchivoStorage, LocalArchivoStorage>();
+        services.AddSingleton<LocalArchivoStorage>();
+        services.AddSingleton<S3ArchivoStorage>();
+        services.AddSingleton<IArchivoStorage>(provider =>
+            configuration.GetValue<bool>("S3:Habilitado")
+                ? provider.GetRequiredService<S3ArchivoStorage>()
+                : provider.GetRequiredService<LocalArchivoStorage>());
+        services.AddSingleton<IProcesadorOcrDocumento, TextractProcesadorOcr>();
         services.AddSingleton<IValidadorDocumento, ValidadorDocumento>();
         services.AddScoped<ISeguridadRepository, SeguridadRepository>();
         services.AddSingleton<IProtectorTokenPush, ProtectorTokenPush>();
         services.AddSingleton<ICorreoSender, SesCorreoSender>();
+        services.AddScoped<IPushNotificationSender, FirebasePushSender>();
 
         return services;
     }

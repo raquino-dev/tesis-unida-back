@@ -1,6 +1,7 @@
 using FinanzasInteligentes.Aplicacion.Abstracciones;
 using FinanzasInteligentes.Infraestructura.Persistencia;
 using FinanzasInteligentes.Infraestructura.Correo;
+using FinanzasInteligentes.Infraestructura.Notificaciones;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using System.IO.Compression;
@@ -19,7 +20,9 @@ public interface IOutboxProcessor
 public sealed class OutboxProcessor(
     FinanzasDbContext db,
     IArchivoStorage storage,
+    IProcesadorOcrDocumento ocr,
     ICorreoSender correo,
+    IPushNotificationSender push,
     Microsoft.Extensions.Options.IOptions<CorreoOptions> correoOptions,
     ILogger<OutboxProcessor> logger) : IOutboxProcessor
 {
@@ -55,8 +58,12 @@ public sealed class OutboxProcessor(
                 await EnviarSuscripcion(evento.Tipo, evento.Payload.RootElement, cancellationToken);
             else if (evento.Tipo == "suscripcion.aviso-vencimiento")
                 await EnviarAvisoVencimiento(evento.Payload.RootElement, cancellationToken);
+            else if (evento.Tipo == "alerta.financiera-creada")
+                await EnviarAlerta(evento.Payload.RootElement, cancellationToken);
 
-            evento.MarcarProcesado();
+            evento.MarcarProcesado(
+                evento.Tipo is "otp.solicitado" or
+                    "contrasena.recuperacion-solicitada");
         }
 
         if (eventos.Count > 0)
@@ -79,7 +86,7 @@ public sealed class OutboxProcessor(
         var token = payload.GetProperty("Token").GetString()!;
         var baseUrl = correoOptions.Value.UrlAplicacion.TrimEnd('/');
         var url = Microsoft.AspNetCore.WebUtilities.QueryHelpers.AddQueryString(
-            $"{baseUrl}/restablecer-contrasena", "token", token);
+            $"{baseUrl}/reset-password", "token", token);
         var texto = $"Usa este enlace para restablecer tu contraseña: {url}. Expira en 30 minutos.";
         await correo.Enviar(destinatario, "Restablecer contraseña", texto,
             $"<p>Solicitaste restablecer tu contraseña.</p><p><a href=\"{System.Net.WebUtility.HtmlEncode(url)}\">Restablecer contraseña</a></p><p>Expira en 30 minutos.</p>", ct);
@@ -91,7 +98,7 @@ public sealed class OutboxProcessor(
         var usuarioId = payload.GetProperty("UsuarioId").GetGuid();
         var usuario = await db.Usuarios.AsNoTracking().Include(x => x.Preferencias)
             .SingleOrDefaultAsync(x => x.Id == usuarioId, ct);
-        if (usuario is null || !usuario.Preferencias.NotificacionesCorreo) return;
+        if (usuario is null) return;
         var accion = tipo switch
         {
             "suscripcion.activada" => "activada",
@@ -99,7 +106,18 @@ public sealed class OutboxProcessor(
             _ => "restaurada"
         };
         var texto = $"Tu suscripción fue {accion}.";
-        await correo.Enviar(usuario.Correo, $"Suscripción {accion}", texto, $"<p>{texto}</p>", ct);
+        if (usuario.Preferencias.NotificacionesCorreo)
+            await correo.Enviar(usuario.Correo, $"Suscripción {accion}", texto, $"<p>{texto}</p>", ct);
+        await push.Enviar(
+            usuarioId,
+            $"Suscripción {accion}",
+            texto,
+            new Dictionary<string, string>
+            {
+                ["tipo"] = "suscripcion",
+                ["route"] = "/subscription"
+            },
+            ct);
     }
 
     private async Task EnviarAvisoVencimiento(
@@ -108,7 +126,7 @@ public sealed class OutboxProcessor(
         var usuarioId = payload.GetProperty("UsuarioId").GetGuid();
         var usuario = await db.Usuarios.AsNoTracking().Include(x => x.Preferencias)
             .SingleOrDefaultAsync(x => x.Id == usuarioId, ct);
-        if (usuario is null || !usuario.Preferencias.NotificacionesCorreo) return;
+        if (usuario is null) return;
         var tipo = payload.GetProperty("Tipo").GetString();
         var fin = payload.GetProperty("FinPeriodoEn").GetDateTimeOffset();
         var mensaje = tipo switch
@@ -120,9 +138,38 @@ public sealed class OutboxProcessor(
             _ => "Tu suscripción ha vencido."
         };
         var texto = $"{mensaje} Fecha del periodo: {fin:yyyy-MM-dd}.";
-        await correo.Enviar(
-            usuario.Correo, "Información de tu suscripción", texto,
-            $"<p>{mensaje}</p><p>Fecha del periodo: <strong>{fin:yyyy-MM-dd}</strong>.</p>", ct);
+        if (usuario.Preferencias.NotificacionesCorreo)
+            await correo.Enviar(
+                usuario.Correo, "Información de tu suscripción", texto,
+                $"<p>{mensaje}</p><p>Fecha del periodo: <strong>{fin:yyyy-MM-dd}</strong>.</p>", ct);
+        await push.Enviar(
+            usuarioId,
+            "Información de tu suscripción",
+            texto,
+            new Dictionary<string, string>
+            {
+                ["tipo"] = "suscripcion",
+                ["route"] = "/subscription"
+            },
+            ct);
+    }
+
+    private Task EnviarAlerta(
+        System.Text.Json.JsonElement payload, CancellationToken ct)
+    {
+        var usuarioId = payload.GetProperty("UsuarioId").GetGuid();
+        var alertaId = payload.GetProperty("AlertaId").GetGuid();
+        return push.Enviar(
+            usuarioId,
+            payload.GetProperty("Titulo").GetString()!,
+            payload.GetProperty("Mensaje").GetString()!,
+            new Dictionary<string, string>
+            {
+                ["tipo"] = "alerta-financiera",
+                ["alertaId"] = alertaId.ToString(),
+                ["route"] = $"/alerts/{alertaId}"
+            },
+            ct);
     }
 
     private async Task ProcesarDocumento(Guid id, CancellationToken ct)
@@ -147,8 +194,14 @@ public sealed class OutboxProcessor(
             };
             using var reader = XmlReader.Create(stream, settings);
             var xml = await XDocument.LoadAsync(reader, LoadOptions.None, ct);
-            string? Valor(string local) => xml.Descendants()
-                .FirstOrDefault(x => x.Name.LocalName.Equals(local, StringComparison.OrdinalIgnoreCase))?.Value;
+            string? Valor(string local) =>
+                xml.Descendants()
+                    .FirstOrDefault(x => x.Name.LocalName.Equals(
+                        local, StringComparison.OrdinalIgnoreCase))?.Value
+                ?? xml.Descendants()
+                    .Attributes()
+                    .FirstOrDefault(x => x.Name.LocalName.Equals(
+                        local, StringComparison.OrdinalIgnoreCase))?.Value;
             var totalTexto = Valor("dTotGralOpe") ?? Valor("total");
             long.TryParse(totalTexto?.Split('.')[0], out var monto);
             proceso.Completar(new
@@ -162,14 +215,31 @@ public sealed class OutboxProcessor(
         }
         else
         {
-            proceso.Completar(new
+            if (!ocr.Habilitado)
             {
-                monto = (long?)null,
-                fecha = (DateOnly?)null,
-                comercio = (string?)null,
-                categoriaSugeridaId = (Guid?)null,
-                cdcSifen = (string?)null
-            }, 0, "OCR pendiente de proveedor externo; complete los datos manualmente.");
+                proceso.Completar(new
+                {
+                    monto = (long?)null,
+                    fecha = (DateOnly?)null,
+                    comercio = (string?)null,
+                    categoriaSugeridaId = (Guid?)null,
+                    cdcSifen = (string?)null
+                }, 0, "OCR deshabilitado; complete los datos manualmente.");
+            }
+            else
+            {
+                await using var stream = await storage.Abrir(
+                    documento.ClaveObjeto, ct);
+                var resultado = await ocr.Procesar(stream, ct);
+                proceso.Completar(new
+                {
+                    monto = resultado.Monto,
+                    fecha = resultado.Fecha,
+                    comercio = resultado.Comercio,
+                    categoriaSugeridaId = (Guid?)null,
+                    cdcSifen = (string?)null
+                }, resultado.Confianza, resultado.Advertencias.ToArray());
+            }
         }
     }
 

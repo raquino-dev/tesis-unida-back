@@ -8,16 +8,25 @@ no forman parte del repositorio.
 
 ## Preparación
 
-1. Copiar `env.production.example` a `.env.production` y completar los valores fuera de Git.
-2. Colocar `data-protection.pfx` y `google-play-service-account.json` en
+1. Contratar Supabase Pro y Lightsail en North Virginia (`us-east-1`).
+2. Copiar `env.production.example` a `.env.production`, completar los valores fuera de
+   Git y aplicar modo `600`.
+3. Colocar `data-protection.pfx`, `google-service-account.json`, `supabase-ca.crt`,
+   `tls-fullchain.pem` y `tls-privkey.pem` en
    `backend/deploy/secrets/`.
-3. Verificar el dominio/remitente en Amazon SES y solicitar la salida del sandbox.
-4. Crear la cuenta de servicio de Google, habilitar Android Publisher API y otorgarle en
+4. Crear el bucket documental S3 privado con versionado, bloqueo de acceso público,
+   cifrado y las políticas IAM mínimas `deploy/aws/api-iam-policy.json` y
+   `deploy/aws/worker-iam-policy.json`.
+5. Verificar el dominio/remitente en Amazon SES y solicitar la salida del sandbox.
+6. Crear la cuenta de servicio de Google, habilitar Android Publisher API y otorgarle en
    Play Console los permisos mínimos de pedidos y suscripciones.
    Crear además un tópico Pub/Sub para Real-time Developer Notifications, una suscripción
    push autenticada con OIDC y usar como audiencia
    `https://SU-DOMINIO/api/v1/webhooks/google-play/rtdn`.
-5. Crear roles separados de Supabase para migrador, API y Worker.
+7. Crear roles separados de Supabase para migrador, API y Worker. API/Worker usan el
+   session pooler; migrador y backup usan conexión directa.
+8. Configurar Cloudflare en Full (strict), proxy sólo para el dominio de API y firewall
+   Lightsail con 22 restringido a IP administrativa, 80/443 públicos.
 
 ## Administrador inicial
 
@@ -36,42 +45,62 @@ de estado y rol se realizan mediante `/api/v1/administracion/usuarios`.
 
 ## Despliegue
 
-```powershell
-docker compose --env-file .env.production -f compose.production.yaml config
-docker compose --env-file .env.production -f compose.production.yaml build
-docker compose --env-file .env.production -f compose.production.yaml run --rm migrator
-docker compose --env-file .env.production -f compose.production.yaml up -d api worker
-docker compose --env-file .env.production -f compose.production.yaml ps
+```bash
+cd backend/deploy
+./scripts/validate-config.sh
+./scripts/deploy.sh
 ```
 
-La API solo publica `127.0.0.1:8080`; Nginx o el proxy TLS es el único punto público.
+El migrador debe terminar correctamente antes de que API y Worker inicien. Sólo Nginx
+publica 80/443; Kestrel no expone puertos del host. Para reinicio automático copie
+`deploy/systemd/finanzas-pilot.service` a `/etc/systemd/system/`, recargue systemd y
+habilite la unidad.
+
+El workflow `pilot-deploy.yml` prueba el backend, publica tres imágenes inmutables en GHCR
+y despliega sólo después de la aprobación del Environment `pilot`. Ese Environment requiere:
+`PILOT_HOST`, `PILOT_USER`, `PILOT_SSH_PRIVATE_KEY`, `PILOT_SSH_KNOWN_HOSTS` y
+`GHCR_READ_TOKEN`.
+
+Para volver a una versión anterior:
+
+```bash
+cd /opt/finanzas/deploy
+IMAGE_REGISTRY=ghcr.io/PROPIETARIO ./scripts/rollback.sh SHA_ANTERIOR
+```
+
+El rollback de aplicación no revierte migraciones destructivas. Durante el piloto las
+migraciones deben ser compatibles hacia atrás; una reversión de datos requiere el
+procedimiento de restauración.
 
 ## Observabilidad mínima
 
-- logs estructurados a stdout y captura por la plataforma;
+- logs estructurados a stdout y rotación del driver Docker;
 - `X-Correlation-Id` propagado en respuestas y eventos;
 - `/salud/vivo` para liveness y `/salud/listo` para readiness PostgreSQL;
 - alertas externas por caída, tasa de HTTP 5xx, latencia p95 y crecimiento del outbox;
 - no registrar contraseñas, tokens, OTP, comprobantes ni cuerpos HTTP.
 
-Antes del piloto debe conectarse un colector de logs/métricas y conservar capturas de
-latencia, errores, disponibilidad y reinicios.
+Crashlytics registra fallos fatales sólo en builds con `USE_REAL_API=true`. Antes del
+piloto debe configurarse un monitor HTTPS externo sobre `/salud/listo` y conservar
+capturas de latencia, errores, disponibilidad y reinicios. Nunca se adjuntan cuerpos,
+tokens ni documentos financieros a Crashlytics.
 
 ## Supabase: backup y restauración
 
-Supabase realiza backups diarios gestionados en planes Pro/Team/Enterprise y permite PITR
-como complemento. Esto cubre PostgreSQL, no los objetos almacenados fuera de la base.
+Supabase Pro realiza backups diarios. Como segunda copia, un cron nocturno ejecuta
+`scripts/backup-postgres-to-s3.sh`: genera un dump lógico, lo comprime, cifra con
+AES-256/PBKDF2 y lo guarda con cifrado S3 en un bucket distinto al documental.
 
 Procedimiento trimestral de simulacro:
 
-1. confirmar en Dashboard la fecha del último punto recuperable;
-2. crear un proyecto aislado de recuperación;
-3. restaurar el backup o duplicar el proyecto;
-4. reaplicar contraseñas de roles personalizados;
-5. ejecutar migraciones y pruebas de humo;
-6. reconciliar cantidades y totales de usuarios, cuentas, movimientos y suscripciones;
-7. restaurar por separado los objetos de almacenamiento;
-8. registrar tiempos reales, RPO, RTO, responsable y resultado en la trazabilidad RNF.
+1. Seleccionar un dump y crear una base aislada de recuperación.
+2. Ejecutar `restore-postgres-from-s3.sh URL CONFIRMAR_RESTAURACION` apuntando únicamente
+   a esa base.
+3. Reaplicar contraseñas de roles personalizados.
+4. Ejecutar migraciones y pruebas de humo.
+5. Reconciliar cantidades y totales de usuarios, cuentas, movimientos y suscripciones.
+6. Verificar aparte objetos y versionado S3.
+7. Registrar RPO, RTO, responsable y resultado en la trazabilidad RNF.
 
 Una copia gestionada que nunca fue restaurada no constituye evidencia de recuperación.
 

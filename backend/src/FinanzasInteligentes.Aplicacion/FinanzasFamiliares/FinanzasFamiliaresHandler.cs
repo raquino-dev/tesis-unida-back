@@ -34,6 +34,12 @@ public sealed class FinanzasFamiliaresHandler(
         familias.Agregar(grupo);
         familias.Agregar(IntegranteFamiliar.Crear(grupo.Id, usuarioId, "propietario"));
         familias.Agregar(CajaCompartida.Crear(grupo.Id));
+        familias.Agregar(CategoriaFamiliar.Crear(
+            grupo.Id, "Alimentación", "gasto", "restaurant", "#F59E0B"));
+        familias.Agregar(CategoriaFamiliar.Crear(
+            grupo.Id, "Servicios", "gasto", "home", "#3B82F6"));
+        familias.Agregar(CategoriaFamiliar.Crear(
+            grupo.Id, "Ingresos", "ingreso", "payments", "#10B981"));
         await unidadDeTrabajo.GuardarCambios(ct);
         await tx.Confirmar(ct);
         return new(grupo.Id, grupo.Nombre, "propietario", 1, 0, grupo.CreadoEn, grupo.Version);

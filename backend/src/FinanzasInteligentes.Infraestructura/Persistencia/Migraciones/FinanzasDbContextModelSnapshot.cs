@@ -1576,6 +1576,12 @@ namespace FinanzasInteligentes.Infraestructura.Persistencia.Migraciones
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("actualizado_en");
 
+                    b.Property<string>("Alias")
+                        .IsRequired()
+                        .HasMaxLength(120)
+                        .HasColumnType("character varying(120)")
+                        .HasColumnName("alias");
+
                     b.Property<string>("Color")
                         .IsRequired()
                         .HasMaxLength(7)
@@ -1602,12 +1608,6 @@ namespace FinanzasInteligentes.Infraestructura.Persistencia.Migraciones
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("eliminado_en");
 
-                    b.Property<string>("Emisor")
-                        .IsRequired()
-                        .HasMaxLength(120)
-                        .HasColumnType("character varying(120)")
-                        .HasColumnName("emisor");
-
                     b.Property<long>("LimiteCredito")
                         .HasColumnType("bigint")
                         .HasColumnName("limite_credito");
@@ -1618,21 +1618,9 @@ namespace FinanzasInteligentes.Infraestructura.Persistencia.Migraciones
                         .HasColumnType("character varying(3)")
                         .HasColumnName("moneda");
 
-                    b.Property<string>("Nombre")
-                        .IsRequired()
-                        .HasMaxLength(120)
-                        .HasColumnType("character varying(120)")
-                        .HasColumnName("nombre");
-
                     b.Property<long>("SaldoUtilizado")
                         .HasColumnType("bigint")
                         .HasColumnName("saldo_utilizado");
-
-                    b.Property<string>("UltimosCuatro")
-                        .IsRequired()
-                        .HasMaxLength(4)
-                        .HasColumnType("character varying(4)")
-                        .HasColumnName("ultimos_cuatro");
 
                     b.Property<Guid>("UsuarioId")
                         .HasColumnType("uuid")
@@ -1647,7 +1635,7 @@ namespace FinanzasInteligentes.Infraestructura.Persistencia.Migraciones
 
                     b.HasIndex("CuentaPagoId");
 
-                    b.HasIndex("UsuarioId", "Nombre")
+                    b.HasIndex("UsuarioId", "Alias")
                         .IsUnique()
                         .HasFilter("eliminado_en IS NULL");
 

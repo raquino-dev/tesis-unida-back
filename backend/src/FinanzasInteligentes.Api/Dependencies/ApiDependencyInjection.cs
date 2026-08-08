@@ -88,10 +88,42 @@ public static class ApiDependencyInjection
                         Window = TimeSpan.FromSeconds(limite.VentanaSegundos),
                         QueueLimit = 0
                     }));
+            options.AddPolicy("autenticacion", context =>
+                RateLimitPartition.GetFixedWindowLimiter(
+                    PartitionKey(context),
+                    _ => new FixedWindowRateLimiterOptions
+                    {
+                        PermitLimit = 10,
+                        Window = TimeSpan.FromMinutes(5),
+                        QueueLimit = 0
+                    }));
+            options.AddPolicy("otp", context =>
+                RateLimitPartition.GetFixedWindowLimiter(
+                    PartitionKey(context),
+                    _ => new FixedWindowRateLimiterOptions
+                    {
+                        PermitLimit = 5,
+                        Window = TimeSpan.FromMinutes(5),
+                        QueueLimit = 0
+                    }));
+            options.AddPolicy("recuperacion-contrasena", context =>
+                RateLimitPartition.GetFixedWindowLimiter(
+                    PartitionKey(context),
+                    _ => new FixedWindowRateLimiterOptions
+                    {
+                        PermitLimit = 3,
+                        Window = TimeSpan.FromMinutes(15),
+                        QueueLimit = 0
+                    }));
         });
 
         services.AddHealthChecks().AddDbContextCheck<FinanzasDbContext>("postgresql", tags: ["ready"]);
 
         return services;
     }
+
+    private static string PartitionKey(HttpContext context) =>
+        context.User.FindFirst("sub")?.Value ??
+        context.Connection.RemoteIpAddress?.ToString() ??
+        "anonimo";
 }

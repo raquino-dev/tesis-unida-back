@@ -100,7 +100,9 @@ public static class ProductionSecurityDependencyInjection
             var certificate = X509CertificateLoader.LoadPkcs12FromFile(
                 certificatePath,
                 options.CertificatePassword,
-                X509KeyStorageFlags.EphemeralKeySet);
+                OperatingSystem.IsMacOS()
+                    ? X509KeyStorageFlags.DefaultKeySet
+                    : X509KeyStorageFlags.EphemeralKeySet);
 
             if (!certificate.HasPrivateKey)
             {

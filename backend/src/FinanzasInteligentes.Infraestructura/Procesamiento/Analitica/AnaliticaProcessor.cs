@@ -1,4 +1,5 @@
 using FinanzasInteligentes.Dominio.Analitica;
+using FinanzasInteligentes.Dominio.Infraestructura.Entidades;
 using FinanzasInteligentes.Infraestructura.Persistencia;
 using Microsoft.EntityFrameworkCore;
 
@@ -19,7 +20,7 @@ public sealed class AnaliticaProcessor(FinanzasDbContext db) : IAnaliticaProcess
             if (await db.AlertasFinancieras.AnyAsync(
                 x => x.UsuarioId == cuenta.UsuarioId && x.ClaveDeduplicacion == clave,
                 cancellationToken)) continue;
-            db.AlertasFinancieras.Add(AlertaFinanciera.Crear(
+            var alerta = AlertaFinanciera.Crear(
                 cuenta.UsuarioId, "saldo-negativo", "critica",
                 "Cuenta con saldo negativo",
                 $"La cuenta {cuenta.Nombre} tiene un saldo de {cuenta.SaldoActual:N0} PYG.",
@@ -27,7 +28,9 @@ public sealed class AnaliticaProcessor(FinanzasDbContext db) : IAnaliticaProcess
                 "Saldo actual de la cuenta.",
                 "Puede generar intereses, rechazos o falta de liquidez.",
                 "Regularice la cuenta y revise sus próximos movimientos.",
-                clave));
+                clave);
+            db.AlertasFinancieras.Add(alerta);
+            AgregarNotificacion(alerta);
             creadas++;
         }
 
@@ -44,7 +47,7 @@ public sealed class AnaliticaProcessor(FinanzasDbContext db) : IAnaliticaProcess
             if (await db.AlertasFinancieras.AnyAsync(
                 x => x.UsuarioId == grupo.Key && x.ClaveDeduplicacion == clave,
                 cancellationToken)) continue;
-            db.AlertasFinancieras.Add(AlertaFinanciera.Crear(
+            var alerta = AlertaFinanciera.Crear(
                 grupo.Key, "gastos-superiores", "advertencia",
                 "Gastos superiores a ingresos",
                 "Los gastos confirmados del mes superan a los ingresos.",
@@ -52,11 +55,27 @@ public sealed class AnaliticaProcessor(FinanzasDbContext db) : IAnaliticaProcess
                 "Movimientos confirmados del mes actual.",
                 "El balance mensual proyectado es negativo.",
                 "Revise gastos no esenciales y ajuste su presupuesto.",
-                clave));
+                clave);
+            db.AlertasFinancieras.Add(alerta);
+            AgregarNotificacion(alerta);
             creadas++;
         }
 
         if (creadas > 0) await db.SaveChangesAsync(cancellationToken);
         return creadas;
     }
+
+    private void AgregarNotificacion(AlertaFinanciera alerta) =>
+        db.EventosOutbox.Add(EventoOutbox.Crear(
+            "alerta.financiera-creada",
+            "alerta-financiera",
+            alerta.Id,
+            new
+            {
+                alerta.UsuarioId,
+                AlertaId = alerta.Id,
+                alerta.Titulo,
+                alerta.Mensaje
+            },
+            null));
 }

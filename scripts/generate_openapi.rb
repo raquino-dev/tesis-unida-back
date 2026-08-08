@@ -690,6 +690,12 @@ operations.each do |entry|
       base_name, allowed = base
       schema_name = "#{base_name.delete_suffix('Request')}PatchRequest"
       schemas[schema_name] ||= partial_schema(schemas.fetch(base_name), allowed)
+      if schema_name == "MovimientoRecurrentePatchRequest"
+        schemas[schema_name]["properties"]["estado"] = {
+          "type" => "string",
+          "enum" => %w[activa pausada finalizada]
+        }
+      end
       request_schema = { "$ref" => "#/components/schemas/#{schema_name}" }
     elsif (dto = entry[:request][/`([A-Z][A-Za-z]+Request)`/, 1])
       request_schema = { "$ref" => "#/components/schemas/#{dto}" }

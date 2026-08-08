@@ -27,4 +27,18 @@ public sealed class ProtectorTokenPush : IProtectorTokenPush
         aes.Encrypt(nonce, plain, cipher, tag);
         return Convert.ToBase64String(nonce.Concat(tag).Concat(cipher).ToArray());
     }
+
+    public string Desproteger(string tokenProtegido)
+    {
+        var payload = Convert.FromBase64String(tokenProtegido);
+        if (payload.Length < 29)
+            throw new CryptographicException("El token push cifrado no es válido.");
+        var nonce = payload.AsSpan(0, 12);
+        var tag = payload.AsSpan(12, 16);
+        var cipher = payload.AsSpan(28);
+        var plain = new byte[cipher.Length];
+        using var aes = new AesGcm(key, tag.Length);
+        aes.Decrypt(nonce, cipher, tag, plain);
+        return Encoding.UTF8.GetString(plain);
+    }
 }
