@@ -91,7 +91,10 @@ jobs:
             compose.production.yaml nginx scripts
           scp /tmp/finanzas-deploy.tgz "$PILOT_USER@$PILOT_HOST:/tmp/finanzas-deploy.tgz"
           ssh "$PILOT_USER@$PILOT_HOST" \
-            "mkdir -p /opt/finanzas/deploy && tar -xzf /tmp/finanzas-deploy.tgz -C /opt/finanzas/deploy"
+            "mkdir -p /opt/finanzas/deploy && \
+             tar -xzf /tmp/finanzas-deploy.tgz -C /opt/finanzas/deploy && \
+             install -m 600 /opt/finanzas/repo/backend/deploy/.env.production \
+               /opt/finanzas/deploy/.env.production"
 
       - name: Pull and deploy immutable images
         env:
