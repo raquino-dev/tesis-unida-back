@@ -36,7 +36,7 @@ public sealed record ComprobanteSuscripcionValidado(
 
 public interface IValidadorNotificacionGooglePlay
 {
-    Task<NotificacionGooglePlayValidada> Validar(
+    Task<NotificacionGooglePlayValidada?> Validar(
         string tokenAutorizacion, string dataBase64, CancellationToken ct);
 }
 

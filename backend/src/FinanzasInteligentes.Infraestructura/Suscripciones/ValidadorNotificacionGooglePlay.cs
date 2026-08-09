@@ -13,7 +13,7 @@ public sealed class ValidadorNotificacionGooglePlay(
 {
     private readonly GooglePlayOptions _options = options.Value;
 
-    public async Task<NotificacionGooglePlayValidada> Validar(
+    public async Task<NotificacionGooglePlayValidada?> Validar(
         string tokenAutorizacion, string dataBase64, CancellationToken ct)
     {
         if (!_options.Habilitado ||
@@ -47,6 +47,9 @@ public sealed class ValidadorNotificacionGooglePlay(
             throw new DomainException("rtdn_invalido", "El mensaje RTDN no es válido.");
         }
 
+        if (notification?.TestNotification is not null)
+            return null;
+
         var subscription = notification?.SubscriptionNotification;
         if (notification?.PackageName != _options.PackageName ||
             subscription is null ||
@@ -66,9 +69,11 @@ public sealed class ValidadorNotificacionGooglePlay(
     private sealed record GooglePlayRtdn(
         string PackageName,
         string EventTimeMillis,
-        SubscriptionNotification SubscriptionNotification);
+        SubscriptionNotification? SubscriptionNotification,
+        TestNotification? TestNotification);
     private sealed record SubscriptionNotification(
         int NotificationType,
         string PurchaseToken,
         string SubscriptionId);
+    private sealed record TestNotification(string Version);
 }
