@@ -4,6 +4,7 @@ using FinanzasInteligentes.Dominio.FinanzasFamiliares;
 using FinanzasInteligentes.Dominio.FinanzasPersonales;
 using FinanzasInteligentes.Dominio.Identidad;
 using FinanzasInteligentes.Dominio.Infraestructura.Entidades;
+using FinanzasInteligentes.Dominio.Piloto;
 using FinanzasInteligentes.Dominio.Seguridad;
 using FinanzasInteligentes.Dominio.Suscripciones;
 using Microsoft.EntityFrameworkCore;
@@ -54,6 +55,10 @@ public sealed class FinanzasDbContext(DbContextOptions<FinanzasDbContext> option
     public DbSet<EventoOutbox> EventosOutbox => Set<EventoOutbox>();
     public DbSet<EntregaOutbox> EntregasOutbox => Set<EntregaOutbox>();
     public DbSet<Idempotencia> Idempotencias => Set<Idempotencia>();
+    public DbSet<InstrumentoPiloto> InstrumentosPiloto => Set<InstrumentoPiloto>();
+    public DbSet<PreguntaInstrumentoPiloto> PreguntasInstrumentoPiloto => Set<PreguntaInstrumentoPiloto>();
+    public DbSet<RespuestaInstrumentoPiloto> RespuestasInstrumentoPiloto => Set<RespuestaInstrumentoPiloto>();
+    public DbSet<DetalleRespuestaInstrumentoPiloto> DetallesRespuestaInstrumentoPiloto => Set<DetalleRespuestaInstrumentoPiloto>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -66,7 +71,67 @@ public sealed class FinanzasDbContext(DbContextOptions<FinanzasDbContext> option
         ConfigurarSeguridadYAuditoria(modelBuilder);
         ConfigurarFamilias(modelBuilder);
         ConfigurarSuscripciones(modelBuilder);
+        ConfigurarPiloto(modelBuilder);
         ConfigurarInfraestructura(modelBuilder);
+    }
+
+    private static void ConfigurarPiloto(ModelBuilder builder)
+    {
+        var instrumento = builder.Entity<InstrumentoPiloto>();
+        instrumento.ToTable("instrumentos", "piloto");
+        instrumento.HasKey(x => x.Id);
+        instrumento.Property(x => x.Id).HasColumnName("id");
+        instrumento.Property(x => x.Codigo).HasColumnName("codigo").HasMaxLength(40);
+        instrumento.Property(x => x.VersionInstrumento).HasColumnName("version_instrumento").HasMaxLength(30);
+        instrumento.Property(x => x.Titulo).HasColumnName("titulo").HasMaxLength(160);
+        instrumento.Property(x => x.Descripcion).HasColumnName("descripcion").HasMaxLength(1000);
+        instrumento.Property(x => x.Activo).HasColumnName("activo");
+        instrumento.Property(x => x.CreadoEn).HasColumnName("creado_en");
+        instrumento.HasIndex(x => new { x.Codigo, x.VersionInstrumento }).IsUnique();
+        instrumento.HasIndex(x => x.Codigo).IsUnique().HasFilter("activo = true");
+
+        var pregunta = builder.Entity<PreguntaInstrumentoPiloto>();
+        pregunta.ToTable("preguntas", "piloto");
+        pregunta.HasKey(x => x.Id);
+        pregunta.Property(x => x.Id).HasColumnName("id");
+        pregunta.Property(x => x.InstrumentoId).HasColumnName("instrumento_id");
+        pregunta.Property(x => x.Orden).HasColumnName("orden");
+        pregunta.Property(x => x.Tipo).HasColumnName("tipo").HasMaxLength(20);
+        pregunta.Property(x => x.Texto).HasColumnName("texto").HasMaxLength(1000);
+        pregunta.Property(x => x.Requerida).HasColumnName("requerida");
+        pregunta.Property(x => x.Minimo).HasColumnName("minimo");
+        pregunta.Property(x => x.Maximo).HasColumnName("maximo");
+        pregunta.HasIndex(x => new { x.InstrumentoId, x.Orden }).IsUnique();
+        pregunta.HasOne<InstrumentoPiloto>().WithMany(x => x.Preguntas)
+            .HasForeignKey(x => x.InstrumentoId).OnDelete(DeleteBehavior.Cascade);
+
+        var respuesta = builder.Entity<RespuestaInstrumentoPiloto>();
+        respuesta.ToTable("respuestas", "piloto");
+        respuesta.HasKey(x => x.Id);
+        respuesta.Property(x => x.Id).HasColumnName("id");
+        respuesta.Property(x => x.UsuarioId).HasColumnName("usuario_id");
+        respuesta.Property(x => x.InstrumentoId).HasColumnName("instrumento_id");
+        respuesta.Property(x => x.VersionInstrumento).HasColumnName("version_instrumento").HasMaxLength(30);
+        respuesta.Property(x => x.RespondidoEn).HasColumnName("respondido_en");
+        respuesta.HasIndex(x => new { x.UsuarioId, x.InstrumentoId }).IsUnique();
+        respuesta.HasOne<Usuario>().WithMany().HasForeignKey(x => x.UsuarioId)
+            .OnDelete(DeleteBehavior.Cascade);
+        respuesta.HasOne<InstrumentoPiloto>().WithMany().HasForeignKey(x => x.InstrumentoId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        var detalle = builder.Entity<DetalleRespuestaInstrumentoPiloto>();
+        detalle.ToTable("respuestas_detalle", "piloto");
+        detalle.HasKey(x => x.Id);
+        detalle.Property(x => x.Id).HasColumnName("id");
+        detalle.Property(x => x.RespuestaId).HasColumnName("respuesta_id");
+        detalle.Property(x => x.PreguntaId).HasColumnName("pregunta_id");
+        detalle.Property(x => x.ValorEscala).HasColumnName("valor_escala");
+        detalle.Property(x => x.ValorTexto).HasColumnName("valor_texto").HasMaxLength(2000);
+        detalle.HasIndex(x => new { x.RespuestaId, x.PreguntaId }).IsUnique();
+        detalle.HasOne<RespuestaInstrumentoPiloto>().WithMany(x => x.Detalles)
+            .HasForeignKey(x => x.RespuestaId).OnDelete(DeleteBehavior.Cascade);
+        detalle.HasOne<PreguntaInstrumentoPiloto>().WithMany().HasForeignKey(x => x.PreguntaId)
+            .OnDelete(DeleteBehavior.Restrict);
     }
 
     private static void ConfigurarUsuario(ModelBuilder builder)
