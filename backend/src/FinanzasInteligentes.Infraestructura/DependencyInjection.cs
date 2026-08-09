@@ -142,6 +142,7 @@ public static class DependencyInjection
                 npgsql.MigrationsHistoryTable("__ef_migrations_history", "infra")));
 
         services.AddScoped<IIdentidadRepository, IdentidadRepository>();
+        services.AddScoped<IPilotoRepository, PilotoRepository>();
         services.AddScoped<IFinanzasRepository, FinanzasRepository>();
         services.AddScoped<IFamiliasRepository, FamiliasRepository>();
         services.AddScoped<ISuscripcionesRepository, SuscripcionesRepository>();

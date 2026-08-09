@@ -3,6 +3,7 @@ using FinanzasInteligentes.Api.Endpoints.Documentos;
 using FinanzasInteligentes.Api.Endpoints.FinanzasFamiliares;
 using FinanzasInteligentes.Api.Endpoints.FinanzasPersonales;
 using FinanzasInteligentes.Api.Endpoints.Identidad;
+using FinanzasInteligentes.Api.Endpoints.Piloto;
 using FinanzasInteligentes.Api.Endpoints.Seguridad;
 using FinanzasInteligentes.Api.Endpoints.Suscripciones;
 
@@ -17,6 +18,7 @@ public static class EndpointRegistration
         endpoints.MapSesiones();
         endpoints.MapPerfil();
         endpoints.MapPrivacidad();
+        endpoints.MapInstrumentosPiloto();
         endpoints.MapSeguridad();
         endpoints.MapCuentas();
         endpoints.MapCategorias();
