@@ -202,6 +202,7 @@ public sealed class SuscripcionesHandler(
     {
         var notification = await notificacionesGoogle.Validar(
             tokenAutorizacion, dataBase64, ct);
+        if (notification is null) return;
         if (await suscripciones.ExisteTransaccion(
             "google-play", notification.ReferenciaHash, "rtdn", ct))
             return;
