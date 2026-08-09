@@ -51,6 +51,8 @@ public sealed class CrearUsuarioHandler(
         identidad.Agregar(usuario);
         identidad.Agregar(ConsentimientoPrivacidad.Crear(
             usuario.Id, politica, "tratamiento-datos-servicio"));
+        identidad.Agregar(ConsentimientoPrivacidad.Crear(
+            usuario.Id, politica, "aceptacion-terminos-servicio"));
 
         await unidadDeTrabajo.GuardarCambios(cancellationToken);
 
