@@ -2245,6 +2245,57 @@ namespace FinanzasInteligentes.Infraestructura.Persistencia.Migraciones
                     b.ToTable("verificaciones_otp", "identidad");
                 });
 
+            modelBuilder.Entity("FinanzasInteligentes.Dominio.Infraestructura.Entidades.EntregaOutbox", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<string>("Canal")
+                        .IsRequired()
+                        .HasMaxLength(30)
+                        .HasColumnType("character varying(30)")
+                        .HasColumnName("canal");
+
+                    b.Property<DateTimeOffset>("CreadoEn")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("creado_en");
+
+                    b.Property<string>("DestinatarioHash")
+                        .IsRequired()
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)")
+                        .HasColumnName("destinatario_hash");
+
+                    b.Property<DateTimeOffset?>("EnviadaEn")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("enviada_en");
+
+                    b.Property<string>("Estado")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)")
+                        .HasColumnName("estado");
+
+                    b.Property<Guid>("EventoOutboxId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("evento_outbox_id");
+
+                    b.Property<DateTimeOffset>("ReservadaEn")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("reservada_en");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Canal", "ReservadaEn");
+
+                    b.HasIndex("EventoOutboxId", "Canal")
+                        .IsUnique();
+
+                    b.ToTable("outbox_entregas", "infra");
+                });
+
             modelBuilder.Entity("FinanzasInteligentes.Dominio.Infraestructura.Entidades.EventoOutbox", b =>
                 {
                     b.Property<Guid>("Id")
@@ -2282,11 +2333,6 @@ namespace FinanzasInteligentes.Infraestructura.Persistencia.Migraciones
                         .HasColumnType("integer")
                         .HasColumnName("intentos");
 
-                    b.Property<string>("UltimoError")
-                        .HasMaxLength(1000)
-                        .HasColumnType("character varying(1000)")
-                        .HasColumnName("ultimo_error");
-
                     b.Property<JsonDocument>("Payload")
                         .IsRequired()
                         .HasColumnType("jsonb")
@@ -2301,62 +2347,16 @@ namespace FinanzasInteligentes.Infraestructura.Persistencia.Migraciones
                         .HasColumnType("text")
                         .HasColumnName("tipo");
 
+                    b.Property<string>("UltimoError")
+                        .HasMaxLength(1000)
+                        .HasColumnType("character varying(1000)")
+                        .HasColumnName("ultimo_error");
+
                     b.HasKey("Id");
 
                     b.HasIndex("Estado", "DisponibleEn");
 
                     b.ToTable("outbox_eventos", "infra");
-                });
-
-            modelBuilder.Entity("FinanzasInteligentes.Dominio.Infraestructura.Entidades.EntregaOutbox", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid")
-                        .HasColumnName("id");
-
-                    b.Property<string>("Canal")
-                        .IsRequired()
-                        .HasMaxLength(30)
-                        .HasColumnType("character varying(30)")
-                        .HasColumnName("canal");
-
-                    b.Property<DateTimeOffset>("CreadoEn")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("creado_en");
-
-                    b.Property<string>("DestinatarioHash")
-                        .IsRequired()
-                        .HasMaxLength(64)
-                        .HasColumnType("character varying(64)")
-                        .HasColumnName("destinatario_hash");
-
-                    b.Property<DateTimeOffset?>("EnviadaEn")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("enviada_en");
-
-                    b.Property<Guid>("EventoOutboxId")
-                        .HasColumnType("uuid")
-                        .HasColumnName("evento_outbox_id");
-
-                    b.Property<string>("Estado")
-                        .IsRequired()
-                        .HasMaxLength(20)
-                        .HasColumnType("character varying(20)")
-                        .HasColumnName("estado");
-
-                    b.Property<DateTimeOffset>("ReservadaEn")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("reservada_en");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("Canal", "ReservadaEn");
-
-                    b.HasIndex("EventoOutboxId", "Canal")
-                        .IsUnique();
-
-                    b.ToTable("outbox_entregas", "infra");
                 });
 
             modelBuilder.Entity("FinanzasInteligentes.Dominio.Infraestructura.Entidades.Idempotencia", b =>
@@ -2425,13 +2425,180 @@ namespace FinanzasInteligentes.Infraestructura.Persistencia.Migraciones
                     b.ToTable("idempotencias", "infra");
                 });
 
-            modelBuilder.Entity("FinanzasInteligentes.Dominio.Infraestructura.Entidades.EntregaOutbox", b =>
+            modelBuilder.Entity("FinanzasInteligentes.Dominio.Piloto.DetalleRespuestaInstrumentoPiloto", b =>
                 {
-                    b.HasOne("FinanzasInteligentes.Dominio.Infraestructura.Entidades.EventoOutbox", null)
-                        .WithMany()
-                        .HasForeignKey("EventoOutboxId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<DateTimeOffset>("CreadoEn")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid>("PreguntaId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("pregunta_id");
+
+                    b.Property<Guid>("RespuestaId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("respuesta_id");
+
+                    b.Property<int?>("ValorEscala")
+                        .HasColumnType("integer")
+                        .HasColumnName("valor_escala");
+
+                    b.Property<string>("ValorTexto")
+                        .HasMaxLength(2000)
+                        .HasColumnType("character varying(2000)")
+                        .HasColumnName("valor_texto");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("PreguntaId");
+
+                    b.HasIndex("RespuestaId", "PreguntaId")
+                        .IsUnique();
+
+                    b.ToTable("respuestas_detalle", "piloto");
+                });
+
+            modelBuilder.Entity("FinanzasInteligentes.Dominio.Piloto.InstrumentoPiloto", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<bool>("Activo")
+                        .HasColumnType("boolean")
+                        .HasColumnName("activo");
+
+                    b.Property<string>("Codigo")
+                        .IsRequired()
+                        .HasMaxLength(40)
+                        .HasColumnType("character varying(40)")
+                        .HasColumnName("codigo");
+
+                    b.Property<DateTimeOffset>("CreadoEn")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("creado_en");
+
+                    b.Property<string>("Descripcion")
+                        .IsRequired()
+                        .HasMaxLength(1000)
+                        .HasColumnType("character varying(1000)")
+                        .HasColumnName("descripcion");
+
+                    b.Property<string>("Titulo")
+                        .IsRequired()
+                        .HasMaxLength(160)
+                        .HasColumnType("character varying(160)")
+                        .HasColumnName("titulo");
+
+                    b.Property<string>("VersionInstrumento")
+                        .IsRequired()
+                        .HasMaxLength(30)
+                        .HasColumnType("character varying(30)")
+                        .HasColumnName("version_instrumento");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Codigo")
+                        .IsUnique()
+                        .HasFilter("activo = true");
+
+                    b.HasIndex("Codigo", "VersionInstrumento")
+                        .IsUnique();
+
+                    b.ToTable("instrumentos", "piloto");
+                });
+
+            modelBuilder.Entity("FinanzasInteligentes.Dominio.Piloto.PreguntaInstrumentoPiloto", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<DateTimeOffset>("CreadoEn")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid>("InstrumentoId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("instrumento_id");
+
+                    b.Property<int?>("Maximo")
+                        .HasColumnType("integer")
+                        .HasColumnName("maximo");
+
+                    b.Property<int?>("Minimo")
+                        .HasColumnType("integer")
+                        .HasColumnName("minimo");
+
+                    b.Property<int>("Orden")
+                        .HasColumnType("integer")
+                        .HasColumnName("orden");
+
+                    b.Property<bool>("Requerida")
+                        .HasColumnType("boolean")
+                        .HasColumnName("requerida");
+
+                    b.Property<string>("Texto")
+                        .IsRequired()
+                        .HasMaxLength(1000)
+                        .HasColumnType("character varying(1000)")
+                        .HasColumnName("texto");
+
+                    b.Property<string>("Tipo")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)")
+                        .HasColumnName("tipo");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("InstrumentoId", "Orden")
+                        .IsUnique();
+
+                    b.ToTable("preguntas", "piloto");
+                });
+
+            modelBuilder.Entity("FinanzasInteligentes.Dominio.Piloto.RespuestaInstrumentoPiloto", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<DateTimeOffset>("CreadoEn")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid>("InstrumentoId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("instrumento_id");
+
+                    b.Property<DateTimeOffset>("RespondidoEn")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("respondido_en");
+
+                    b.Property<Guid>("UsuarioId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("usuario_id");
+
+                    b.Property<string>("VersionInstrumento")
+                        .IsRequired()
+                        .HasMaxLength(30)
+                        .HasColumnType("character varying(30)")
+                        .HasColumnName("version_instrumento");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("InstrumentoId");
+
+                    b.HasIndex("UsuarioId", "InstrumentoId")
+                        .IsUnique();
+
+                    b.ToTable("respuestas", "piloto");
                 });
 
             modelBuilder.Entity("FinanzasInteligentes.Dominio.Seguridad.Dispositivo", b =>
@@ -3352,6 +3519,54 @@ namespace FinanzasInteligentes.Infraestructura.Persistencia.Migraciones
                         .IsRequired();
                 });
 
+            modelBuilder.Entity("FinanzasInteligentes.Dominio.Infraestructura.Entidades.EntregaOutbox", b =>
+                {
+                    b.HasOne("FinanzasInteligentes.Dominio.Infraestructura.Entidades.EventoOutbox", null)
+                        .WithMany()
+                        .HasForeignKey("EventoOutboxId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("FinanzasInteligentes.Dominio.Piloto.DetalleRespuestaInstrumentoPiloto", b =>
+                {
+                    b.HasOne("FinanzasInteligentes.Dominio.Piloto.PreguntaInstrumentoPiloto", null)
+                        .WithMany()
+                        .HasForeignKey("PreguntaId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("FinanzasInteligentes.Dominio.Piloto.RespuestaInstrumentoPiloto", null)
+                        .WithMany("Detalles")
+                        .HasForeignKey("RespuestaId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("FinanzasInteligentes.Dominio.Piloto.PreguntaInstrumentoPiloto", b =>
+                {
+                    b.HasOne("FinanzasInteligentes.Dominio.Piloto.InstrumentoPiloto", null)
+                        .WithMany("Preguntas")
+                        .HasForeignKey("InstrumentoId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("FinanzasInteligentes.Dominio.Piloto.RespuestaInstrumentoPiloto", b =>
+                {
+                    b.HasOne("FinanzasInteligentes.Dominio.Piloto.InstrumentoPiloto", null)
+                        .WithMany()
+                        .HasForeignKey("InstrumentoId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("FinanzasInteligentes.Dominio.Identidad.Usuario", null)
+                        .WithMany()
+                        .HasForeignKey("UsuarioId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
             modelBuilder.Entity("FinanzasInteligentes.Dominio.Seguridad.Dispositivo", b =>
                 {
                     b.HasOne("FinanzasInteligentes.Dominio.Identidad.Usuario", null)
@@ -3470,6 +3685,16 @@ namespace FinanzasInteligentes.Infraestructura.Persistencia.Migraciones
                 {
                     b.Navigation("Preferencias")
                         .IsRequired();
+                });
+
+            modelBuilder.Entity("FinanzasInteligentes.Dominio.Piloto.InstrumentoPiloto", b =>
+                {
+                    b.Navigation("Preguntas");
+                });
+
+            modelBuilder.Entity("FinanzasInteligentes.Dominio.Piloto.RespuestaInstrumentoPiloto", b =>
+                {
+                    b.Navigation("Detalles");
                 });
 #pragma warning restore 612, 618
         }
