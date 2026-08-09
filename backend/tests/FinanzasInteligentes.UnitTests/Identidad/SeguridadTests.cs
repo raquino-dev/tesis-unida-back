@@ -86,6 +86,27 @@ public sealed class SeguridadTests
         Assert.False(evento.Payload.RootElement.TryGetProperty("Codigo", out _));
     }
 
+    [Fact]
+    public void OutboxAplicaEsperaYTerminaLuegoDelMaximoDeErrores()
+    {
+        var evento = EventoOutbox.Crear(
+            "suscripcion.activada", "suscripcion", Guid.CreateVersion7(),
+            new { UsuarioId = Guid.CreateVersion7() }, "correlation");
+
+        evento.ReprogramarError(new InvalidOperationException("push no disponible"), 2);
+
+        Assert.Equal("pendiente", evento.Estado);
+        Assert.Equal(1, evento.Intentos);
+        Assert.Equal("push no disponible", evento.UltimoError);
+        Assert.True(evento.DisponibleEn > DateTimeOffset.UtcNow);
+
+        evento.ReprogramarError(new InvalidOperationException("push no disponible"), 2);
+
+        Assert.Equal("fallido", evento.Estado);
+        Assert.Equal(2, evento.Intentos);
+        Assert.NotNull(evento.ProcesadoEn);
+    }
+
     private static DesafioOtp CrearDesafio(string codigo) =>
         DesafioOtp.Crear(
             Guid.CreateVersion7(), "cambio-contrasena", "correo",

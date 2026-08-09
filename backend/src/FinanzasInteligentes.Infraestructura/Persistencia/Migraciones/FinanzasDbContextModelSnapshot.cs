@@ -2282,6 +2282,11 @@ namespace FinanzasInteligentes.Infraestructura.Persistencia.Migraciones
                         .HasColumnType("integer")
                         .HasColumnName("intentos");
 
+                    b.Property<string>("UltimoError")
+                        .HasMaxLength(1000)
+                        .HasColumnType("character varying(1000)")
+                        .HasColumnName("ultimo_error");
+
                     b.Property<JsonDocument>("Payload")
                         .IsRequired()
                         .HasColumnType("jsonb")
@@ -2301,6 +2306,57 @@ namespace FinanzasInteligentes.Infraestructura.Persistencia.Migraciones
                     b.HasIndex("Estado", "DisponibleEn");
 
                     b.ToTable("outbox_eventos", "infra");
+                });
+
+            modelBuilder.Entity("FinanzasInteligentes.Dominio.Infraestructura.Entidades.EntregaOutbox", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<string>("Canal")
+                        .IsRequired()
+                        .HasMaxLength(30)
+                        .HasColumnType("character varying(30)")
+                        .HasColumnName("canal");
+
+                    b.Property<DateTimeOffset>("CreadoEn")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("creado_en");
+
+                    b.Property<string>("DestinatarioHash")
+                        .IsRequired()
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)")
+                        .HasColumnName("destinatario_hash");
+
+                    b.Property<DateTimeOffset?>("EnviadaEn")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("enviada_en");
+
+                    b.Property<Guid>("EventoOutboxId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("evento_outbox_id");
+
+                    b.Property<string>("Estado")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)")
+                        .HasColumnName("estado");
+
+                    b.Property<DateTimeOffset>("ReservadaEn")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("reservada_en");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Canal", "ReservadaEn");
+
+                    b.HasIndex("EventoOutboxId", "Canal")
+                        .IsUnique();
+
+                    b.ToTable("outbox_entregas", "infra");
                 });
 
             modelBuilder.Entity("FinanzasInteligentes.Dominio.Infraestructura.Entidades.Idempotencia", b =>
@@ -2367,6 +2423,15 @@ namespace FinanzasInteligentes.Infraestructura.Persistencia.Migraciones
                         .HasFilter("usuario_id IS NOT NULL");
 
                     b.ToTable("idempotencias", "infra");
+                });
+
+            modelBuilder.Entity("FinanzasInteligentes.Dominio.Infraestructura.Entidades.EntregaOutbox", b =>
+                {
+                    b.HasOne("FinanzasInteligentes.Dominio.Infraestructura.Entidades.EventoOutbox", null)
+                        .WithMany()
+                        .HasForeignKey("EventoOutboxId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("FinanzasInteligentes.Dominio.Seguridad.Dispositivo", b =>

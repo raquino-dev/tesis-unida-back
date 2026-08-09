@@ -52,6 +52,7 @@ public sealed class FinanzasDbContext(DbContextOptions<FinanzasDbContext> option
     public DbSet<TransaccionSuscripcion> TransaccionesSuscripcion => Set<TransaccionSuscripcion>();
     public DbSet<AvisoSuscripcion> AvisosSuscripcion => Set<AvisoSuscripcion>();
     public DbSet<EventoOutbox> EventosOutbox => Set<EventoOutbox>();
+    public DbSet<EntregaOutbox> EntregasOutbox => Set<EntregaOutbox>();
     public DbSet<Idempotencia> Idempotencias => Set<Idempotencia>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -983,9 +984,26 @@ public sealed class FinanzasDbContext(DbContextOptions<FinanzasDbContext> option
         evento.Property(x => x.DisponibleEn).HasColumnName("disponible_en");
         evento.Property(x => x.ProcesadoEn).HasColumnName("procesado_en");
         evento.Property(x => x.Intentos).HasColumnName("intentos");
+        evento.Property(x => x.UltimoError).HasColumnName("ultimo_error").HasMaxLength(1000);
         evento.Property(x => x.Estado).HasColumnName("estado");
         evento.Property(x => x.CreadoEn).HasColumnName("ocurrido_en");
         evento.HasIndex(x => new { x.Estado, x.DisponibleEn });
+
+        var entrega = builder.Entity<EntregaOutbox>();
+        entrega.ToTable("outbox_entregas", "infra");
+        entrega.HasKey(x => x.Id);
+        entrega.Property(x => x.Id).HasColumnName("id");
+        entrega.Property(x => x.EventoOutboxId).HasColumnName("evento_outbox_id");
+        entrega.Property(x => x.Canal).HasColumnName("canal").HasMaxLength(30);
+        entrega.Property(x => x.DestinatarioHash).HasColumnName("destinatario_hash").HasMaxLength(64);
+        entrega.Property(x => x.Estado).HasColumnName("estado").HasMaxLength(20);
+        entrega.Property(x => x.ReservadaEn).HasColumnName("reservada_en");
+        entrega.Property(x => x.EnviadaEn).HasColumnName("enviada_en");
+        entrega.Property(x => x.CreadoEn).HasColumnName("creado_en");
+        entrega.HasIndex(x => new { x.EventoOutboxId, x.Canal }).IsUnique();
+        entrega.HasIndex(x => new { x.Canal, x.ReservadaEn });
+        entrega.HasOne<EventoOutbox>().WithMany().HasForeignKey(x => x.EventoOutboxId)
+            .OnDelete(DeleteBehavior.Cascade);
 
         var idempotencia = builder.Entity<Idempotencia>();
         idempotencia.ToTable("idempotencias", "infra");
