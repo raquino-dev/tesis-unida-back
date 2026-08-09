@@ -14,11 +14,12 @@ public sealed class CorreoOptions
     public string Remitente { get; init; } = string.Empty;
     public string NombreRemitente { get; init; } = "Finanzas Inteligentes";
     public string UrlAplicacion { get; init; } = "https://app.example.invalid";
+    public int MaximoEnviosPorDestinatarioHora { get; init; } = 30;
 }
 
 public interface ICorreoSender
 {
-    Task Enviar(
+    Task<bool> Enviar(
         string destinatario, string asunto, string texto, string html,
         CancellationToken cancellationToken);
 }
@@ -30,7 +31,7 @@ public sealed class SesCorreoSender(
     private readonly CorreoOptions _options = options.Value;
     private AmazonSimpleEmailServiceV2Client? _client;
 
-    public async Task Enviar(
+    public async Task<bool> Enviar(
         string destinatario, string asunto, string texto, string html,
         CancellationToken cancellationToken)
     {
@@ -39,7 +40,7 @@ public sealed class SesCorreoSender(
             logger.LogWarning(
                 "Correo deshabilitado: no se envió el mensaje {Asunto} a {Destinatario}",
                 asunto, Enmascarar(destinatario));
-            return;
+            return false;
         }
 
         _client ??= new AmazonSimpleEmailServiceV2Client(
@@ -61,6 +62,7 @@ public sealed class SesCorreoSender(
                 }
             }
         }, cancellationToken);
+        return true;
     }
 
     public void Dispose() => _client?.Dispose();

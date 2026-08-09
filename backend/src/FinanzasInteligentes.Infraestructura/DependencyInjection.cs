@@ -128,6 +128,8 @@ public static class DependencyInjection
                 "Correo:Region es obligatoria cuando SES está habilitado.")
             .Validate(x => Uri.TryCreate(x.UrlAplicacion, UriKind.Absolute, out _),
                 "Correo:UrlAplicacion debe ser una URL absoluta.")
+            .Validate(x => x.MaximoEnviosPorDestinatarioHora is >= 1 and <= 100,
+                "Correo:MaximoEnviosPorDestinatarioHora debe estar entre 1 y 100.")
             .ValidateOnStart();
         services.AddOptions<FirebaseOptions>()
             .Bind(configuration.GetSection(FirebaseOptions.SectionName))

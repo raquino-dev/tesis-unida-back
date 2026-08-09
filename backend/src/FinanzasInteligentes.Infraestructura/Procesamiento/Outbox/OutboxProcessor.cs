@@ -1,4 +1,5 @@
 using FinanzasInteligentes.Aplicacion.Abstracciones;
+using FinanzasInteligentes.Dominio.Infraestructura.Entidades;
 using FinanzasInteligentes.Infraestructura.Persistencia;
 using FinanzasInteligentes.Infraestructura.Correo;
 using FinanzasInteligentes.Infraestructura.Notificaciones;
@@ -6,6 +7,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using System.IO.Compression;
 using System.Security;
+using System.Security.Cryptography;
 using System.Text;
 using System.Xml;
 using System.Xml.Linq;
@@ -26,6 +28,8 @@ public sealed class OutboxProcessor(
     Microsoft.Extensions.Options.IOptions<CorreoOptions> correoOptions,
     ILogger<OutboxProcessor> logger) : IOutboxProcessor
 {
+    private const int MaximoIntentosOutbox = 5;
+
     public async Task<int> ProcesarLote(CancellationToken cancellationToken)
     {
         var eventos = await db.EventosOutbox
@@ -42,59 +46,79 @@ public sealed class OutboxProcessor(
                 evento.AgregadoTipo,
                 evento.AgregadoId);
 
-            if (evento.Tipo == "perfil.eliminacion-solicitada")
-                await ProcesarEliminacionPerfil(evento.AgregadoId, cancellationToken);
-            else if (evento.Tipo == "grupo-familiar.eliminacion-solicitada")
-                await ProcesarEliminacionGrupo(evento.AgregadoId, cancellationToken);
-            else if (evento.Tipo == "documento.procesamiento-solicitado")
-                await ProcesarDocumento(evento.AgregadoId, cancellationToken);
-            else if (evento.Tipo == "exportacion.solicitada")
-                await ProcesarExportacion(evento.AgregadoId, cancellationToken);
-            else if (evento.Tipo == "otp.solicitado")
-                await EnviarOtp(evento.Payload.RootElement, cancellationToken);
-            else if (evento.Tipo == "contrasena.recuperacion-solicitada")
-                await EnviarRecuperacion(evento.Payload.RootElement, cancellationToken);
-            else if (evento.Tipo is "suscripcion.activada" or "suscripcion.cancelada" or "suscripcion.restaurada")
-                await EnviarSuscripcion(evento.Tipo, evento.Payload.RootElement, cancellationToken);
-            else if (evento.Tipo == "suscripcion.aviso-vencimiento")
-                await EnviarAvisoVencimiento(evento.Payload.RootElement, cancellationToken);
-            else if (evento.Tipo == "alerta.financiera-creada")
-                await EnviarAlerta(evento.Payload.RootElement, cancellationToken);
+            try
+            {
+                if (evento.Tipo == "perfil.eliminacion-solicitada")
+                    await ProcesarEliminacionPerfil(evento.AgregadoId, cancellationToken);
+                else if (evento.Tipo == "grupo-familiar.eliminacion-solicitada")
+                    await ProcesarEliminacionGrupo(evento.AgregadoId, cancellationToken);
+                else if (evento.Tipo == "documento.procesamiento-solicitado")
+                    await ProcesarDocumento(evento.AgregadoId, cancellationToken);
+                else if (evento.Tipo == "exportacion.solicitada")
+                    await ProcesarExportacion(evento.AgregadoId, cancellationToken);
+                else if (evento.Tipo == "otp.solicitado")
+                    await EnviarOtp(evento, cancellationToken);
+                else if (evento.Tipo == "contrasena.recuperacion-solicitada")
+                    await EnviarRecuperacion(evento, cancellationToken);
+                else if (evento.Tipo is "suscripcion.activada" or "suscripcion.cancelada" or "suscripcion.restaurada")
+                    await EnviarSuscripcion(evento, cancellationToken);
+                else if (evento.Tipo == "suscripcion.aviso-vencimiento")
+                    await EnviarAvisoVencimiento(evento, cancellationToken);
+                else if (evento.Tipo == "alerta.financiera-creada")
+                    await EnviarAlerta(evento.Payload.RootElement, cancellationToken);
 
-            evento.MarcarProcesado(
-                evento.Tipo is "otp.solicitado" or
-                    "contrasena.recuperacion-solicitada");
-        }
+                evento.MarcarProcesado(
+                    evento.Tipo is "otp.solicitado" or
+                        "contrasena.recuperacion-solicitada");
+            }
+            catch (LimiteCorreoExcedidoException exception)
+            {
+                evento.MarcarFallido(exception.Message);
+                logger.LogCritical(exception,
+                    "Se bloqueó el correo del evento {EventoId} por el circuito de seguridad.",
+                    evento.Id);
+            }
+            catch (Exception exception)
+            {
+                evento.ReprogramarError(exception, MaximoIntentosOutbox);
+                logger.LogError(exception,
+                    "Falló el evento outbox {EventoId}; intento {Intentos}/{MaximoIntentos}.",
+                    evento.Id, evento.Intentos, MaximoIntentosOutbox);
+            }
 
-        if (eventos.Count > 0)
             await db.SaveChangesAsync(cancellationToken);
+        }
         return eventos.Count;
     }
 
-    private async Task EnviarOtp(System.Text.Json.JsonElement payload, CancellationToken ct)
+    private async Task EnviarOtp(EventoOutbox evento, CancellationToken ct)
     {
+        var payload = evento.Payload.RootElement;
         var destinatario = payload.GetProperty("Correo").GetString()!;
         var codigo = payload.GetProperty("Codigo").GetString()!;
         var texto = $"Tu código de verificación es {codigo}. Expira en 5 minutos.";
-        await correo.Enviar(destinatario, "Código de verificación", texto,
+        await EnviarCorreoUnaVez(evento, destinatario, "Código de verificación", texto,
             $"<p>Tu código de verificación es <strong>{System.Net.WebUtility.HtmlEncode(codigo)}</strong>.</p><p>Expira en 5 minutos.</p>", ct);
     }
 
-    private async Task EnviarRecuperacion(System.Text.Json.JsonElement payload, CancellationToken ct)
+    private async Task EnviarRecuperacion(EventoOutbox evento, CancellationToken ct)
     {
+        var payload = evento.Payload.RootElement;
         var destinatario = payload.GetProperty("Correo").GetString()!;
         var token = payload.GetProperty("Token").GetString()!;
         var baseUrl = correoOptions.Value.UrlAplicacion.TrimEnd('/');
         var url = Microsoft.AspNetCore.WebUtilities.QueryHelpers.AddQueryString(
             $"{baseUrl}/reset-password", "token", token);
         var texto = $"Usa este enlace para restablecer tu contraseña: {url}. Expira en 30 minutos.";
-        await correo.Enviar(destinatario, "Restablecer contraseña", texto,
+        await EnviarCorreoUnaVez(evento, destinatario, "Restablecer contraseña", texto,
             $"<p>Solicitaste restablecer tu contraseña.</p><p><a href=\"{System.Net.WebUtility.HtmlEncode(url)}\">Restablecer contraseña</a></p><p>Expira en 30 minutos.</p>", ct);
     }
 
     private async Task EnviarSuscripcion(
-        string tipo, System.Text.Json.JsonElement payload, CancellationToken ct)
+        EventoOutbox evento, CancellationToken ct)
     {
+        var tipo = evento.Tipo;
+        var payload = evento.Payload.RootElement;
         var usuarioId = payload.GetProperty("UsuarioId").GetGuid();
         var usuario = await db.Usuarios.AsNoTracking().Include(x => x.Preferencias)
             .SingleOrDefaultAsync(x => x.Id == usuarioId, ct);
@@ -107,7 +131,7 @@ public sealed class OutboxProcessor(
         };
         var texto = $"Tu suscripción fue {accion}.";
         if (usuario.Preferencias.NotificacionesCorreo)
-            await correo.Enviar(usuario.Correo, $"Suscripción {accion}", texto, $"<p>{texto}</p>", ct);
+            await EnviarCorreoUnaVez(evento, usuario.Correo, $"Suscripción {accion}", texto, $"<p>{texto}</p>", ct);
         await push.Enviar(
             usuarioId,
             $"Suscripción {accion}",
@@ -121,8 +145,9 @@ public sealed class OutboxProcessor(
     }
 
     private async Task EnviarAvisoVencimiento(
-        System.Text.Json.JsonElement payload, CancellationToken ct)
+        EventoOutbox evento, CancellationToken ct)
     {
+        var payload = evento.Payload.RootElement;
         var usuarioId = payload.GetProperty("UsuarioId").GetGuid();
         var usuario = await db.Usuarios.AsNoTracking().Include(x => x.Preferencias)
             .SingleOrDefaultAsync(x => x.Id == usuarioId, ct);
@@ -139,7 +164,7 @@ public sealed class OutboxProcessor(
         };
         var texto = $"{mensaje} Fecha del periodo: {fin:yyyy-MM-dd}.";
         if (usuario.Preferencias.NotificacionesCorreo)
-            await correo.Enviar(
+            await EnviarCorreoUnaVez(evento,
                 usuario.Correo, "Información de tu suscripción", texto,
                 $"<p>{mensaje}</p><p>Fecha del periodo: <strong>{fin:yyyy-MM-dd}</strong>.</p>", ct);
         await push.Enviar(
@@ -153,6 +178,52 @@ public sealed class OutboxProcessor(
             },
             ct);
     }
+
+    private async Task EnviarCorreoUnaVez(
+        EventoOutbox evento,
+        string destinatario,
+        string asunto,
+        string texto,
+        string html,
+        CancellationToken ct)
+    {
+        const string canal = "correo";
+        if (await db.EntregasOutbox.AnyAsync(x =>
+            x.EventoOutboxId == evento.Id && x.Canal == canal, ct))
+        {
+            logger.LogWarning(
+                "Se omitió un correo duplicado del evento {EventoId}; ya fue reservado o enviado.",
+                evento.Id);
+            return;
+        }
+
+        var ahora = DateTimeOffset.UtcNow;
+        var opciones = correoOptions.Value;
+        var destinatarioHash = Convert.ToHexString(SHA256.HashData(
+            Encoding.UTF8.GetBytes(destinatario.Trim().ToUpperInvariant()))).ToLowerInvariant();
+        var desdeHora = ahora.AddHours(-1);
+        var enviadosDestinatario = await db.EntregasOutbox.CountAsync(x =>
+            x.Canal == canal && x.DestinatarioHash == destinatarioHash &&
+            x.ReservadaEn >= desdeHora, ct);
+        if (enviadosDestinatario >= opciones.MaximoEnviosPorDestinatarioHora)
+            throw new LimiteCorreoExcedidoException(
+                "Límite horario por destinatario alcanzado.");
+
+        // La reserva se confirma antes de SES. Si la llamada externa es ambigua,
+        // priorizamos no repetir ni cobrar un correo duplicado.
+        var entrega = EntregaOutbox.Reservar(evento.Id, canal, destinatarioHash);
+        db.EntregasOutbox.Add(entrega);
+        await db.SaveChangesAsync(ct);
+
+        var enviado = await correo.Enviar(destinatario, asunto, texto, html, ct);
+        if (enviado)
+            entrega.MarcarEnviada();
+        else
+            entrega.MarcarOmitida();
+        await db.SaveChangesAsync(ct);
+    }
+
+    private sealed class LimiteCorreoExcedidoException(string message) : Exception(message);
 
     private Task EnviarAlerta(
         System.Text.Json.JsonElement payload, CancellationToken ct)

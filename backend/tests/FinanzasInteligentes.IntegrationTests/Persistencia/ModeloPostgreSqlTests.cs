@@ -31,5 +31,6 @@ public sealed class ModeloPostgreSqlTests
         Assert.Equal("familias", db.Model.FindEntityType("FinanzasInteligentes.Dominio.FinanzasFamiliares.GrupoFamiliar")?.GetSchema());
         Assert.Equal("suscripciones", db.Model.FindEntityType("FinanzasInteligentes.Dominio.Suscripciones.Suscripcion")?.GetSchema());
         Assert.Equal("infra", db.Model.FindEntityType("FinanzasInteligentes.Dominio.Infraestructura.Entidades.EventoOutbox")?.GetSchema());
+        Assert.Equal("infra", db.Model.FindEntityType("FinanzasInteligentes.Dominio.Infraestructura.Entidades.EntregaOutbox")?.GetSchema());
     }
 }

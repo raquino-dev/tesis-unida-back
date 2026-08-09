@@ -12,11 +12,14 @@ x-runtime-common: &runtime-common
   S3__Prefijo: ${S3_DOCUMENT_PREFIX:-piloto}
   AWS_REGION: us-east-1
   AWS_DEFAULT_REGION: us-east-1
-  Correo__Habilitado: "true"
+  # Fail closed: SES is only enabled through the protected production env file
+  # after the outbox and delivery limits have been verified.
+  Correo__Habilitado: ${CORREO_HABILITADO:-false}
   Correo__Region: us-east-1
   Correo__Remitente: ${SES_FROM_ADDRESS:?Configure SES_FROM_ADDRESS}
   Correo__NombreRemitente: ${SES_FROM_NAME:-Finanzas Inteligentes}
   Correo__UrlAplicacion: ${PUBLIC_APP_URL:?Configure PUBLIC_APP_URL}
+  Correo__MaximoEnviosPorDestinatarioHora: ${CORREO_MAXIMO_ENVIOS_POR_DESTINATARIO_HORA:-30}
 
 x-service-security: &service-security
   security_opt:
