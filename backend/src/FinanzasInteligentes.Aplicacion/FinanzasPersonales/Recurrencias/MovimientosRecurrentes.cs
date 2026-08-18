@@ -53,8 +53,14 @@ public sealed class MovimientosRecurrentesHandler(
         Guid usuarioId, Guid cuentaId, string tipo, long monto,
         IReadOnlyCollection<Guid> categoriaIds, string descripcion,
         DateOnly fechaInicio, DateOnly? fechaFin, string frecuencia,
-        long? cantidadOcurrencias, string correlationId, CancellationToken ct)
+        long? cantidadOcurrencias, string correlationId, Guid? id,
+        CancellationToken ct)
     {
+        if (id is { } requestedId &&
+            await finanzas.ObtenerMovimientoRecurrente(
+                usuarioId, requestedId, true, ct) is { } existing)
+            return await Map(existing, ct);
+
         var cuenta = await finanzas.ObtenerCuenta(usuarioId, cuentaId, true, ct)
             ?? throw new NotFoundException("cuenta_no_encontrada", "La cuenta no existe.");
         var categorias = await ObtenerCategorias(usuarioId, categoriaIds, tipo, ct);
@@ -66,7 +72,7 @@ public sealed class MovimientosRecurrentesHandler(
 
         var entity = MovimientoRecurrente.Crear(
             usuarioId, cuentaId, tipo, monto, descripcion, fechaInicio,
-            fechaFin, frecuencia, cantidadOcurrencias, categorias);
+            fechaFin, frecuencia, cantidadOcurrencias, categorias, id);
         finanzas.Agregar(entity);
         finanzas.Agregar(EventoOutbox.Crear(
             "movimiento-recurrente.creado", "movimiento-recurrente",

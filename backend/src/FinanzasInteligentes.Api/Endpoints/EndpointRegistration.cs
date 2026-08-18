@@ -25,6 +25,7 @@ public static class EndpointRegistration
         endpoints.MapTarjetasCredito();
         endpoints.MapMovimientos();
         endpoints.MapMovimientosRecurrentes();
+        endpoints.MapSincronizacion();
         endpoints.MapTransferencias();
         endpoints.MapPlanificacion();
         endpoints.MapAnalitica();

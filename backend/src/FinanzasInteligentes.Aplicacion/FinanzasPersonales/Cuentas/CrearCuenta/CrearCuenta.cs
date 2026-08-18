@@ -16,7 +16,8 @@ public sealed record CrearCuentaCommand(
     string Moneda = "PYG",
     string? Color = null,
     string? Icono = null,
-    bool IncluidaEnTotal = true);
+    bool IncluidaEnTotal = true,
+    Guid? Id = null);
 
 public sealed class CrearCuentaHandler(
     IFinanzasRepository finanzas,
@@ -24,12 +25,17 @@ public sealed class CrearCuentaHandler(
 {
     public async Task<CuentaResponse> Handle(CrearCuentaCommand command, CancellationToken cancellationToken)
     {
+        if (command.Id is { } requestedId &&
+            await finanzas.ObtenerCuenta(
+                command.UsuarioId, requestedId, true, cancellationToken) is { } existing)
+            return existing.ToResponse();
+
         if (command.Moneda != "PYG")
             throw new DomainException("moneda_no_soportada", "La primera versión sólo admite PYG.");
 
         var cuenta = Cuenta.Crear(
             command.UsuarioId, command.Nombre, command.Tipo, command.SaldoInicial,
-            command.Color, command.Icono, command.IncluidaEnTotal);
+            command.Color, command.Icono, command.IncluidaEnTotal, command.Id);
 
         finanzas.Agregar(cuenta);
 

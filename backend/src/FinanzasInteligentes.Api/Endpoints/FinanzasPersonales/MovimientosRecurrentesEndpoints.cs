@@ -53,7 +53,7 @@ public static class MovimientosRecurrentesEndpoints
             context.UsuarioId(), request.CuentaId, request.Tipo, request.Monto,
             request.CategoriaIds, request.Descripcion, request.FechaInicio,
             request.FechaFin, request.Frecuencia, request.CantidadOcurrencias,
-            context.TraceIdentifier, ct);
+            context.TraceIdentifier, request.Id, ct);
         context.Response.Headers.ETag = ETagExtensions.Formatear(response.Version);
         return Results.Created($"/api/v1/movimientos-recurrentes/{response.Id}", response);
     }

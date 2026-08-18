@@ -73,7 +73,8 @@ public static class TarjetasCreditoEndpoints
         var response = await handler.Handle(new(
             context.UsuarioId(), context.TraceIdentifier, request.Alias,
             request.CuentaPagoId, request.DiaCierre,
-            request.DiaVencimiento, request.LimiteCredito, request.Moneda, request.Color),
+            request.DiaVencimiento, request.LimiteCredito, request.Moneda, request.Color,
+            request.Id),
             cancellationToken);
         context.Response.Headers.ETag = ETagExtensions.Formatear(response.Version);
         return Results.Created($"/api/v1/tarjetas-credito/{response.Id}", response);

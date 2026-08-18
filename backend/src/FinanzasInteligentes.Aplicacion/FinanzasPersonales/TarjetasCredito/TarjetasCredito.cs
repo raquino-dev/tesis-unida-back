@@ -19,7 +19,8 @@ public sealed record CrearTarjetaCreditoCommand(
     long DiaVencimiento,
     long LimiteCredito,
     string Moneda,
-    string Color);
+    string Color,
+    Guid? Id = null);
 public sealed record ActualizarTarjetaCreditoCommand(
     Guid UsuarioId,
     Guid TarjetaId,
@@ -107,6 +108,17 @@ public sealed class CrearTarjetaCreditoHandler(
         CrearTarjetaCreditoCommand command,
         CancellationToken cancellationToken)
     {
+        if (command.Id is not null)
+        {
+            var existente = await finanzas.ObtenerTarjetaCredito(
+                command.UsuarioId, command.Id.Value, true, cancellationToken);
+            if (existente is not null)
+            {
+                var cuentaExistente = await ObtenerTarjetaCreditoHandler.ObtenerCuentaPago(
+                    finanzas, command.UsuarioId, existente.CuentaPagoId, cancellationToken);
+                return existente.ToResponse(cuentaExistente);
+            }
+        }
         var cuenta = await ObtenerTarjetaCreditoHandler.ObtenerCuentaPago(
             finanzas, command.UsuarioId, command.CuentaPagoId, cancellationToken);
         if (await finanzas.ExisteTarjetaCreditoConAlias(
@@ -117,7 +129,7 @@ public sealed class CrearTarjetaCreditoHandler(
         var tarjeta = TarjetaCredito.Crear(
             command.UsuarioId, command.Alias,
             command.CuentaPagoId, command.DiaCierre, command.DiaVencimiento,
-            command.LimiteCredito, command.Moneda, command.Color);
+            command.LimiteCredito, command.Moneda, command.Color, command.Id);
         finanzas.Agregar(tarjeta);
         finanzas.Agregar(EventoOutbox.Crear(
             "tarjeta-credito.creada", "tarjeta-credito", tarjeta.Id,

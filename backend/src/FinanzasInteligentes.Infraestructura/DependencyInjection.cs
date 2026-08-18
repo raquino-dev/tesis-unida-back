@@ -160,6 +160,7 @@ public static class DependencyInjection
         services.AddSingleton<IValidadorComprobanteSuscripcion, ValidadorComprobanteSuscripcion>();
         services.AddSingleton<IValidadorNotificacionGooglePlay, ValidadorNotificacionGooglePlay>();
         services.AddScoped<IUnidadDeTrabajo, UnidadDeTrabajo>();
+        services.AddScoped<ISincronizacionRepository, SincronizacionRepository>();
         services.AddScoped<IOutboxProcessor, OutboxProcessor>();
         services.AddScoped<IRecurrenciasProcessor, RecurrenciasProcessor>();
         services.AddScoped<IAnaliticaProcessor, AnaliticaProcessor>();

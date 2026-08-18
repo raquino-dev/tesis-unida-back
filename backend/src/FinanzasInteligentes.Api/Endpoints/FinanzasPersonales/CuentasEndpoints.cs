@@ -36,7 +36,8 @@ public static class CuentasEndpoints
     {
         var command = new CrearCuentaCommand(
             context.UsuarioId(), context.TraceIdentifier, request.Nombre, request.Tipo,
-            request.SaldoInicial, request.Moneda, request.Color, request.Icono, request.IncluidaEnTotal);
+            request.SaldoInicial, request.Moneda, request.Color, request.Icono,
+            request.IncluidaEnTotal, request.Id);
 
         var response = await handler.Handle(command, cancellationToken);
 

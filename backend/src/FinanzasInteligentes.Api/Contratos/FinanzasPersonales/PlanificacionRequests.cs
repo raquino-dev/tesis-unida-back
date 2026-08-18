@@ -6,7 +6,8 @@ public sealed record PresupuestoRequest(
     string Nombre,
     long Monto,
     string Periodo,
-    IReadOnlyCollection<Guid> CategoriaIds);
+    IReadOnlyCollection<Guid> CategoriaIds,
+    Guid? Id = null);
 
 public sealed record PresupuestoPatchRequest(
     string? Ambito = null,
@@ -22,7 +23,8 @@ public sealed record MetaAhorroRequest(
     string Nombre,
     long MontoObjetivo,
     DateOnly FechaObjetivo,
-    Guid CuentaId);
+    Guid CuentaId,
+    Guid? Id = null);
 
 public sealed record MetaAhorroPatchRequest(
     string? Nombre = null,

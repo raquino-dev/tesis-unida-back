@@ -7,4 +7,5 @@ public sealed record CrearCuentaRequest(
     string Moneda = "PYG",
     string? Color = null,
     string? Icono = null,
-    bool IncluidaEnTotal = true);
+    bool IncluidaEnTotal = true,
+    Guid? Id = null);

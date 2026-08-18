@@ -11,4 +11,5 @@ public sealed record CrearMovimientoRequest(
     IReadOnlyCollection<Guid>? CategoriaIds = null,
     Guid? DocumentoId = null,
     Guid? MovimientoRecurrenteId = null,
-    Guid? GrupoFamiliarId = null);
+    Guid? GrupoFamiliarId = null,
+    Guid? Id = null);

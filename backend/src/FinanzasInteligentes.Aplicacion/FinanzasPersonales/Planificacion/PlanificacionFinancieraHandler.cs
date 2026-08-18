@@ -34,8 +34,13 @@ public sealed class PlanificacionFinancieraHandler(
     public async Task<PresupuestoResponse> CrearPresupuesto(
         Guid usuarioId, string ambito, Guid? grupoFamiliarId, string nombre,
         long monto, string periodo, IReadOnlyCollection<Guid> categoriaIds,
-        string correlationId, CancellationToken ct)
+        string correlationId, Guid? id, CancellationToken ct)
     {
+        if (id is { } requestedId &&
+            await finanzas.ObtenerPresupuesto(
+                usuarioId, requestedId, true, ct) is { } existing)
+            return await MapPresupuesto(existing, null, null, ct);
+
         ValidarPresupuestoPrivado(ambito, grupoFamiliarId);
         var categorias = await ObtenerCategoriasPrivadas(usuarioId, categoriaIds, ct);
         if (await finanzas.ExistePresupuestoSolapado(
@@ -44,7 +49,7 @@ public sealed class PlanificacionFinancieraHandler(
                 "presupuesto_solapado",
                 "Ya existe un presupuesto activo para una de las categorías y el periodo indicados.");
 
-        var entity = Presupuesto.Crear(usuarioId, nombre, monto, periodo, categorias);
+        var entity = Presupuesto.Crear(usuarioId, nombre, monto, periodo, categorias, id);
         finanzas.Agregar(entity);
         finanzas.Agregar(EventoOutbox.Crear(
             "presupuesto.creado", "presupuesto", entity.Id, new { entity.Id }, correlationId));
@@ -126,11 +131,18 @@ public sealed class PlanificacionFinancieraHandler(
     public async Task<MetaAhorroResponse> CrearMeta(
         Guid usuarioId, string ambito, Guid? grupoFamiliarId, string nombre,
         long montoObjetivo, DateOnly fechaObjetivo, Guid cuentaId,
-        string correlationId, CancellationToken ct)
+        string correlationId, Guid? id, CancellationToken ct)
     {
+        if (id is { } requestedId &&
+            await finanzas.ObtenerMeta(
+                requestedId, true, ct) is { } existing &&
+            existing.UsuarioId == usuarioId)
+            return await MapMeta(existing, usuarioId, ct);
+
         await ValidarCuentaMeta(usuarioId, ambito, grupoFamiliarId, cuentaId, true, ct);
         var entity = MetaAhorro.Crear(
-            usuarioId, ambito, grupoFamiliarId, nombre, montoObjetivo, fechaObjetivo, cuentaId);
+            usuarioId, ambito, grupoFamiliarId, nombre, montoObjetivo,
+            fechaObjetivo, cuentaId, id);
         finanzas.Agregar(entity);
         finanzas.Agregar(EventoOutbox.Crear(
             "meta-ahorro.creada", "meta-ahorro", entity.Id, new { entity.Id }, correlationId));

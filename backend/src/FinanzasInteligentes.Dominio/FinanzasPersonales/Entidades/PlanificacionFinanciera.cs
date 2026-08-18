@@ -22,11 +22,13 @@ public sealed class Presupuesto : MutableEntity
         string nombre,
         long monto,
         string periodo,
-        IReadOnlyCollection<Categoria> categorias)
+        IReadOnlyCollection<Categoria> categorias,
+        Guid? id = null)
     {
         Validar(nombre, monto, periodo, categorias);
         var presupuesto = new Presupuesto
         {
+            Id = id ?? Guid.CreateVersion7(),
             UsuarioId = usuarioId,
             Nombre = nombre.Trim(),
             Monto = monto,
@@ -107,7 +109,8 @@ public sealed class MetaAhorro : MutableEntity
         string nombre,
         long montoObjetivo,
         DateOnly fechaObjetivo,
-        Guid cuentaId)
+        Guid cuentaId,
+        Guid? id = null)
     {
         Validar(nombre, montoObjetivo, fechaObjetivo);
         if (ambito is not ("privado" or "familiar"))
@@ -120,6 +123,7 @@ public sealed class MetaAhorro : MutableEntity
 
         return new()
         {
+            Id = id ?? Guid.CreateVersion7(),
             Ambito = ambito,
             UsuarioId = ambito == "privado" ? actorUsuarioId : null,
             GrupoFamiliarId = grupoFamiliarId,

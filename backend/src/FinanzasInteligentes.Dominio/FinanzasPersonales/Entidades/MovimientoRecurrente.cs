@@ -35,13 +35,15 @@ public sealed class MovimientoRecurrente : MutableEntity
         DateOnly? fechaFin,
         string frecuencia,
         long? cantidadOcurrencias,
-        IReadOnlyCollection<Categoria> categorias)
+        IReadOnlyCollection<Categoria> categorias,
+        Guid? id = null)
     {
         Validar(
             tipo, monto, descripcion, fechaInicio, fechaFin,
             frecuencia, cantidadOcurrencias, 0, categorias);
         var entity = new MovimientoRecurrente
         {
+            Id = id ?? Guid.CreateVersion7(),
             UsuarioId = usuarioId,
             CuentaId = cuentaId,
             Tipo = tipo,
