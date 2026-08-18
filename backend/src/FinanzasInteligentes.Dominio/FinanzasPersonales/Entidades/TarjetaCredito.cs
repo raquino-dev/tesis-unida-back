@@ -30,12 +30,14 @@ public sealed partial class TarjetaCredito : MutableEntity
         long diaVencimiento,
         long limiteCredito,
         string moneda,
-        string color)
+        string color,
+        Guid? id = null)
     {
         Validar(usuarioId, alias, cuentaPagoId, diaCierre,
             diaVencimiento, limiteCredito, moneda, color);
         return new()
         {
+            Id = id ?? Guid.CreateVersion7(),
             UsuarioId = usuarioId,
             Alias = alias.Trim(),
             CuentaPagoId = cuentaPagoId,

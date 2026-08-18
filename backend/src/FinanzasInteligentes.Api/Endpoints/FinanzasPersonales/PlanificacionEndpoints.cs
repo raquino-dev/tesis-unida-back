@@ -90,7 +90,7 @@ public static class PlanificacionEndpoints
         var response = await handler.CrearPresupuesto(
             context.UsuarioId(), request.Ambito, request.GrupoFamiliarId,
             request.Nombre, request.Monto, request.Periodo, request.CategoriaIds,
-            context.TraceIdentifier, ct);
+            context.TraceIdentifier, request.Id, ct);
         context.Response.Headers.ETag = ETagExtensions.Formatear(response.Version);
         return Results.Created($"/api/v1/presupuestos/{response.Id}", response);
     }
@@ -150,7 +150,7 @@ public static class PlanificacionEndpoints
         var response = await handler.CrearMeta(
             context.UsuarioId(), request.Ambito, request.GrupoFamiliarId,
             request.Nombre, request.MontoObjetivo, request.FechaObjetivo,
-            request.CuentaId, context.TraceIdentifier, ct);
+            request.CuentaId, context.TraceIdentifier, request.Id, ct);
         context.Response.Headers.ETag = ETagExtensions.Formatear(response.Version);
         return Results.Created($"/api/v1/metas-ahorro/{response.Id}", response);
     }

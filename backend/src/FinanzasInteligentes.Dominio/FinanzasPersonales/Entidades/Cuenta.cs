@@ -26,7 +26,8 @@ public sealed class Cuenta : MutableEntity
         long saldoInicial,
         string? color = null,
         string? icono = null,
-        bool incluidaEnTotal = true)
+        bool incluidaEnTotal = true,
+        Guid? id = null)
     {
         if (usuarioId == Guid.Empty) throw new DomainException("usuario_invalido", "El usuario es requerido.");
         if (string.IsNullOrWhiteSpace(nombre)) throw new DomainException("nombre_invalido", "El nombre es requerido.");
@@ -34,6 +35,7 @@ public sealed class Cuenta : MutableEntity
 
         return new Cuenta
         {
+            Id = id ?? Guid.CreateVersion7(),
             UsuarioId = usuarioId,
             Nombre = nombre.Trim(),
             Tipo = tipo,
@@ -124,7 +126,7 @@ public sealed class Categoria : MutableEntity
     public bool EsPredeterminada { get; private set; }
     public DateTimeOffset? EliminadoEn { get; private set; }
 
-    public static Categoria Crear(Guid usuarioId, string nombre, string tipo, string? icono = null, string? color = null)
+    public static Categoria Crear(Guid usuarioId, string nombre, string tipo, string? icono = null, string? color = null, Guid? id = null)
     {
         if (usuarioId == Guid.Empty) throw new DomainException("usuario_invalido", "El usuario es requerido.");
         if (string.IsNullOrWhiteSpace(nombre)) throw new DomainException("nombre_invalido", "El nombre es requerido.");
@@ -132,6 +134,7 @@ public sealed class Categoria : MutableEntity
             throw new DomainException("tipo_categoria_invalido", "El tipo de categoría no es válido.");
         return new Categoria
         {
+            Id = id ?? Guid.CreateVersion7(),
             UsuarioId = usuarioId,
             Nombre = nombre.Trim(),
             Tipo = tipo,

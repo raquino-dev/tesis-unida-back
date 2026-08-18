@@ -59,6 +59,13 @@ public sealed class FinanzasDbContext(DbContextOptions<FinanzasDbContext> option
     public DbSet<PreguntaInstrumentoPiloto> PreguntasInstrumentoPiloto => Set<PreguntaInstrumentoPiloto>();
     public DbSet<RespuestaInstrumentoPiloto> RespuestasInstrumentoPiloto => Set<RespuestaInstrumentoPiloto>();
     public DbSet<DetalleRespuestaInstrumentoPiloto> DetallesRespuestaInstrumentoPiloto => Set<DetalleRespuestaInstrumentoPiloto>();
+    public DbSet<CambioSincronizacion> CambiosSincronizacion => Set<CambioSincronizacion>();
+
+    public override Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
+    {
+        RegistrarCambiosSincronizacion();
+        return base.SaveChangesAsync(cancellationToken);
+    }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -73,7 +80,61 @@ public sealed class FinanzasDbContext(DbContextOptions<FinanzasDbContext> option
         ConfigurarSuscripciones(modelBuilder);
         ConfigurarPiloto(modelBuilder);
         ConfigurarInfraestructura(modelBuilder);
+        ConfigurarSincronizacion(modelBuilder);
     }
+
+    private static void ConfigurarSincronizacion(ModelBuilder builder)
+    {
+        var cambio = builder.Entity<CambioSincronizacion>();
+        cambio.ToTable("cambios", "sincronizacion");
+        cambio.HasKey(x => x.Secuencia);
+        cambio.Property(x => x.Secuencia).HasColumnName("secuencia").ValueGeneratedOnAdd();
+        cambio.Property(x => x.UsuarioId).HasColumnName("usuario_id");
+        cambio.Property(x => x.TipoEntidad).HasColumnName("tipo_entidad").HasMaxLength(40);
+        cambio.Property(x => x.EntidadId).HasColumnName("entidad_id");
+        cambio.Property(x => x.Operacion).HasColumnName("operacion").HasMaxLength(20);
+        cambio.Property(x => x.Version).HasColumnName("version");
+        cambio.Property(x => x.OcurridoEn).HasColumnName("ocurrido_en");
+        cambio.HasIndex(x => new { x.UsuarioId, x.Secuencia });
+    }
+
+    private void RegistrarCambiosSincronizacion()
+    {
+        var registrados = ChangeTracker.Entries<CambioSincronizacion>()
+            .Where(x => x.State == EntityState.Added)
+            .Select(x => (x.Entity.UsuarioId, x.Entity.TipoEntidad, x.Entity.EntidadId))
+            .ToHashSet();
+        var cambios = ChangeTracker.Entries()
+            .Where(x => x.State is EntityState.Added or EntityState.Modified)
+            .Select(x => DatosCambio(x.Entity))
+            .Where(x => x is not null)
+            .Select(x => x!.Value)
+            .Where(x => !registrados.Contains((x.UsuarioId, x.Tipo, x.EntidadId)))
+            .Select(x => CambioSincronizacion.Crear(
+                x.UsuarioId, x.Tipo, x.EntidadId, x.Operacion, x.Version))
+            .ToArray();
+        if (cambios.Length > 0) CambiosSincronizacion.AddRange(cambios);
+    }
+
+    private static (Guid UsuarioId, string Tipo, Guid EntidadId, string Operacion, long Version)?
+        DatosCambio(object entity) => entity switch
+        {
+            Cuenta x => (x.UsuarioId, "cuenta", x.Id,
+                x.EliminadoEn is null ? "actualizado" : "eliminado", x.Version),
+            Categoria x when x.UsuarioId is not null => (x.UsuarioId.Value, "categoria", x.Id,
+                x.EliminadoEn is null ? "actualizado" : "eliminado", x.Version),
+            Movimiento x => (x.UsuarioId, "movimiento", x.Id,
+                x.Estado == "anulado" ? "eliminado" : "actualizado", x.Version),
+            Presupuesto x => (x.UsuarioId, "presupuesto", x.Id,
+                x.EliminadoEn is null ? "actualizado" : "eliminado", x.Version),
+            MetaAhorro x when x.UsuarioId is not null => (x.UsuarioId.Value, "meta_ahorro", x.Id,
+                x.EliminadoEn is null ? "actualizado" : "eliminado", x.Version),
+            MovimientoRecurrente x => (x.UsuarioId, "movimiento_recurrente", x.Id,
+                x.EliminadoEn is null ? "actualizado" : "eliminado", x.Version),
+            TarjetaCredito x => (x.UsuarioId, "tarjeta_credito", x.Id,
+                x.EliminadoEn is null ? "actualizado" : "eliminado", x.Version),
+            _ => null
+        };
 
     private static void ConfigurarPiloto(ModelBuilder builder)
     {

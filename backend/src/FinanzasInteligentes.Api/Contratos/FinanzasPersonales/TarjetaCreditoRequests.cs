@@ -7,7 +7,8 @@ public sealed record TarjetaCreditoRequest(
     long DiaVencimiento,
     long LimiteCredito,
     string Moneda,
-    string Color);
+    string Color,
+    Guid? Id = null);
 
 public sealed record TarjetaCreditoPatchRequest(
     string? Alias = null,

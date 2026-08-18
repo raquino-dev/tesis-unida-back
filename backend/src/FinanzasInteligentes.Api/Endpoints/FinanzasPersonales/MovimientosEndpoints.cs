@@ -49,7 +49,8 @@ public static class MovimientosEndpoints
         var command = new CrearMovimientoCommand(
             context.UsuarioId(), context.TraceIdentifier, request.Ambito, request.CuentaId,
             request.Tipo, request.Monto, request.Descripcion, request.Fecha, request.Hora,
-            request.CategoriaIds, request.DocumentoId, request.MovimientoRecurrenteId, request.GrupoFamiliarId);
+            request.CategoriaIds, request.DocumentoId, request.MovimientoRecurrenteId,
+            request.GrupoFamiliarId, request.Id);
 
         var response = await handler.Handle(command, cancellationToken);
 

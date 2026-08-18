@@ -37,7 +37,8 @@ public sealed class Movimiento : Entity
         Guid? recurrenciaId = null,
         DateOnly? periodoRecurrencia = null,
         Guid? transferenciaId = null,
-        Guid? documentoId = null)
+        Guid? documentoId = null,
+        Guid? id = null)
     {
         if (monto <= 0) throw new DomainException("monto_invalido", "El monto debe ser positivo.");
         if (tipo is not ("ingreso" or "gasto"))
@@ -59,6 +60,7 @@ public sealed class Movimiento : Entity
 
         return new Movimiento
         {
+            Id = id ?? Guid.CreateVersion7(),
             UsuarioId = usuarioId,
             CuentaId = cuentaId,
             Tipo = tipo,

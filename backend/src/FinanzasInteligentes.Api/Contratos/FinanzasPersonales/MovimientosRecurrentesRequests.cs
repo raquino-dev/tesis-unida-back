@@ -11,7 +11,8 @@ public sealed record MovimientoRecurrenteRequest(
     DateOnly FechaInicio,
     DateOnly? FechaFin,
     string Frecuencia,
-    long? CantidadOcurrencias);
+    long? CantidadOcurrencias,
+    Guid? Id = null);
 
 public sealed class MovimientoRecurrentePatchRequest
 {

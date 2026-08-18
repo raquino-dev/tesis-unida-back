@@ -35,7 +35,9 @@ public static class CategoriasEndpoints
         CancellationToken cancellationToken)
     {
         var response = await handler.Handle(
-            new CrearCategoriaCommand(context.UsuarioId(), request.Nombre, request.Tipo, request.Icono, request.Color),
+            new CrearCategoriaCommand(
+                context.UsuarioId(), request.Nombre, request.Tipo,
+                request.Icono, request.Color, request.Id),
             cancellationToken);
 
         context.Response.Headers.ETag = ETagExtensions.Formatear(response.Version);

@@ -21,7 +21,8 @@ public sealed record CrearMovimientoCommand(
     IReadOnlyCollection<Guid>? CategoriaIds = null,
     Guid? DocumentoId = null,
     Guid? MovimientoRecurrenteId = null,
-    Guid? GrupoFamiliarId = null);
+    Guid? GrupoFamiliarId = null,
+    Guid? Id = null);
 
 public sealed class CrearMovimientoHandler(
     IFinanzasRepository finanzas,
@@ -30,6 +31,11 @@ public sealed class CrearMovimientoHandler(
 {
     public async Task<MovimientoResponse> Handle(CrearMovimientoCommand command, CancellationToken cancellationToken)
     {
+        if (command.Id is { } requestedId &&
+            await finanzas.ObtenerMovimiento(
+                command.UsuarioId, requestedId, true, cancellationToken) is { } existing)
+            return existing.ToResponse();
+
         if (command.Ambito != "privado")
             throw new DomainException("ambito_invalido", "Esta ruta sólo admite movimientos privados.");
 
@@ -44,7 +50,8 @@ public sealed class CrearMovimientoHandler(
 
         var movimiento = Movimiento.Crear(
             command.UsuarioId, command.CuentaId, command.Tipo, command.Monto,
-            command.Descripcion, command.Fecha, documentoId: command.DocumentoId);
+            command.Descripcion, command.Fecha, documentoId: command.DocumentoId,
+            id: command.Id);
 
         if (command.CategoriaIds is not null)
         {
