@@ -2443,7 +2443,8 @@ namespace FinanzasInteligentes.Infraestructura.Persistencia.Migraciones
                         .HasColumnName("id");
 
                     b.Property<DateTimeOffset>("CreadoEn")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("creado_en");
 
                     b.Property<Guid>("PreguntaId")
                         .HasColumnType("uuid")
@@ -2531,7 +2532,8 @@ namespace FinanzasInteligentes.Infraestructura.Persistencia.Migraciones
                         .HasColumnName("id");
 
                     b.Property<DateTimeOffset>("CreadoEn")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("creado_en");
 
                     b.Property<Guid>("InstrumentoId")
                         .HasColumnType("uuid")
@@ -2581,7 +2583,8 @@ namespace FinanzasInteligentes.Infraestructura.Persistencia.Migraciones
                         .HasColumnName("id");
 
                     b.Property<DateTimeOffset>("CreadoEn")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("creado_en");
 
                     b.Property<Guid>("InstrumentoId")
                         .HasColumnType("uuid")

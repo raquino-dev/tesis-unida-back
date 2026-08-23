@@ -155,6 +155,7 @@ public sealed class FinanzasDbContext(DbContextOptions<FinanzasDbContext> option
         pregunta.ToTable("preguntas", "piloto");
         pregunta.HasKey(x => x.Id);
         pregunta.Property(x => x.Id).HasColumnName("id");
+        pregunta.Property(x => x.CreadoEn).HasColumnName("creado_en");
         pregunta.Property(x => x.InstrumentoId).HasColumnName("instrumento_id");
         pregunta.Property(x => x.Orden).HasColumnName("orden");
         pregunta.Property(x => x.Tipo).HasColumnName("tipo").HasMaxLength(20);
@@ -170,6 +171,7 @@ public sealed class FinanzasDbContext(DbContextOptions<FinanzasDbContext> option
         respuesta.ToTable("respuestas", "piloto");
         respuesta.HasKey(x => x.Id);
         respuesta.Property(x => x.Id).HasColumnName("id");
+        respuesta.Property(x => x.CreadoEn).HasColumnName("creado_en");
         respuesta.Property(x => x.UsuarioId).HasColumnName("usuario_id");
         respuesta.Property(x => x.InstrumentoId).HasColumnName("instrumento_id");
         respuesta.Property(x => x.VersionInstrumento).HasColumnName("version_instrumento").HasMaxLength(30);
@@ -184,6 +186,7 @@ public sealed class FinanzasDbContext(DbContextOptions<FinanzasDbContext> option
         detalle.ToTable("respuestas_detalle", "piloto");
         detalle.HasKey(x => x.Id);
         detalle.Property(x => x.Id).HasColumnName("id");
+        detalle.Property(x => x.CreadoEn).HasColumnName("creado_en");
         detalle.Property(x => x.RespuestaId).HasColumnName("respuesta_id");
         detalle.Property(x => x.PreguntaId).HasColumnName("pregunta_id");
         detalle.Property(x => x.ValorEscala).HasColumnName("valor_escala");

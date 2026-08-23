@@ -1,5 +1,7 @@
 using FinanzasInteligentes.Infraestructura.Persistencia;
+using FinanzasInteligentes.Dominio.Piloto;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata;
 
 namespace FinanzasInteligentes.IntegrationTests.Persistencia;
 
@@ -32,5 +34,26 @@ public sealed class ModeloPostgreSqlTests
         Assert.Equal("suscripciones", db.Model.FindEntityType("FinanzasInteligentes.Dominio.Suscripciones.Suscripcion")?.GetSchema());
         Assert.Equal("infra", db.Model.FindEntityType("FinanzasInteligentes.Dominio.Infraestructura.Entidades.EventoOutbox")?.GetSchema());
         Assert.Equal("infra", db.Model.FindEntityType("FinanzasInteligentes.Dominio.Infraestructura.Entidades.EntregaOutbox")?.GetSchema());
+    }
+
+    [Fact]
+    public void ModeloMapeaFechasDeCreacionDelPilotoEnSnakeCase()
+    {
+        var options = new DbContextOptionsBuilder<FinanzasDbContext>()
+            .UseNpgsql("Host=localhost;Database=modelo;Username=modelo")
+            .Options;
+        using var db = new FinanzasDbContext(options);
+
+        AssertCreadoEn<PreguntaInstrumentoPiloto>(db);
+        AssertCreadoEn<RespuestaInstrumentoPiloto>(db);
+        AssertCreadoEn<DetalleRespuestaInstrumentoPiloto>(db);
+    }
+
+    private static void AssertCreadoEn<TEntity>(FinanzasDbContext db)
+    {
+        var entity = db.Model.FindEntityType(typeof(TEntity));
+        Assert.NotNull(entity);
+        var table = StoreObjectIdentifier.Table(entity!.GetTableName()!, entity.GetSchema());
+        Assert.Equal("creado_en", entity.FindProperty("CreadoEn")?.GetColumnName(table));
     }
 }
