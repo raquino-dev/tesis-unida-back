@@ -2131,6 +2131,12 @@ namespace FinanzasInteligentes.Infraestructura.Persistencia.Migraciones
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("anonimizado_en");
 
+                    b.Property<string>("Alias")
+                        .IsRequired()
+                        .HasMaxLength(24)
+                        .HasColumnType("citext")
+                        .HasColumnName("alias");
+
                     b.Property<string>("Correo")
                         .IsRequired()
                         .HasMaxLength(320)
@@ -2196,6 +2202,10 @@ namespace FinanzasInteligentes.Infraestructura.Persistencia.Migraciones
                     b.HasKey("Id");
 
                     b.HasIndex("Correo")
+                        .IsUnique()
+                        .HasFilter("anonimizado_en IS NULL");
+
+                    b.HasIndex("Alias")
                         .IsUnique()
                         .HasFilter("anonimizado_en IS NULL");
 

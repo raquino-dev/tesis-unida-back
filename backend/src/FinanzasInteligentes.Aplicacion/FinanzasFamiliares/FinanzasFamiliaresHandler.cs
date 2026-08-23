@@ -144,22 +144,59 @@ public sealed class FinanzasFamiliaresHandler(
         var query = await familias.ListarInvitaciones(grupoId, ct);
         if (!string.IsNullOrWhiteSpace(estado)) query = query.Where(x => x.Estado == estado).ToArray();
         var items = Paginar(query, cursor, limite, out var siguiente);
-        return new(items.Select(MapInvitacion).ToArray(), new(siguiente));
+        var respuestas = new List<InvitacionFamiliarResponse>();
+        foreach (var invitacion in items)
+        {
+            string? aliasDestino = null;
+            if (invitacion.UsuarioDestinoId is not null)
+                aliasDestino = (await identidad.ObtenerUsuario(
+                    invitacion.UsuarioDestinoId.Value, true, ct))?.Alias;
+            respuestas.Add(MapInvitacion(invitacion, aliasDestino));
+        }
+        return new(respuestas, new(siguiente));
     }
 
     public async Task<(CrearInvitacionFamiliarResponse Response, string Token)> CrearInvitacion(
         Guid usuarioId, Guid grupoId, string? correo, Guid? destinoId,
-        string rol, string correlationId, CancellationToken ct)
+        string? alias, string rol, string correlationId, CancellationToken ct)
     {
         await RequerirAdministrador(grupoId, usuarioId, ct);
+        var destinosIndicados = new[]
+        {
+            !string.IsNullOrWhiteSpace(correo),
+            destinoId is not null,
+            !string.IsNullOrWhiteSpace(alias)
+        }.Count(x => x);
+        if (destinosIndicados != 1)
+            throw new DomainException(
+                "destino_invitacion_invalido",
+                "Indicá únicamente el alias del usuario que querés invitar.");
+
         Usuario? destino = null;
         if (destinoId is not null)
             destino = await identidad.ObtenerUsuario(destinoId.Value, true, ct)
                 ?? throw new NotFoundException("usuario_no_encontrado", "El usuario no existe.");
-        else if (correo is not null)
+        else if (!string.IsNullOrWhiteSpace(alias))
+        {
+            var aliasNormalizado = Usuario.NormalizarAlias(alias);
+            destino = await identidad.BuscarUsuarioPorAlias(aliasNormalizado, ct)
+                ?? throw new NotFoundException(
+                    "alias_no_encontrado", "No encontramos un usuario con ese alias.");
+            destinoId = destino.Id;
+            correo = null;
+        }
+        else if (!string.IsNullOrWhiteSpace(correo))
             destino = await identidad.BuscarUsuarioPorCorreo(correo.Trim().ToLowerInvariant(), ct);
+        if (destino?.Id == usuarioId)
+            throw new ConflictException(
+                "autoinvitacion_no_permitida", "No podés invitarte a tu propio grupo.");
         if (destino is not null && await familias.UsuarioEsIntegrante(grupoId, destino.Id, ct))
             throw new ConflictException("usuario_ya_integrante", "El usuario ya integra el grupo.");
+        var invitaciones = await familias.ListarInvitaciones(grupoId, ct);
+        if (destino is not null && invitaciones.Any(x =>
+            x.Estado == "pendiente" && x.UsuarioDestinoId == destino.Id && x.ExpiraEn > DateTimeOffset.UtcNow))
+            throw new ConflictException(
+                "invitacion_duplicada", "Ya existe una invitación pendiente para ese usuario.");
 
         var token = Convert.ToHexStringLower(RandomNumberGenerator.GetBytes(32));
         var codigo = RandomNumberGenerator.GetInt32(0, 1_000_000).ToString("D6");
@@ -168,10 +205,17 @@ public sealed class FinanzasFamiliaresHandler(
         familias.Agregar(invitacion);
         identidad.Agregar(EventoOutbox.Crear(
             "grupo-familiar.invitacion-creada", "invitacion-familiar", invitacion.Id,
-            new { invitacion.Id, Token = token, Codigo = codigo, invitacion.Correo }, correlationId));
+            new
+            {
+                invitacion.Id,
+                Token = token,
+                Codigo = codigo,
+                Correo = destino?.Correo ?? invitacion.Correo,
+                Alias = destino?.Alias
+            }, correlationId));
         await unidadDeTrabajo.GuardarCambios(ct);
         return (new(
-            invitacion.Id, grupoId, invitacion.Correo, invitacion.UsuarioDestinoId,
+            invitacion.Id, grupoId, invitacion.Correo, invitacion.UsuarioDestinoId, destino?.Alias,
             invitacion.Rol, invitacion.Estado, invitacion.ExpiraEn, invitacion.Version, codigo), token);
     }
 
@@ -714,8 +758,10 @@ public sealed class FinanzasFamiliaresHandler(
         return pagina;
     }
 
-    private static InvitacionFamiliarResponse MapInvitacion(InvitacionFamiliar x) =>
-        new(x.Id, x.Correo, x.UsuarioDestinoId, x.Rol, x.Estado, x.ExpiraEn, x.Version);
+    private static InvitacionFamiliarResponse MapInvitacion(
+        InvitacionFamiliar x, string? aliasDestino) =>
+        new(x.Id, x.Correo, x.UsuarioDestinoId, aliasDestino,
+            x.Rol, x.Estado, x.ExpiraEn, x.Version);
 
     private static CategoriaFamiliarResponse MapCategoria(CategoriaFamiliar x) =>
         new(x.Id, x.GrupoFamiliarId, x.Nombre, x.Tipo, x.Icono, x.Color, x.Version);

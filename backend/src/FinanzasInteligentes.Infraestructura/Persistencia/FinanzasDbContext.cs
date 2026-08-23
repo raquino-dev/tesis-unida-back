@@ -203,6 +203,7 @@ public sealed class FinanzasDbContext(DbContextOptions<FinanzasDbContext> option
         usuario.Property(x => x.Id).HasColumnName("id");
         usuario.Property(x => x.Correo).HasColumnName("correo").HasColumnType("citext").HasMaxLength(320);
         usuario.Property(x => x.Nombre).HasColumnName("nombre").HasMaxLength(120);
+        usuario.Property(x => x.Alias).HasColumnName("alias").HasColumnType("citext").HasMaxLength(24);
         usuario.Property(x => x.HashContrasena).HasColumnName("hash_contrasena");
         usuario.Property(x => x.Moneda).HasColumnName("moneda").HasMaxLength(3);
         usuario.Property(x => x.Idioma).HasColumnName("idioma").HasMaxLength(10);
@@ -213,6 +214,7 @@ public sealed class FinanzasDbContext(DbContextOptions<FinanzasDbContext> option
         usuario.Property(x => x.AnonimizadoEn).HasColumnName("anonimizado_en");
         ConfigurarMutable(usuario);
         usuario.HasIndex(x => x.Correo).IsUnique().HasFilter("anonimizado_en IS NULL");
+        usuario.HasIndex(x => x.Alias).IsUnique().HasFilter("anonimizado_en IS NULL");
         usuario.HasOne(x => x.Preferencias).WithOne().HasForeignKey<PreferenciasUsuario>(x => x.UsuarioId);
 
         var preferencias = builder.Entity<PreferenciasUsuario>();

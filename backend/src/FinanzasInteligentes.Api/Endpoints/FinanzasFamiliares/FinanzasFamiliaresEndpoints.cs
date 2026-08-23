@@ -225,7 +225,7 @@ public static class FinanzasFamiliaresEndpoints
     {
         var result = await h.CrearInvitacion(
             c.UsuarioId(), grupoId, r.Correo, r.IdentificadorUsuario,
-            r.Rol, c.TraceIdentifier, ct);
+            r.Alias, r.Rol, c.TraceIdentifier, ct);
         c.Response.Headers.ETag = ETagExtensions.Formatear(result.Response.Version);
         return Results.Created(
             $"/api/v1/invitaciones-familiares/{result.Token}", result.Response);

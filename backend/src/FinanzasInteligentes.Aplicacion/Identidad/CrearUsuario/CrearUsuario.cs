@@ -11,6 +11,7 @@ public sealed record CrearUsuarioCommand(
     string Correo,
     string Nombre,
     string Contrasena,
+    string? Alias = null,
     string Moneda = "PYG",
     string? Idioma = "es",
     string? ZonaHoraria = "America/Asuncion",
@@ -41,12 +42,17 @@ public sealed class CrearUsuarioHandler(
         if (await identidad.ExisteCorreo(correo, cancellationToken))
             throw new ConflictException("correo_duplicado", "El correo ya está registrado.");
 
+        var alias = command.Alias is null ? null : Usuario.NormalizarAlias(command.Alias);
+        if (alias is not null && await identidad.ExisteAlias(alias, null, cancellationToken))
+            throw new ConflictException("alias_duplicado", "El alias ya está en uso.");
+
         var usuario = Usuario.Crear(
             correo,
             command.Nombre,
             passwords.Hash(command.Contrasena),
             command.Idioma ?? "es",
-            command.ZonaHoraria ?? "America/Asuncion");
+            command.ZonaHoraria ?? "America/Asuncion",
+            alias);
 
         identidad.Agregar(usuario);
         identidad.Agregar(ConsentimientoPrivacidad.Crear(

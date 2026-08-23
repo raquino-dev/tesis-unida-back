@@ -5,10 +5,17 @@ namespace FinanzasInteligentes.Dominio.Identidad;
 
 public sealed class Usuario : MutableEntity
 {
-    private Usuario(string correo, string nombre, string hashContrasena, string idioma, string zonaHoraria)
+    private Usuario(
+        string correo,
+        string nombre,
+        string? alias,
+        string hashContrasena,
+        string idioma,
+        string zonaHoraria)
     {
         Correo = NormalizarCorreo(correo);
         Nombre = ValidarTexto(nombre, nameof(nombre), 120);
+        Alias = NormalizarAlias(alias ?? $"usuario_{Id:N}"[..20]);
         HashContrasena = hashContrasena;
         Idioma = ValidarTexto(idioma, nameof(idioma), 10);
         ZonaHoraria = ValidarTexto(zonaHoraria, nameof(zonaHoraria), 80);
@@ -17,6 +24,7 @@ public sealed class Usuario : MutableEntity
 
     public string Correo { get; private set; } = string.Empty;
     public string Nombre { get; private set; } = string.Empty;
+    public string Alias { get; private set; } = string.Empty;
     public string HashContrasena { get; private set; } = string.Empty;
     public string Moneda { get; private set; } = "PYG";
     public string Idioma { get; private set; } = "es";
@@ -32,14 +40,21 @@ public sealed class Usuario : MutableEntity
         string nombre,
         string hashContrasena,
         string idioma = "es",
-        string zonaHoraria = "America/Asuncion") =>
-        new(correo, nombre, hashContrasena, idioma, zonaHoraria);
+        string zonaHoraria = "America/Asuncion",
+        string? alias = null) =>
+        new(correo, nombre, alias, hashContrasena, idioma, zonaHoraria);
 
-    public void ActualizarPerfil(string? nombre, string? idioma, string? ubicacion, string? zonaHoraria)
+    public void ActualizarPerfil(
+        string? nombre,
+        string? idioma,
+        string? ubicacion,
+        string? zonaHoraria,
+        string? alias = null)
     {
-        if (nombre is null && idioma is null && ubicacion is null && zonaHoraria is null)
+        if (nombre is null && alias is null && idioma is null && ubicacion is null && zonaHoraria is null)
             throw new DomainException("actualizacion_vacia", "Debe indicar al menos un campo para actualizar.");
         if (nombre is not null) Nombre = ValidarTexto(nombre, nameof(nombre), 120);
+        if (alias is not null) Alias = NormalizarAlias(alias);
         if (idioma is not null) Idioma = ValidarTexto(idioma, nameof(idioma), 10);
         if (ubicacion is not null) Ubicacion = ValidarTexto(ubicacion, nameof(ubicacion), 160);
         if (zonaHoraria is not null) ZonaHoraria = ValidarTexto(zonaHoraria, nameof(zonaHoraria), 80);
@@ -81,6 +96,7 @@ public sealed class Usuario : MutableEntity
         if (AnonimizadoEn is not null) return;
         Correo = $"anon-{Id:N}@invalid.local";
         Nombre = "Usuario eliminado";
+        Alias = $"eliminado_{Id:N}";
         HashContrasena = Guid.NewGuid().ToString("N");
         Ubicacion = string.Empty;
         Estado = "eliminado";
@@ -95,6 +111,19 @@ public sealed class Usuario : MutableEntity
         if (valor.Length is < 3 or > 320 || !valor.Contains('@'))
             throw new DomainException("correo_invalido", "El correo no es válido.");
         return valor;
+    }
+
+    public static string NormalizarAlias(string alias)
+    {
+        var valor = alias.Trim();
+        var limpio = valor.StartsWith('@') ? valor[1..] : valor;
+        if (limpio.Length is < 3 or > 24 ||
+            !char.IsLetter(limpio[0]) ||
+            limpio.Any(c => !char.IsAsciiLetterOrDigit(c) && c != '_'))
+            throw new DomainException(
+                "alias_invalido",
+                "El alias debe tener entre 3 y 24 caracteres, comenzar con una letra y usar solo letras, números o guion bajo.");
+        return limpio;
     }
 
     private static string ValidarTexto(string valor, string campo, int maximo)

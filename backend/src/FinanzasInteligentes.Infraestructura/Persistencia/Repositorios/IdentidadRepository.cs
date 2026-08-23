@@ -10,9 +10,24 @@ public sealed class IdentidadRepository(FinanzasDbContext db) : IIdentidadReposi
     public Task<bool> ExisteCorreo(string correo, CancellationToken cancellationToken) =>
         db.Usuarios.AnyAsync(x => x.Correo == correo && x.AnonimizadoEn == null, cancellationToken);
 
+    public Task<bool> ExisteAlias(
+        string alias,
+        Guid? excluirUsuarioId,
+        CancellationToken cancellationToken) =>
+        db.Usuarios.AnyAsync(
+            x => x.Alias == alias &&
+                x.AnonimizadoEn == null &&
+                (!excluirUsuarioId.HasValue || x.Id != excluirUsuarioId.Value),
+            cancellationToken);
+
     public Task<Usuario?> BuscarUsuarioPorCorreo(string correo, CancellationToken cancellationToken) =>
         db.Usuarios.SingleOrDefaultAsync(
             x => x.Correo == correo && x.AnonimizadoEn == null,
+            cancellationToken);
+
+    public Task<Usuario?> BuscarUsuarioPorAlias(string alias, CancellationToken cancellationToken) =>
+        db.Usuarios.AsNoTracking().SingleOrDefaultAsync(
+            x => x.Alias == alias && x.AnonimizadoEn == null,
             cancellationToken);
 
     public Task<Usuario?> ObtenerUsuario(Guid usuarioId, bool soloLectura, CancellationToken cancellationToken)
@@ -49,7 +64,10 @@ public sealed class IdentidadRepository(FinanzasDbContext db) : IIdentidadReposi
         if (!string.IsNullOrWhiteSpace(busqueda))
         {
             var termino = busqueda.Trim();
-            query = query.Where(x => x.Correo.Contains(termino) || x.Nombre.Contains(termino));
+            query = query.Where(x =>
+                x.Correo.Contains(termino) ||
+                x.Nombre.Contains(termino) ||
+                x.Alias.Contains(termino.TrimStart('@')));
         }
 
         return await query.OrderBy(x => x.Correo)

@@ -15,10 +15,10 @@ public sealed record PaginaIntegranteFamiliarResponse(
     IReadOnlyCollection<IntegranteFamiliarResponse> Datos, PaginacionFamiliarResponse Paginacion);
 
 public sealed record CrearInvitacionFamiliarResponse(
-    Guid Id, Guid GrupoFamiliarId, string? Correo, Guid? UsuarioDestino,
+    Guid Id, Guid GrupoFamiliarId, string? Correo, Guid? UsuarioDestino, string? AliasDestino,
     string Rol, string Estado, DateTimeOffset ExpiraEn, long Version, string Codigo);
 public sealed record InvitacionFamiliarResponse(
-    Guid Id, string? Correo, Guid? UsuarioDestino, string Rol,
+    Guid Id, string? Correo, Guid? UsuarioDestino, string? AliasDestino, string Rol,
     string Estado, DateTimeOffset ExpiraEn, long Version);
 public sealed record PaginaInvitacionFamiliarResponse(
     IReadOnlyCollection<InvitacionFamiliarResponse> Datos, PaginacionFamiliarResponse Paginacion);

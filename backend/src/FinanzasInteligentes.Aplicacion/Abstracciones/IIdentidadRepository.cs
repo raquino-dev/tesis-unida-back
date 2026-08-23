@@ -6,8 +6,10 @@ namespace FinanzasInteligentes.Aplicacion.Abstracciones;
 public interface IIdentidadRepository
 {
     Task<bool> ExisteCorreo(string correo, CancellationToken cancellationToken);
+    Task<bool> ExisteAlias(string alias, Guid? excluirUsuarioId, CancellationToken cancellationToken);
 
     Task<Usuario?> BuscarUsuarioPorCorreo(string correo, CancellationToken cancellationToken);
+    Task<Usuario?> BuscarUsuarioPorAlias(string alias, CancellationToken cancellationToken);
 
     Task<Usuario?> ObtenerUsuario(Guid usuarioId, bool soloLectura, CancellationToken cancellationToken);
     Task<bool> UsuarioEstaActivo(Guid usuarioId, CancellationToken cancellationToken);
