@@ -102,7 +102,7 @@ public static class MovimientosEndpoints
             return ETagExtensions.IfMatchInvalido(context);
         var response = await handler.Handle(new(
             context.UsuarioId(), movimientoId, version, request.Descripcion,
-            request.CategoriaIds, context.TraceIdentifier), cancellationToken);
+            request.CategoriaIds, request.DocumentoId, context.TraceIdentifier), cancellationToken);
         context.Response.Headers.ETag = ETagExtensions.Formatear(response.Version);
         return Results.Ok(response);
     }

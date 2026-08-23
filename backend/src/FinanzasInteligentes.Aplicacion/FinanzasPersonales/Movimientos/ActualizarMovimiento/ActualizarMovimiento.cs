@@ -13,10 +13,12 @@ public sealed record ActualizarMovimientoCommand(
     long VersionEsperada,
     string? Descripcion,
     IReadOnlyCollection<Guid>? CategoriaIds,
+    Guid? DocumentoId,
     string CorrelationId);
 
 public sealed class ActualizarMovimientoHandler(
     IFinanzasRepository finanzas,
+    IDocumentosRepository documentos,
     IUnidadDeTrabajo unidadDeTrabajo)
 {
     public async Task<MovimientoResponse> Handle(
@@ -42,7 +44,13 @@ public sealed class ActualizarMovimientoHandler(
                     "categoria_no_encontrada", "Una o más categorías no existen.");
         }
 
-        movimiento.Actualizar(command.Descripcion, categorias);
+        if (command.DocumentoId is not null &&
+            await documentos.ObtenerDocumento(
+                command.UsuarioId, command.DocumentoId.Value, true, cancellationToken) is null)
+            throw new NotFoundException(
+                "documento_no_encontrado", "El comprobante no existe.");
+
+        movimiento.Actualizar(command.Descripcion, categorias, command.DocumentoId);
         finanzas.Agregar(EventoOutbox.Crear(
             "movimiento.actualizado", "movimiento", movimiento.Id,
             new { movimiento.Id }, command.CorrelationId));

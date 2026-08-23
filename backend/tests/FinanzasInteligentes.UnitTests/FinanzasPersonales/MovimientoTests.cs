@@ -68,4 +68,18 @@ public sealed class MovimientoTests
             categoria => Assert.Equal(categoriaNueva.Id, categoria.Id));
         Assert.Equal(2, movimiento.Version);
     }
+
+    [Fact]
+    public void ActualizarPuedeVincularUnComprobante()
+    {
+        var movimiento = Movimiento.Crear(
+            Guid.CreateVersion7(), Guid.CreateVersion7(), "gasto", 1000,
+            "Compra", DateOnly.FromDateTime(DateTime.UtcNow));
+        var documentoId = Guid.CreateVersion7();
+
+        movimiento.Actualizar(null, null, documentoId);
+
+        Assert.Equal(documentoId, movimiento.DocumentoId);
+        Assert.Equal(2, movimiento.Version);
+    }
 }

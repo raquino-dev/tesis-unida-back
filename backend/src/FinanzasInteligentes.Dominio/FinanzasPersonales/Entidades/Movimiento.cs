@@ -93,9 +93,10 @@ public sealed class Movimiento : Entity
 
     public void Actualizar(
         string? descripcion,
-        IReadOnlyCollection<Categoria>? categorias)
+        IReadOnlyCollection<Categoria>? categorias,
+        Guid? documentoId = null)
     {
-        if (descripcion is null && categorias is null)
+        if (descripcion is null && categorias is null && documentoId is null)
             throw new DomainException(
                 "actualizacion_vacia", "Debe indicar al menos un campo para actualizar.");
         if (Estado == "anulado")
@@ -116,6 +117,9 @@ public sealed class Movimiento : Entity
             foreach (var categoria in categorias.DistinctBy(x => x.Id))
                 Categorias.Add(categoria);
         }
+
+        if (documentoId is not null)
+            DocumentoId = documentoId;
 
         Version = checked(Version + 1);
     }
