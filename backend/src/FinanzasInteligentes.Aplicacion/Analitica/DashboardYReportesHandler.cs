@@ -19,6 +19,8 @@ public sealed record ReporteResponse(
     string Ambito, string Rango, DateOnly Desde, DateOnly Hasta,
     long Ingresos, long Gastos, long Balance,
     IReadOnlyCollection<CategoriaDashboardResponse> Distribucion,
+    IReadOnlyCollection<CategoriaDashboardResponse> DistribucionIngresos,
+    IReadOnlyCollection<CategoriaDashboardResponse> DistribucionGastos,
     IReadOnlyCollection<TendenciaReporteResponse> Tendencia,
     IReadOnlyCollection<string> Observaciones);
 
@@ -57,7 +59,7 @@ public sealed class DashboardYReportesHandler(IFinanzasRepository finanzas)
             "privado", periodo, ingresos, gastos, ingresos - gastos,
             presupuestoTotal, Math.Max(0, presupuestoTotal - gastos),
             CalcularScore(ingresos, gastos),
-            CalcularDistribucion(movimientos, gastos, 5), recurrentes, alertas);
+            CalcularDistribucion(movimientos, "gasto", gastos, 5), recurrentes, alertas);
     }
 
     public async Task<ReporteResponse> ObtenerReporte(
@@ -76,7 +78,8 @@ public sealed class DashboardYReportesHandler(IFinanzasRepository finanzas)
         var movimientos = consulta.ToArray();
         var ingresos = Sumar(movimientos, "ingreso");
         var gastos = Sumar(movimientos, "gasto");
-        var distribucion = CalcularDistribucion(movimientos, gastos);
+        var distribucionGastos = CalcularDistribucion(movimientos, "gasto", gastos);
+        var distribucionIngresos = CalcularDistribucion(movimientos, "ingreso", ingresos);
         var tendencia = movimientos
             .GroupBy(x => $"{x.Fecha:yyyy-MM}")
             .OrderBy(x => x.Key)
@@ -86,8 +89,11 @@ public sealed class DashboardYReportesHandler(IFinanzasRepository finanzas)
 
         return new(
             "privado", periodo.Rango, periodo.Desde, periodo.Hasta,
-            ingresos, gastos, ingresos - gastos, distribucion, tendencia,
-            CrearObservaciones(ingresos, gastos, distribucion));
+            ingresos, gastos, ingresos - gastos,
+            // `Distribucion` se conserva como alias de gastos para clientes
+            // publicados antes de incorporar el selector ingresos/gastos.
+            distribucionGastos, distribucionIngresos, distribucionGastos, tendencia,
+            CrearObservaciones(ingresos, gastos, distribucionGastos));
     }
 
     public static PeriodoReporte ResolverPeriodoReporte(
@@ -178,15 +184,15 @@ public sealed class DashboardYReportesHandler(IFinanzasRepository finanzas)
         movimientos.Where(x => x.Tipo == tipo).Sum(x => x.Monto);
 
     private static CategoriaDashboardResponse[] CalcularDistribucion(
-        IEnumerable<Movimiento> movimientos, long gastos, int? limite = null)
+        IEnumerable<Movimiento> movimientos, string tipo, long total, int? limite = null)
     {
         var consulta = movimientos
-            .Where(x => x.Tipo == "gasto" && x.Categorias.Count > 0)
+            .Where(x => x.Tipo == tipo && x.Categorias.Count > 0)
             .Select(x => new { Movimiento = x, Categoria = x.Categorias.First() })
             .GroupBy(x => new { x.Categoria.Id, x.Categoria.Nombre })
             .Select(x => new CategoriaDashboardResponse(
                 x.Key.Id, x.Key.Nombre, x.Sum(y => y.Movimiento.Monto),
-                gastos == 0 ? 0 : (double)x.Sum(y => y.Movimiento.Monto) / gastos))
+                total == 0 ? 0 : (double)x.Sum(y => y.Movimiento.Monto) / total))
             .OrderByDescending(x => x.Monto);
         return (limite is null ? consulta : consulta.Take(limite.Value)).ToArray();
     }

@@ -57,7 +57,7 @@ public static class PerfilEndpoints
         if (!context.Request.TryObtenerVersionIfMatch(out var version))
             return ETagExtensions.IfMatchInvalido(context);
         var response = await handler.Handle(new(
-            context.UsuarioId(), version, request.Nombre, request.Idioma,
+            context.UsuarioId(), version, request.Nombre, request.Alias, request.Idioma,
             request.Ubicacion, request.ZonaHoraria), cancellationToken);
         context.Response.Headers.ETag = ETagExtensions.Formatear(response.Version);
         return Results.Ok(response);

@@ -4,6 +4,7 @@ public sealed record UsuarioResponse(
     Guid Id,
     string Correo,
     string Nombre,
+    string Alias,
     string Moneda,
     string Idioma,
     string Ubicacion,
@@ -24,7 +25,8 @@ public sealed record SesionResponse(
     bool RequiereOtp,
     UsuarioResumenResponse Usuario);
 
-public sealed record UsuarioResumenResponse(Guid Id, string Nombre, string Correo, string Rol = "usuario");
+public sealed record UsuarioResumenResponse(
+    Guid Id, string Nombre, string Alias, string Correo, string Rol = "usuario");
 
 public sealed record PreferenciasResponse(
     string Tema,

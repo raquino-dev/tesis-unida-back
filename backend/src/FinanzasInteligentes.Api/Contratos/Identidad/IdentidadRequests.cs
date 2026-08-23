@@ -2,6 +2,7 @@ namespace FinanzasInteligentes.Api.Contratos.Identidad;
 
 public sealed record ActualizarPerfilRequest(
     string? Nombre = null,
+    string? Alias = null,
     string? Idioma = null,
     string? Ubicacion = null,
     string? ZonaHoraria = null);

@@ -72,6 +72,7 @@ public sealed class CrearSesionHandler(
             ahora.AddSeconds(token.ExpiraEnSegundos),
             refreshExpira,
             false,
-            new UsuarioResumenResponse(usuario.Id, usuario.Nombre, usuario.Correo, usuario.Rol));
+            new UsuarioResumenResponse(
+                usuario.Id, usuario.Nombre, usuario.Alias, usuario.Correo, usuario.Rol));
     }
 }

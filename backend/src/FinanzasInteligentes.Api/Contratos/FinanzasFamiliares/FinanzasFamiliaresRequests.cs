@@ -4,7 +4,11 @@ public sealed record GrupoFamiliarRequest(string Nombre);
 public sealed record PatchGruposFamiliaresByGrupoIdRequest(string Nombre);
 public sealed record PostGruposFamiliaresByGrupoIdEliminacionesRequest(Guid VerificacionOtpId);
 public sealed record PatchGruposFamiliaresByGrupoIdIntegrantesByIntegranteIdRequest(string Rol);
-public sealed record InvitacionFamiliarRequest(string? Correo, Guid? IdentificadorUsuario, string Rol);
+public sealed record InvitacionFamiliarRequest(
+    string? Correo,
+    Guid? IdentificadorUsuario,
+    string Rol,
+    string? Alias = null);
 public sealed record AceptacionInvitacionRequest(string Codigo);
 public sealed record PostGruposFamiliaresByGrupoIdCuentasCompartidasRequest(Guid CuentaId);
 public sealed record CategoriaFamiliarRequest(string Nombre, string Tipo, string Icono, string Color);

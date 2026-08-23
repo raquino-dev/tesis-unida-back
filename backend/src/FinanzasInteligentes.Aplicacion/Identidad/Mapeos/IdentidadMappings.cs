@@ -10,6 +10,7 @@ public static class IdentidadMappings
             usuario.Id,
             usuario.Correo,
             usuario.Nombre,
+            usuario.Alias,
             usuario.Moneda,
             usuario.Idioma,
             usuario.Ubicacion,
