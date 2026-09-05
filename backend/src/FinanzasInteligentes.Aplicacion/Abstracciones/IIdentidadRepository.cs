@@ -41,8 +41,8 @@ public interface IIdentidadRepository
     Task<bool> ConsumirVerificacionOtp(
         Guid usuarioId, Guid verificacionId, string motivo, CancellationToken cancellationToken);
 
-    Task<RecuperacionContrasena?> ConsumirRecuperacion(
-        string hashToken, CancellationToken cancellationToken);
+    Task<RecuperacionContrasena?> ObtenerRecuperacion(
+        Guid recuperacionId, CancellationToken cancellationToken);
 
     Task RevocarSesiones(Guid usuarioId, CancellationToken cancellationToken);
     Task RevocarFamiliaSesiones(

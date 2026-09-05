@@ -12,7 +12,8 @@ namespace FinanzasInteligentes.Aplicacion.Identidad.Seguridad;
 public sealed record CrearDesafioOtpCommand(Guid UsuarioId, string Motivo, string Canal, string CorrelationId);
 public sealed record VerificarOtpCommand(Guid UsuarioId, Guid DesafioId, string Codigo);
 public sealed record SolicitarRecuperacionCommand(string Correo, string CorrelationId);
-public sealed record RestablecerContrasenaCommand(string Token, string NuevaContrasena);
+public sealed record RestablecerContrasenaCommand(
+    Guid RecuperacionId, string Codigo, string NuevaContrasena);
 public sealed record CambiarContrasenaCommand(
     Guid UsuarioId, string ContrasenaActual, string NuevaContrasena, Guid VerificacionOtpId);
 
@@ -90,27 +91,31 @@ public sealed class SolicitarRecuperacionHandler(
     ISeguridadRepository seguridad, IHasherTokenUnSoloUso tokenHasher,
     IUnidadDeTrabajo unidadDeTrabajo)
 {
-    public async Task Handle(SolicitarRecuperacionCommand command, CancellationToken cancellationToken)
+    public async Task<SolicitudRecuperacionResponse> Handle(
+        SolicitarRecuperacionCommand command, CancellationToken cancellationToken)
     {
-        var usuario = await identidad.BuscarUsuarioPorCorreo(
-            command.Correo.Trim().ToLowerInvariant(), cancellationToken);
-        if (usuario is null) return;
-
-        // Un código hexadecimal conserva 128 bits de entropía, evita caracteres
-        // ambiguos de Base64 y también puede copiarse manualmente desde el correo.
-        var token = Convert.ToHexString(RandomNumberGenerator.GetBytes(16));
         var expiraEn = DateTimeOffset.UtcNow.AddMinutes(
             configuracion.RecuperacionContrasenaMinutos);
+        var usuario = await identidad.BuscarUsuarioPorCorreo(
+            command.Correo.Trim().ToLowerInvariant(), cancellationToken);
+        // La respuesta siempre conserva la misma forma para no revelar si el
+        // correo está registrado. El identificador señuelo nunca será válido.
+        if (usuario is null)
+            return new(Guid.CreateVersion7(), expiraEn);
+
+        var codigo = RandomNumberGenerator.GetInt32(0, 1_000_000).ToString("D6");
         var recuperacion = RecuperacionContrasena.Crear(
-            usuario.Id, tokenHasher.Hash(token), expiraEn);
+            usuario.Id, tokenHasher.Hash(codigo), expiraEn);
         identidad.Agregar(recuperacion);
         seguridad.Agregar(EventoSeguridad.Crear(
             usuario.Id, "recuperacion-contrasena-solicitada",
             "Se solicitó restablecer la contraseña.", true));
         identidad.Agregar(EventoOutbox.Crear(
             "contrasena.recuperacion-solicitada", "usuario", usuario.Id,
-            new { usuario.Correo, Token = token, expiraEn }, command.CorrelationId));
+            new { usuario.Correo, RecuperacionId = recuperacion.Id, Codigo = codigo, expiraEn },
+            command.CorrelationId));
         await unidadDeTrabajo.GuardarCambios(cancellationToken);
+        return new(recuperacion.Id, expiraEn);
     }
 }
 
@@ -122,13 +127,27 @@ public sealed class RestablecerContrasenaHandler(
 {
     public async Task Handle(RestablecerContrasenaCommand command, CancellationToken cancellationToken)
     {
-        await using var transaction = await unidadDeTrabajo.IniciarTransaccion(cancellationToken);
-        var recuperacion = await identidad.ConsumirRecuperacion(
-            tokenHasher.Hash(command.Token), cancellationToken)
-            ?? throw new DomainException("token_recuperacion_invalido", "El token no es válido o expiró.");
+        if (command.Codigo.Length != 6 || command.Codigo.Any(x => x is < '0' or > '9'))
+            throw new DomainException(
+                "codigo_recuperacion_invalido", "El código de recuperación debe tener 6 dígitos.");
+        var recuperacion = await identidad.ObtenerRecuperacion(
+            command.RecuperacionId, cancellationToken)
+            ?? throw new DomainException(
+                "codigo_recuperacion_invalido", "El código de recuperación no es válido o expiró.");
+        try
+        {
+            recuperacion.VerificarYConsumir(tokenHasher.Hash(command.Codigo));
+        }
+        catch (DomainException)
+        {
+            // Persiste la reducción de intentos aun cuando la validación falla.
+            await unidadDeTrabajo.GuardarCambios(cancellationToken);
+            throw;
+        }
         var usuario = await identidad.ObtenerUsuario(recuperacion.UsuarioId, false, cancellationToken)
             ?? throw new NotFoundException("usuario_no_encontrado", "El usuario no existe.");
         politicaContrasena.Validar(command.NuevaContrasena, usuario.Correo, usuario.Nombre);
+        await using var transaction = await unidadDeTrabajo.IniciarTransaccion(cancellationToken);
         usuario.CambiarContrasena(passwords.Hash(command.NuevaContrasena));
         await identidad.RevocarSesiones(usuario.Id, cancellationToken);
         seguridad.Agregar(EventoSeguridad.Crear(

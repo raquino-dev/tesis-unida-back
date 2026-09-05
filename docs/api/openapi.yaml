@@ -407,6 +407,10 @@ paths:
           headers:
             X-Correlation-Id:
               "$ref": "#/components/headers/CorrelationId"
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/SolicitudRecuperacionResponse"
         '400':
           "$ref": "#/components/responses/Problem400"
         '429':
@@ -6816,12 +6820,29 @@ components:
           example: rodrigo@correo.com.py
       required:
       - correo
+    SolicitudRecuperacionResponse:
+      type: object
+      additionalProperties: false
+      properties:
+        id:
+          type: string
+          format: uuid
+        expiraEn:
+          type: string
+          format: date-time
+      required:
+      - id
+      - expiraEn
     RestablecimientoContrasenaRequest:
       type: object
       additionalProperties: false
       properties:
-        token:
+        recuperacionId:
           type: string
+          format: uuid
+        codigo:
+          type: string
+          pattern: '^[0-9]{6}$'
           writeOnly: true
         nuevaContrasena:
           type: string
@@ -6829,7 +6850,8 @@ components:
           maxLength: 128
           writeOnly: true
       required:
-      - token
+      - recuperacionId
+      - codigo
       - nuevaContrasena
     CambiarContrasenaRequest:
       type: object

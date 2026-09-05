@@ -16,7 +16,7 @@ public static class SeguridadEndpoints
             .RequireRateLimiting("recuperacion-contrasena")
             .AllowAnonymous().WithTags("Contraseñas");
         endpoints.MapPost("/restablecimientos-contrasena", RestablecerContrasena)
-            .RequireRateLimiting("recuperacion-contrasena")
+            .RequireRateLimiting("restablecimiento-contrasena")
             .AllowAnonymous().WithTags("Contraseñas");
         endpoints.MapPut("/perfil/contrasena", CambiarContrasena).WithTags("Contraseñas");
         return endpoints;
@@ -45,15 +45,17 @@ public static class SeguridadEndpoints
         RecuperacionContrasenaRequest request, SolicitarRecuperacionHandler handler,
         HttpContext context, CancellationToken cancellationToken)
     {
-        await handler.Handle(new(request.Correo, context.TraceIdentifier), cancellationToken);
-        return Results.Accepted();
+        var response = await handler.Handle(
+            new(request.Correo, context.TraceIdentifier), cancellationToken);
+        return Results.Accepted(value: response);
     }
 
     private static async Task<IResult> RestablecerContrasena(
         RestablecimientoContrasenaRequest request, RestablecerContrasenaHandler handler,
         CancellationToken cancellationToken)
     {
-        await handler.Handle(new(request.Token, request.NuevaContrasena), cancellationToken);
+        await handler.Handle(new(
+            request.RecuperacionId, request.Codigo, request.NuevaContrasena), cancellationToken);
         return Results.NoContent();
     }
 

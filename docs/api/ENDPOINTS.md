@@ -15,8 +15,8 @@ Base: `/api/v1`. Los nombres indicados en Request/Response corresponden a [CONTR
 | `GET` | `/sesiones` | filtros de paginación | `200 Pagina<SesionActivaResponse>` | `200`, `401` |
 | `POST` | `/sesiones/renovaciones` | `RenovarSesionRequest` | `201 SesionResponse` con refresh token rotado | `201`, `400`, `401`, `409 token_reutilizado`, `429` |
 | `DELETE` | `/sesiones/{sesionId}` | — | `204` | `204`, `401`, `404` |
-| `POST` | `/recuperaciones-contrasena` | `RecuperacionContrasenaRequest` | `202` sin revelar si el correo existe | `202`, `400`, `429`, `503` |
-| `POST` | `/restablecimientos-contrasena` | `RestablecimientoContrasenaRequest` | `204` | `204`, `400`, `409 token_utilizado`, `410 token_expirado`, `422`, `429` |
+| `POST` | `/recuperaciones-contrasena` | `RecuperacionContrasenaRequest` | `202 {id, expiraEn}` sin revelar si el correo existe | `202`, `400`, `429`, `503` |
+| `POST` | `/restablecimientos-contrasena` | `{recuperacionId, codigo, nuevaContrasena}` | `204` | `204`, `400`, `422 codigo_recuperacion_invalido`, `429` |
 | `PUT` | `/perfil/contrasena` | `CambiarContrasenaRequest` | `204`; revoca otras sesiones | `204`, `400`, `401`, `403 otp_requerido`, `422`, `429` |
 | `GET` | `/perfil/preferencias` | — | `200 PreferenciasResponse` | `200`, `401` |
 | `PUT` | `/perfil/preferencias` | `{tema, idioma, notificacionesPush, resumenSemanal}`; `If-Match` | `200 PreferenciasResponse` | `200`, `400`, `401`, `412`, `422` |

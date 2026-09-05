@@ -768,6 +768,10 @@ namespace FinanzasInteligentes.Infraestructura.Persistencia.Migraciones
                         .HasColumnType("character varying(64)")
                         .HasColumnName("hash_token");
 
+                    b.Property<int>("IntentosRestantes")
+                        .HasColumnType("integer")
+                        .HasColumnName("intentos_restantes");
+
                     b.Property<string>("Rol")
                         .IsRequired()
                         .HasMaxLength(20)
@@ -2042,9 +2046,6 @@ namespace FinanzasInteligentes.Infraestructura.Persistencia.Migraciones
                         .HasColumnName("usuario_id");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("HashToken")
-                        .IsUnique();
 
                     b.HasIndex("UsuarioId");
 

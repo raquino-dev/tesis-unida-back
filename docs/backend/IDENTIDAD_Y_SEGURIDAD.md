@@ -43,13 +43,16 @@ La configuración `Correo` debe estar disponible tanto para API como para Worker
 enlace generado tendrá la forma:
 
 ```text
-finanzasinteligentes://app/reset-password?token=<token>
+finanzasinteligentes://app/reset-password?recoveryId=<id>&code=<codigo>
 ```
 
-El mismo correo presenta un código hexadecimal de 32 caracteres como alternativa
-al enlace. Ambos contienen el mismo valor aleatorio de 128 bits, expiran después de
-30 minutos y se consumen una sola vez. La pantalla móvil permite pegar el código y
-valida la política de la contraseña mientras el usuario escribe.
+El mismo correo presenta un código numérico de 6 dígitos como alternativa al enlace.
+El código está asociado a un identificador opaco de solicitud, expira después de 30
+minutos, se consume una sola vez y admite como máximo cinco intentos. La respuesta a
+la solicitud siempre devuelve la misma estructura —incluso para correos inexistentes—
+para evitar enumeración de usuarios. La pantalla móvil solicita al sistema el
+autocompletado de códigos, ofrece pegado explícito desde el portapapeles y valida la
+política de la contraseña mientras el usuario escribe.
 
 No se registran códigos OTP, tokens de recuperación, contraseñas ni refresh tokens en
 logs o respuestas. El outbox conserva el código o token sólo hasta entregarlo y
@@ -61,7 +64,8 @@ reemplaza inmediatamente el payload sensible por una marca de redacción.
 |---|---:|
 | Inicio/renovación de sesión | 10 por 5 minutos |
 | Solicitud/verificación OTP | 5 por 5 minutos |
-| Recuperación/restablecimiento | 3 por 15 minutos |
+| Solicitud de recuperación | 3 por 15 minutos |
+| Intentos de restablecimiento | 5 por 15 minutos, además de 5 por código |
 
 La partición utiliza el usuario autenticado o, para rutas públicas, la dirección de
 origen observada por la API.

@@ -105,21 +105,32 @@ public sealed class OutboxProcessor(
     {
         var payload = evento.Payload.RootElement;
         var destinatario = payload.GetProperty("Correo").GetString()!;
-        var token = payload.GetProperty("Token").GetString()!;
+        // Los eventos pendientes del formato anterior contenían un token largo
+        // que ya no puede consumirse con el contrato nuevo. Se descartan sin
+        // reintentos para no bloquear el outbox ni enviar instrucciones inválidas.
+        if (!payload.TryGetProperty("RecuperacionId", out var idProperty) ||
+            !payload.TryGetProperty("Codigo", out var codigoProperty))
+            return;
+        var recuperacionId = idProperty.GetGuid();
+        var codigo = codigoProperty.GetString()!;
         var baseUrl = correoOptions.Value.UrlAplicacion.TrimEnd('/');
         var url = Microsoft.AspNetCore.WebUtilities.QueryHelpers.AddQueryString(
-            $"{baseUrl}/reset-password", "token", token);
-        var tokenSeguro = System.Net.WebUtility.HtmlEncode(token);
+            $"{baseUrl}/reset-password", new Dictionary<string, string?>
+            {
+                ["recoveryId"] = recuperacionId.ToString(),
+                ["code"] = codigo
+            });
+        var codigoSeguro = System.Net.WebUtility.HtmlEncode(codigo);
         var urlSegura = System.Net.WebUtility.HtmlEncode(url);
         var texto =
-            $"Código de recuperación: {token}. " +
+            $"Código de recuperación: {codigo}. " +
             $"También puedes abrir este enlace: {url}. Expira en 30 minutos.";
         await EnviarCorreoUnaVez(evento, destinatario, "Restablecer contraseña", texto,
             $"<p>Solicitaste restablecer tu contraseña.</p>" +
             $"<p>Tu código de recuperación es:</p>" +
-            $"<p style=\"font-size:20px;font-weight:bold;letter-spacing:2px\">{tokenSeguro}</p>" +
+            $"<p style=\"font-size:24px;font-weight:bold;letter-spacing:6px\">{codigoSeguro}</p>" +
             $"<p><a href=\"{urlSegura}\">Abrir Finanzas Inteligentes</a></p>" +
-            $"<p>El código expira en 30 minutos y solo puede utilizarse una vez.</p>", ct);
+            $"<p>El código expira en 30 minutos, admite cinco intentos y solo puede utilizarse una vez.</p>", ct);
     }
 
     private async Task EnviarSuscripcion(

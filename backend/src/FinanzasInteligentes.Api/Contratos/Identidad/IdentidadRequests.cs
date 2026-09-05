@@ -20,7 +20,8 @@ public sealed record RenovarSesionRequest(
 public sealed record DesafioOtpRequest(string Motivo, string Canal);
 public sealed record VerificacionOtpRequest(Guid DesafioId, string Codigo);
 public sealed record RecuperacionContrasenaRequest(string Correo);
-public sealed record RestablecimientoContrasenaRequest(string Token, string NuevaContrasena);
+public sealed record RestablecimientoContrasenaRequest(
+    Guid RecuperacionId, string Codigo, string NuevaContrasena);
 public sealed record CambiarContrasenaRequest(
     string ContrasenaActual, string NuevaContrasena, Guid VerificacionOtpId);
 
