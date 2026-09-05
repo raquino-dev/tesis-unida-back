@@ -30,6 +30,10 @@ aplicaba espera entre reintentos ni un máximo de intentos.
 6. **Permiso de push.** La migración M0020 concede al rol de worker acceso de
    solo lectura a `seguridad.dispositivos`, eliminando la falla que inició el
    reintento de la suscripción.
+7. **Permiso mínimo de suscripciones.** La migración M0026 concede al worker
+   únicamente `USAGE` sobre el esquema `suscripciones`, lectura de
+   `suscripciones` y `avisos`, e inserción en `avisos`. Esto permite procesar
+   recordatorios sin ampliar el acceso del worker al resto del esquema.
 
 ## Recuperación controlada
 
@@ -66,3 +70,18 @@ order by reservada_en desc;
 
 La reactivación debe hacerse primero con una única prueba funcional de OTP y
 observando que aparece una sola fila `correo` en `outbox_entregas`.
+
+## Registro de reactivación del 4 de septiembre de 2026
+
+- SES quedó habilitado en `us-east-1` y permanece en sandbox: 200 mensajes por
+  24 horas, 1 mensaje por segundo y destinatarios verificados solamente.
+- `CORREO_HABILITADO=true` quedó aplicado en la configuración persistente y en
+  la copia de despliegue del repositorio del servidor.
+- Se recreó únicamente el contenedor `worker`; API y Nginx no se reiniciaron.
+- El contenedor quedó `running`, sin reinicios y sin errores al arrancar.
+- Antes de habilitar el envío se validó que todos los 57 eventos de outbox
+  estuvieran `procesado`; no había eventos pendientes ni fallidos. Las 11
+  entregas históricas de correo permanecían `omitida`, por lo que no se liberó
+  correo acumulado.
+- Queda pendiente ejecutar una sola prueba de OTP con el destinatario
+  verificado y confirmar exactamente una nueva entrega `correo/enviada`.

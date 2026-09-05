@@ -96,7 +96,9 @@ public sealed class SolicitarRecuperacionHandler(
             command.Correo.Trim().ToLowerInvariant(), cancellationToken);
         if (usuario is null) return;
 
-        var token = Convert.ToBase64String(RandomNumberGenerator.GetBytes(48));
+        // Un código hexadecimal conserva 128 bits de entropía, evita caracteres
+        // ambiguos de Base64 y también puede copiarse manualmente desde el correo.
+        var token = Convert.ToHexString(RandomNumberGenerator.GetBytes(16));
         var expiraEn = DateTimeOffset.UtcNow.AddMinutes(
             configuracion.RecuperacionContrasenaMinutos);
         var recuperacion = RecuperacionContrasena.Crear(

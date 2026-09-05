@@ -109,9 +109,17 @@ public sealed class OutboxProcessor(
         var baseUrl = correoOptions.Value.UrlAplicacion.TrimEnd('/');
         var url = Microsoft.AspNetCore.WebUtilities.QueryHelpers.AddQueryString(
             $"{baseUrl}/reset-password", "token", token);
-        var texto = $"Usa este enlace para restablecer tu contraseña: {url}. Expira en 30 minutos.";
+        var tokenSeguro = System.Net.WebUtility.HtmlEncode(token);
+        var urlSegura = System.Net.WebUtility.HtmlEncode(url);
+        var texto =
+            $"Código de recuperación: {token}. " +
+            $"También puedes abrir este enlace: {url}. Expira en 30 minutos.";
         await EnviarCorreoUnaVez(evento, destinatario, "Restablecer contraseña", texto,
-            $"<p>Solicitaste restablecer tu contraseña.</p><p><a href=\"{System.Net.WebUtility.HtmlEncode(url)}\">Restablecer contraseña</a></p><p>Expira en 30 minutos.</p>", ct);
+            $"<p>Solicitaste restablecer tu contraseña.</p>" +
+            $"<p>Tu código de recuperación es:</p>" +
+            $"<p style=\"font-size:20px;font-weight:bold;letter-spacing:2px\">{tokenSeguro}</p>" +
+            $"<p><a href=\"{urlSegura}\">Abrir Finanzas Inteligentes</a></p>" +
+            $"<p>El código expira en 30 minutos y solo puede utilizarse una vez.</p>", ct);
     }
 
     private async Task EnviarSuscripcion(

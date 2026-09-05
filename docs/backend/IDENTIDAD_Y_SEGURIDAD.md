@@ -1,7 +1,7 @@
 # Identidad y seguridad
 
 **Estado del código:** integrado entre API y Flutter  
-**Pendiente externo:** credenciales SES y validación en dispositivos Android
+**Pendiente externo:** validación final del enlace de recuperación en un dispositivo Android
 
 ## Flujos implementados
 
@@ -46,6 +46,11 @@ enlace generado tendrá la forma:
 finanzasinteligentes://app/reset-password?token=<token>
 ```
 
+El mismo correo presenta un código hexadecimal de 32 caracteres como alternativa
+al enlace. Ambos contienen el mismo valor aleatorio de 128 bits, expiran después de
+30 minutos y se consumen una sola vez. La pantalla móvil permite pegar el código y
+valida la política de la contraseña mientras el usuario escribe.
+
 No se registran códigos OTP, tokens de recuperación, contraseñas ni refresh tokens en
 logs o respuestas. El outbox conserva el código o token sólo hasta entregarlo y
 reemplaza inmediatamente el payload sensible por una marca de redacción.
@@ -63,7 +68,8 @@ origen observada por la API.
 
 ## Verificación pendiente para el piloto
 
-- sacar SES del sandbox y verificar remitente/dominio;
+- solicitar salida del sandbox únicamente si el piloto necesita destinatarios no
+  verificados; el dominio y el remitente ya están verificados;
 - ejecutar OTP y recuperación con API, Worker y PostgreSQL desplegados;
 - comprobar apertura del deep link desde Gmail en Android;
 - probar biometría habilitada, cancelada y sin huella/rostro configurado;
