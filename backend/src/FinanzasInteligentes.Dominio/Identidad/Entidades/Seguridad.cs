@@ -115,6 +115,7 @@ public sealed class RecuperacionContrasena : Entity
     public string HashToken { get; private set; } = string.Empty;
     public DateTimeOffset ExpiraEn { get; private set; }
     public DateTimeOffset? ConsumidoEn { get; private set; }
+    public int IntentosRestantes { get; private set; } = 5;
 
     public static RecuperacionContrasena Crear(
         Guid usuarioId, string hashToken, DateTimeOffset expiraEn) =>
@@ -124,6 +125,24 @@ public sealed class RecuperacionContrasena : Entity
     {
         if (ConsumidoEn is not null || ExpiraEn <= DateTimeOffset.UtcNow)
             throw new DomainException("token_recuperacion_invalido", "El token no es válido o expiró.");
+        ConsumidoEn = DateTimeOffset.UtcNow;
+    }
+
+    public void VerificarYConsumir(string hashCodigo)
+    {
+        if (ConsumidoEn is not null)
+            throw new DomainException("codigo_recuperacion_utilizado", "El código de recuperación ya fue utilizado.");
+        if (ExpiraEn <= DateTimeOffset.UtcNow)
+            throw new DomainException("codigo_recuperacion_expirado", "El código de recuperación expiró.");
+        if (IntentosRestantes <= 0)
+            throw new DomainException("codigo_recuperacion_bloqueado", "El código de recuperación no admite más intentos.");
+        if (!CryptographicOperations.FixedTimeEquals(
+            Convert.FromHexString(HashToken), Convert.FromHexString(hashCodigo)))
+        {
+            IntentosRestantes--;
+            throw new DomainException("codigo_recuperacion_invalido", "El código de recuperación no es válido.");
+        }
+
         ConsumidoEn = DateTimeOffset.UtcNow;
     }
 }

@@ -59,6 +59,8 @@ public sealed record DesafioOtpResponse(
 public sealed record VerificacionSeguridadResponse(
     Guid Id, bool Valida, DateTimeOffset ExpiraEn);
 
+public sealed record SolicitudRecuperacionResponse(Guid Id, DateTimeOffset ExpiraEn);
+
 public sealed record ProcesoAsyncResponse(
     Guid Id,
     string Estado,

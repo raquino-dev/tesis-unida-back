@@ -176,19 +176,10 @@ public sealed class IdentidadRepository(FinanzasDbContext db) : IIdentidadReposi
                 setters => setters.SetProperty(x => x.ConsumidoEn, ahora), cancellationToken) == 1;
     }
 
-    public async Task<RecuperacionContrasena?> ConsumirRecuperacion(
-        string hashToken, CancellationToken cancellationToken)
-    {
-        var ahora = DateTimeOffset.UtcNow;
-        var actualizadas = await db.RecuperacionesContrasena
-            .Where(x => x.HashToken == hashToken && x.ConsumidoEn == null && x.ExpiraEn > ahora)
-            .ExecuteUpdateAsync(
-                setters => setters.SetProperty(x => x.ConsumidoEn, ahora), cancellationToken);
-        return actualizadas == 1
-            ? await db.RecuperacionesContrasena.AsNoTracking()
-                .SingleAsync(x => x.HashToken == hashToken, cancellationToken)
-            : null;
-    }
+    public Task<RecuperacionContrasena?> ObtenerRecuperacion(
+        Guid recuperacionId, CancellationToken cancellationToken) =>
+        db.RecuperacionesContrasena.SingleOrDefaultAsync(
+            x => x.Id == recuperacionId, cancellationToken);
 
     public Task RevocarSesiones(Guid usuarioId, CancellationToken cancellationToken) =>
         db.Sesiones.Where(x => x.UsuarioId == usuarioId && x.RevocadoEn == null)

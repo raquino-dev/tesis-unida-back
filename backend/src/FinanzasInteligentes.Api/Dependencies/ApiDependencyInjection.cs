@@ -115,6 +115,15 @@ public static class ApiDependencyInjection
                         Window = TimeSpan.FromMinutes(15),
                         QueueLimit = 0
                     }));
+            options.AddPolicy("restablecimiento-contrasena", context =>
+                RateLimitPartition.GetFixedWindowLimiter(
+                    PartitionKey(context),
+                    _ => new FixedWindowRateLimiterOptions
+                    {
+                        PermitLimit = 5,
+                        Window = TimeSpan.FromMinutes(15),
+                        QueueLimit = 0
+                    }));
         });
 
         services.AddHealthChecks().AddDbContextCheck<FinanzasDbContext>("postgresql", tags: ["ready"]);

@@ -295,8 +295,8 @@ public sealed class FinanzasDbContext(DbContextOptions<FinanzasDbContext> option
         recuperacion.Property(x => x.HashToken).HasColumnName("hash_token").HasMaxLength(64);
         recuperacion.Property(x => x.ExpiraEn).HasColumnName("expira_en");
         recuperacion.Property(x => x.ConsumidoEn).HasColumnName("consumido_en");
+        recuperacion.Property(x => x.IntentosRestantes).HasColumnName("intentos_restantes");
         recuperacion.Property(x => x.CreadoEn).HasColumnName("creado_en");
-        recuperacion.HasIndex(x => x.HashToken).IsUnique();
         recuperacion.HasOne<Usuario>().WithMany()
             .HasForeignKey(x => x.UsuarioId)
             .OnDelete(DeleteBehavior.Cascade);

@@ -36,11 +36,25 @@ public sealed class SeguridadTests
     public void RecuperacionSoloPuedeConsumirseUnaVez()
     {
         var recuperacion = RecuperacionContrasena.Crear(
-            Guid.CreateVersion7(), Hash("token"), DateTimeOffset.UtcNow.AddMinutes(30));
+            Guid.CreateVersion7(), Hash("123456"), DateTimeOffset.UtcNow.AddMinutes(30));
 
-        recuperacion.Consumir();
+        recuperacion.VerificarYConsumir(Hash("123456"));
 
-        Assert.Throws<DomainException>(recuperacion.Consumir);
+        Assert.Throws<DomainException>(
+            () => recuperacion.VerificarYConsumir(Hash("123456")));
+    }
+
+    [Fact]
+    public void RecuperacionIncorrectaReduceIntentos()
+    {
+        var recuperacion = RecuperacionContrasena.Crear(
+            Guid.CreateVersion7(), Hash("123456"), DateTimeOffset.UtcNow.AddMinutes(30));
+
+        var exception = Assert.Throws<DomainException>(
+            () => recuperacion.VerificarYConsumir(Hash("000000")));
+
+        Assert.Equal("codigo_recuperacion_invalido", exception.Code);
+        Assert.Equal(4, recuperacion.IntentosRestantes);
     }
 
     [Fact]
