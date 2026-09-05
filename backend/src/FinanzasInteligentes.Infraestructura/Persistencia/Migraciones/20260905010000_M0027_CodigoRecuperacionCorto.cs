@@ -11,10 +11,10 @@ public partial class M0027_CodigoRecuperacionCorto : Migration
 {
     protected override void Up(MigrationBuilder migrationBuilder)
     {
-        migrationBuilder.DropIndex(
-            name: "IX_recuperaciones_contrasena_hash_token",
-            schema: "identidad",
-            table: "recuperaciones_contrasena");
+        migrationBuilder.Sql(
+            """
+            DROP INDEX IF EXISTS identidad."IX_recuperaciones_contrasena_hash_token";
+            """);
 
         migrationBuilder.AddColumn<int>(
             name: "intentos_restantes",
