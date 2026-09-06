@@ -11,7 +11,16 @@ compose="docker compose --project-directory $deploy_dir --env-file $env_file -f 
 $compose pull api worker migrator nginx
 # La dependencia service_completed_successfully ejecuta primero el migrador.
 # shellcheck disable=SC2086
-$compose up -d --no-build --remove-orphans --wait
+if ! $compose up -d --no-build --remove-orphans --wait; then
+  echo "El despliegue no pudo iniciar todos los servicios." >&2
+  echo "Estado de los contenedores:" >&2
+  # shellcheck disable=SC2086
+  $compose ps >&2 || true
+  echo "Últimos registros del migrador:" >&2
+  # shellcheck disable=SC2086
+  $compose logs --no-color --tail=200 migrator >&2 || true
+  exit 1
+fi
 
 public_api_url=$(sed -n 's/^PUBLIC_API_URL=//p' "$env_file" | tail -n 1)
 curl --fail --silent --show-error \
