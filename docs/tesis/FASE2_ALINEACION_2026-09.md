@@ -9,20 +9,32 @@ Rama: `tesis/fase-2-alineacion-2026-09`
 - Otros adultos de las familias pueden usar capacidades colaborativas, pero no forman observaciones independientes del pre/post.
 - Incorporación escalonada: 17/08/2026–31/08/2026.
 - Observación: 28 días por unidad familiar desde su incorporación individual.
-- El postuso se habilita desde `fecha_inicio + 28 días` y el backend rechaza el envío anticipado.
+- El postuso se habilita desde `fecha_inicio + 28 días`, evaluando la fecha calendario en `America/Asuncion`; el backend rechaza el envío anticipado.
 - Premium: Gs. 39.000 mensual y Gs. 390.000 anual; sin cobros reales en el piloto.
 - Product IDs de Google Play: `premium_monthly` y `premium_yearly`.
 - Android es la única plataforma de validación.
 - RF-26 offline permanece dentro del alcance.
-- La política de privacidad permanece accesible dentro de la aplicación. No se agrega una web pública solo por la tesis; el placeholder histórico `example.invalid` se limpia en M0023.
+- La política de privacidad permanece accesible dentro de la aplicación. No se agrega una web pública solo por la tesis; el placeholder histórico `example.invalid` se limpia en M0028.
+
+## Migraciones vigentes relacionadas con el cierre
+
+El `main` vigente ya contiene M0023–M0027:
+
+- `M0023_PermisosPilotoSincronizacion`
+- `M0024_AliasUsuario`
+- `M0025_FechasCreacionInstrumentosPiloto`
+- `M0026_PermisosWorkerSuscripciones`
+- `M0027_CodigoRecuperacionCorto`
+
+Por lo tanto, la alineación académica se publica como `M0028_AlineacionPilotoTesis`; no se reutiliza el número M0023.
 
 ## Cambios técnicos
 
-- `M0023_AlineacionPilotoTesis` corrige los precios vigentes sin modificar `M0009` histórico.
-- `M0023` crea `piloto.participantes` para registrar, sin PII adicional, el código anónimo y la ventana de 28 días.
-- `M0023` agrega `preuso-complementario` como instrumento separado, solicitado por tutoría y de análisis descriptivo.
-- `M0023` publica `postuso` v2.0, preservando la versión 1.0 y cualquier respuesta histórica.
-- `InstrumentosPilotoHandler` admite el código `preuso-complementario` y controla la elegibilidad temporal del postuso.
+- `M0028_AlineacionPilotoTesis` corrige los precios vigentes sin modificar `M0009` histórico.
+- `M0028` crea `piloto.participantes` para registrar, sin PII adicional, el código anónimo y la ventana de 28 días.
+- `M0028` agrega `preuso-complementario` como instrumento separado, solicitado por tutoría y de análisis descriptivo.
+- `M0028` publica `postuso` v2.0, preservando la versión 1.0 y cualquier respuesta histórica.
+- `InstrumentosPilotoHandler` admite el código `preuso-complementario`, controla la elegibilidad temporal del postuso y usa `America/Asuncion` para el día calendario del piloto.
 - `IPilotoRepository`/`PilotoRepository` consultan la fecha final configurada para el referente autenticado.
 - `docs/piloto/PARTICIPANTES_PILOTO.md` conserva únicamente U01–U10 y fechas; la relación con UUID reales se realiza fuera de Git.
 - La documentación de alcance y trazabilidad se extiende formalmente hasta RF-26.
@@ -33,7 +45,7 @@ No se reescriben migraciones históricas ni respuestas de instrumentos ya contes
 
 ## Regla de despliegue
 
-El merge de `main` despliega automáticamente y ejecuta migraciones contra la base del piloto. Por existir datos reales en Supabase, **no fusionar este PR hasta completar un backup y una restauración aislada con evidencia**. Luego aplicar el orden: backup/restore validado → merge backend/M0023 → verificación → asociación U01–U10 → distribución de la nueva AAB.
+El merge de `main` despliega automáticamente y ejecuta migraciones contra la base del piloto. Por existir datos reales en Supabase, **no fusionar este PR hasta completar un backup y una restauración aislada con evidencia**. Luego aplicar el orden: backup/restore validado → merge backend/M0028 → verificación → asociación U01–U10 → distribución de la nueva AAB.
 
 ## Evidencia que corresponde a fases posteriores
 
