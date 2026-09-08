@@ -9,7 +9,8 @@ public sealed record PreguntaInstrumentoResponse(
     Guid Id, int Orden, string Tipo, string Texto, bool Requerida, int? Minimo, int? Maximo);
 public sealed record InstrumentoPilotoResponse(
     string Codigo, string Version, string Titulo, string Descripcion,
-    bool Respondido, IReadOnlyCollection<PreguntaInstrumentoResponse> Preguntas);
+    bool Respondido, bool Habilitado, DateOnly? HabilitadoDesde,
+    IReadOnlyCollection<PreguntaInstrumentoResponse> Preguntas);
 public sealed record RespuestaInstrumentoRequest(Guid PreguntaId, int? ValorEscala, string? ValorTexto);
 
 public sealed class InstrumentosPilotoHandler(IPilotoRepository piloto, IUnidadDeTrabajo unidadDeTrabajo)
@@ -24,7 +25,9 @@ public sealed class InstrumentosPilotoHandler(IPilotoRepository piloto, IUnidadD
     public async Task<InstrumentoPilotoResponse> Obtener(Guid usuarioId, string codigo, CancellationToken ct)
     {
         var instrumento = await ObtenerActivo(codigo, ct);
-        return Map(instrumento, await piloto.UsuarioRespondio(usuarioId, instrumento.Id, ct));
+        var respondido = await piloto.UsuarioRespondio(usuarioId, instrumento.Id, ct);
+        var elegibilidad = await ObtenerElegibilidad(usuarioId, codigo, ct);
+        return Map(instrumento, respondido, elegibilidad.Habilitado, elegibilidad.HabilitadoDesde);
     }
 
     public async Task<InstrumentoPilotoResponse> Responder(
@@ -33,6 +36,18 @@ public sealed class InstrumentosPilotoHandler(IPilotoRepository piloto, IUnidadD
         var instrumento = await ObtenerActivo(codigo, ct);
         if (await piloto.UsuarioRespondio(usuarioId, instrumento.Id, ct))
             throw new ConflictException("instrumento_ya_respondido", "Este instrumento ya fue respondido.");
+
+        var elegibilidad = await ObtenerElegibilidad(usuarioId, codigo, ct);
+        if (!elegibilidad.Habilitado)
+        {
+            if (elegibilidad.HabilitadoDesde is null)
+                throw new ConflictException(
+                    "participante_piloto_no_configurado",
+                    "La ventana de observación del participante no está configurada.");
+            throw new ConflictException(
+                "postuso_no_habilitado",
+                $"El cuestionario final estará disponible desde el {elegibilidad.HabilitadoDesde:dd/MM/yyyy}.");
+        }
 
         if (respuestas.Select(x => x.PreguntaId).Distinct().Count() != respuestas.Count)
             throw new DomainException("respuesta_duplicada", "No puede responder una misma pregunta más de una vez.");
@@ -47,7 +62,19 @@ public sealed class InstrumentosPilotoHandler(IPilotoRepository piloto, IUnidadD
         var entidad = RespuestaInstrumentoPiloto.Crear(usuarioId, instrumento, datos);
         piloto.Agregar(entidad);
         await unidadDeTrabajo.GuardarCambios(ct);
-        return Map(instrumento, true);
+        return Map(instrumento, true, true, elegibilidad.HabilitadoDesde);
+    }
+
+    private async Task<(bool Habilitado, DateOnly? HabilitadoDesde)> ObtenerElegibilidad(
+        Guid usuarioId, string codigo, CancellationToken ct)
+    {
+        if (!string.Equals(codigo, "postuso", StringComparison.Ordinal))
+            return (true, null);
+
+        var fechaFin = await piloto.ObtenerFechaFinPiloto(usuarioId, ct);
+        if (fechaFin is null) return (false, null);
+        var hoyUtc = DateOnly.FromDateTime(DateTime.UtcNow);
+        return (hoyUtc >= fechaFin.Value, fechaFin.Value);
     }
 
     private async Task<InstrumentoPiloto> ObtenerActivo(string codigo, CancellationToken ct)
@@ -58,8 +85,9 @@ public sealed class InstrumentosPilotoHandler(IPilotoRepository piloto, IUnidadD
             ?? throw new NotFoundException("instrumento_no_encontrado", "No hay una versión activa del instrumento.");
     }
 
-    private static InstrumentoPilotoResponse Map(InstrumentoPiloto x, bool respondido) => new(
-        x.Codigo, x.VersionInstrumento, x.Titulo, x.Descripcion, respondido,
+    private static InstrumentoPilotoResponse Map(
+        InstrumentoPiloto x, bool respondido, bool habilitado, DateOnly? habilitadoDesde) => new(
+        x.Codigo, x.VersionInstrumento, x.Titulo, x.Descripcion, respondido, habilitado, habilitadoDesde,
         x.Preguntas.OrderBy(p => p.Orden).Select(p => new PreguntaInstrumentoResponse(
             p.Id, p.Orden, p.Tipo, p.Texto, p.Requerida, p.Minimo, p.Maximo)).ToArray());
 }
