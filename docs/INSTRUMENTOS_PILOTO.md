@@ -4,16 +4,18 @@ Los cuestionarios del piloto se administran como datos versionados en el esquema
 
 ## Instrumentos principales
 
-La migración `M0021_InstrumentosPiloto` creó los instrumentos `preuso` y `postuso`, versión `1.0`.
+La migración `M0021_InstrumentosPiloto` creó `preuso` y `postuso`, versión `1.0`.
 
-- `preuso`: ocho ítems de escala y tres preguntas abiertas. Los diez referentes adultos lo completaron antes de su primer uso de la aplicación; constituye la medición basal del diseño preexperimental.
-- `postuso`: instrumento final administrado después de los 28 días de observación correspondientes a cada unidad familiar.
+- `preuso` v1.0: ocho ítems de escala y tres preguntas abiertas. Los diez referentes adultos lo completaron antes de su primer uso; constituye la medición basal del diseño preexperimental y se conserva sin modificaciones retrospectivas.
+- `postuso` v1.0: versión histórica inicial, conservada para trazabilidad.
+
+La migración `M0023_AlineacionPilotoTesis` publica `postuso` v2.0 como versión activa para el cierre de los 28 días. La versión 2.0 coincide con el instrumento final documentado en la tesis y contiene diez ítems Likert y cuatro preguntas abiertas. La versión anterior no se elimina y cualquier respuesta histórica mantiene su `VersionInstrumento` original.
 
 Cada respuesta se vincula tanto al instrumento como a su versión. Un participante solo puede responder una vez cada versión activa.
 
 ## Bloque complementario inicial
 
-La migración `M0023_AlineacionPilotoTesis` incorpora `preuso-complementario`, versión `1.0`, solicitado por tutoría durante la fase inicial del piloto. Se mantiene como instrumento separado porque los participantes ya habían completado el preuso principal antes de comenzar a utilizar la aplicación.
+`M0023_AlineacionPilotoTesis` incorpora además `preuso-complementario`, versión `1.0`, solicitado por tutoría durante la fase inicial del piloto. Se mantiene como instrumento separado porque los participantes ya habían completado el preuso principal antes de comenzar a utilizar la aplicación.
 
 Su análisis es **descriptivo** y no se presenta como medición basal pre/post. Contiene once ítems Likert de 1 a 5 distribuidos en tres dimensiones:
 
@@ -37,15 +39,31 @@ Su análisis es **descriptivo** y no se presenta como medición basal pre/post. 
 10. Estaría dispuesto/a a pagar Gs. 390.000 anuales por una versión Premium si considero útiles sus funcionalidades.
 11. Considero razonable pagar por una aplicación de control financiero cuando ofrece funciones adicionales de automatización, análisis, seguridad y gestión familiar.
 
-## Cambiar preguntas sin una nueva AAB
+## Postuso v2.0
 
-No se deben editar ni eliminar preguntas de una versión que ya tenga respuestas. Para publicar un ajuste:
+Escala 1–5:
 
-1. Crear una nueva fila en `piloto.instrumentos` con un código/versionado que preserve la semántica de la medición anterior.
-2. Insertar las preguntas de esa versión en `piloto.preguntas`.
-3. Activar la versión correspondiente sin alterar respuestas históricas.
+1. La aplicación fue fácil de aprender.
+2. Pude registrar gastos con menos esfuerzo que mediante mi procedimiento habitual.
+3. La captura documental redujo la carga manual.
+4. Los reportes me ayudaron a comprender mis gastos.
+5. Las proyecciones y explicaciones fueron comprensibles.
+6. La separación entre información privada y familiar fue clara.
+7. Los controles de seguridad me generaron confianza.
+8. Los mensajes de error y validación fueron claros.
+9. La aplicación puede ayudarme a mejorar el control financiero.
+10. Utilizaría la aplicación de forma continua.
 
-La aplicación obtiene los instrumentos desde la API; por ello, los cambios de preguntas versionadas no requieren compilar una nueva AAB si el código del instrumento ya está soportado por el cliente.
+Preguntas abiertas:
+
+- ¿Qué funcionalidad le resultó más útil?
+- ¿Qué parte fue confusa o difícil?
+- ¿Qué mejoraría antes de usarla regularmente?
+- ¿Qué preocupación de seguridad o privacidad mantiene?
+
+## Regla de versionado
+
+No se editan ni eliminan preguntas de una versión que ya tenga respuestas. Un cambio se publica como una nueva versión o como un código separado cuando la semántica de la medición es distinta. De esta manera, los datos históricos siguen siendo interpretables y reproducibles.
 
 ## Endpoints autenticados
 
