@@ -14,6 +14,13 @@ public sealed record RespuestaInstrumentoRequest(Guid PreguntaId, int? ValorEsca
 
 public sealed class InstrumentosPilotoHandler(IPilotoRepository piloto, IUnidadDeTrabajo unidadDeTrabajo)
 {
+    private static readonly HashSet<string> CodigosPermitidos = new(StringComparer.Ordinal)
+    {
+        "preuso",
+        "preuso-complementario",
+        "postuso"
+    };
+
     public async Task<InstrumentoPilotoResponse> Obtener(Guid usuarioId, string codigo, CancellationToken ct)
     {
         var instrumento = await ObtenerActivo(codigo, ct);
@@ -45,7 +52,7 @@ public sealed class InstrumentosPilotoHandler(IPilotoRepository piloto, IUnidadD
 
     private async Task<InstrumentoPiloto> ObtenerActivo(string codigo, CancellationToken ct)
     {
-        if (codigo is not ("preuso" or "postuso"))
+        if (!CodigosPermitidos.Contains(codigo))
             throw new NotFoundException("instrumento_no_encontrado", "El instrumento solicitado no existe.");
         return await piloto.ObtenerInstrumentoActivo(codigo, ct)
             ?? throw new NotFoundException("instrumento_no_encontrado", "No hay una versión activa del instrumento.");
