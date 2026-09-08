@@ -1,34 +1,43 @@
 # Finanzas Inteligentes
 
-Backend .NET y documentación de diseño para la aplicación Flutter Finanzas Inteligentes. La aplicación móvil se mantiene en el repositorio hermano `practica-flutter` y admite repositorios mock o conexión HTTP con esta API.
+Backend .NET 10 y documentación técnica para la aplicación Flutter Finanzas Inteligentes. La aplicación móvil se mantiene en el repositorio hermano `raquino-dev/tesis-unida` y utiliza repositorios API en el AAB distribuido para el piloto; los dobles/mocks se conservan para desarrollo y pruebas controladas.
 
-El [alcance formal y los requisitos](docs/ALCANCE_Y_REQUISITOS.md) definen la prueba piloto, RF-01 a RF-21, RNF-01 a RNF-25, plataforma objetivo y exclusiones.
+El [alcance formal y los requisitos](docs/ALCANCE_Y_REQUISITOS.md) definen la prueba piloto, **RF-01 a RF-26**, RNF-01 a RNF-25, plataforma Android y exclusiones.
 
-Las [decisiones aprobadas del piloto](docs/DECISIONES_PILOTO.md) fijan proveedores, alcance obligatorio, exclusiones, privacidad de tarjetas y criterios de éxito.
+Las [decisiones consolidadas del piloto](docs/DECISIONES_PILOTO.md) fijan muestra, duración, proveedores, alcance obligatorio, privacidad de tarjetas, suscripciones y criterios de aceptación.
 
-El [roadmap de completitud](docs/ROADMAP_COMPLETITUD.md) detalla los hitos, dependencias, pruebas y evidencias pendientes para llevar el proyecto al 100 % del alcance.
+Los [instrumentos del piloto](docs/INSTRUMENTOS_PILOTO.md) documentan el preuso principal, el bloque complementario solicitado por tutoría y el postuso, preservando versiones y respuestas históricas.
 
-## Identidad Android prevista
+## Identidad Android del piloto
 
 - Application ID: `com.tesis.finanzasinteligentes`
 - Nombre visible: `Finanzas Inteligentes`
-- Versión: `0.1.0+1`
 - Compatibilidad mínima: Android 10
+- Distribución: Google Play Internal Testing
+- Backend: `https://api.rodrigoaquino.com/api/v1`
 
-## Verificación local prevista
+La versión exacta de entrega se congela mediante commit/tag al cerrar la tesis. Durante el piloto se han distribuido builds `0.1.0+7` y `0.1.0+8`; los cambios entre ellas deben conservarse en la evidencia de versiones.
+
+## Verificación
+
+Backend:
 
 ```bash
+cd backend
+dotnet restore FinanzasInteligentes.sln
+dotnet build FinanzasInteligentes.sln -c Release --no-restore
+dotnet test FinanzasInteligentes.sln -c Release --no-build
+```
+
+Mobile, desde el repositorio hermano:
+
+```bash
+flutter pub get
 flutter analyze
 flutter test
 flutter build apk --debug
 ```
 
-Estos comandos se ejecutan en el repositorio hermano `practica-flutter`.
+La evidencia automatizada no sustituye las validaciones E2E de Supabase, S3, Textract, SES, FCM, Google Play Billing, backup/restore y sincronización multi-dispositivo.
 
-La configuración de firma y las instrucciones de distribución deberán documentarse en `docs/BETA_DISTRIBUTION.md` cuando se incorpore el proyecto Flutter al repositorio.
-
-El contrato del backend .NET 10 se encuentra en [docs/api/README.md](docs/api/README.md).
-
-La arquitectura, las migraciones PostgreSQL y el desarrollo por etapas se encuentran en [docs/backend/README.md](docs/backend/README.md).
-
-La implementación compilable y su solución se encuentran en [backend/README.md](backend/README.md).
+El contrato del backend se encuentra en [docs/api/README.md](docs/api/README.md). La arquitectura y operación están documentadas en [docs/backend/README.md](docs/backend/README.md).
