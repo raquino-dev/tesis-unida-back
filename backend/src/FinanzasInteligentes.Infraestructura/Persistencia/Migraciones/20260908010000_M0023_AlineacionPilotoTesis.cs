@@ -6,8 +6,8 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace FinanzasInteligentes.Infraestructura.Persistencia.Migraciones;
 
 /// <summary>
-/// Alinea decisiones académicas consolidadas del piloto sin alterar las respuestas
-/// ya registradas: precios aprobados y bloque complementario solicitado por tutoría.
+/// Alinea decisiones académicas consolidadas del piloto sin alterar respuestas
+/// históricas: precios aprobados, bloque complementario y postuso versionado.
 /// </summary>
 [DbContext(typeof(FinanzasDbContext))]
 [Migration("20260908010000_M0023_AlineacionPilotoTesis")]
@@ -16,12 +16,9 @@ public partial class M0023_AlineacionPilotoTesis : Migration
     protected override void Up(MigrationBuilder migrationBuilder)
     {
         migrationBuilder.Sql("""
-            UPDATE suscripciones.planes
-               SET precio = 39000
+            UPDATE suscripciones.planes SET precio = 39000
              WHERE codigo = 'premium-mensual';
-
-            UPDATE suscripciones.planes
-               SET precio = 390000
+            UPDATE suscripciones.planes SET precio = 390000
              WHERE codigo = 'premium-anual';
             """);
 
@@ -30,12 +27,9 @@ public partial class M0023_AlineacionPilotoTesis : Migration
                 (id, codigo, version_instrumento, titulo, descripcion, activo, creado_en)
             VALUES
                 ('00000000-0000-4000-8000-000000000103',
-                 'preuso-complementario',
-                 '1.0',
-                 'Bloque complementario inicial',
+                 'preuso-complementario', '1.0', 'Bloque complementario inicial',
                  'Bloque adicional solicitado por tutoría durante la fase inicial del piloto. Se analiza de forma descriptiva y no se utiliza como medición basal pre/post.',
-                 true,
-                 now())
+                 true, now())
             ON CONFLICT (codigo, version_instrumento) DO NOTHING;
 
             INSERT INTO piloto.preguntas
@@ -54,30 +48,74 @@ public partial class M0023_AlineacionPilotoTesis : Migration
                 ('00000000-0000-4000-8000-00000000040b', '00000000-0000-4000-8000-000000000103', 11, 'escala', 'Considero razonable pagar por una aplicación de control financiero cuando ofrece funciones adicionales de automatización, análisis, seguridad y gestión familiar.', true, 1, 5)
             ON CONFLICT (id) DO NOTHING;
             """);
+
+        migrationBuilder.Sql("""
+            UPDATE piloto.instrumentos
+               SET activo = false
+             WHERE codigo = 'postuso' AND activo = true;
+
+            INSERT INTO piloto.instrumentos
+                (id, codigo, version_instrumento, titulo, descripcion, activo, creado_en)
+            VALUES
+                ('00000000-0000-4000-8000-000000000104',
+                 'postuso', '2.0', 'Cuestionario final',
+                 'Después de completar los 28 días de observación del piloto. Respondé según tu experiencia real con la aplicación.',
+                 true, now())
+            ON CONFLICT (codigo, version_instrumento) DO UPDATE SET activo = true;
+
+            INSERT INTO piloto.preguntas
+                (id, instrumento_id, orden, tipo, texto, requerida, minimo, maximo)
+            VALUES
+                ('00000000-0000-4000-8000-000000000501', '00000000-0000-4000-8000-000000000104', 1, 'escala', 'La aplicación fue fácil de aprender.', true, 1, 5),
+                ('00000000-0000-4000-8000-000000000502', '00000000-0000-4000-8000-000000000104', 2, 'escala', 'Pude registrar gastos con menos esfuerzo que mediante mi procedimiento habitual.', true, 1, 5),
+                ('00000000-0000-4000-8000-000000000503', '00000000-0000-4000-8000-000000000104', 3, 'escala', 'La captura documental redujo la carga manual.', true, 1, 5),
+                ('00000000-0000-4000-8000-000000000504', '00000000-0000-4000-8000-000000000104', 4, 'escala', 'Los reportes me ayudaron a comprender mis gastos.', true, 1, 5),
+                ('00000000-0000-4000-8000-000000000505', '00000000-0000-4000-8000-000000000104', 5, 'escala', 'Las proyecciones y explicaciones fueron comprensibles.', true, 1, 5),
+                ('00000000-0000-4000-8000-000000000506', '00000000-0000-4000-8000-000000000104', 6, 'escala', 'La separación entre información privada y familiar fue clara.', true, 1, 5),
+                ('00000000-0000-4000-8000-000000000507', '00000000-0000-4000-8000-000000000104', 7, 'escala', 'Los controles de seguridad me generaron confianza.', true, 1, 5),
+                ('00000000-0000-4000-8000-000000000508', '00000000-0000-4000-8000-000000000104', 8, 'escala', 'Los mensajes de error y validación fueron claros.', true, 1, 5),
+                ('00000000-0000-4000-8000-000000000509', '00000000-0000-4000-8000-000000000104', 9, 'escala', 'La aplicación puede ayudarme a mejorar el control financiero.', true, 1, 5),
+                ('00000000-0000-4000-8000-00000000050a', '00000000-0000-4000-8000-000000000104', 10, 'escala', 'Utilizaría la aplicación de forma continua.', true, 1, 5),
+                ('00000000-0000-4000-8000-00000000050b', '00000000-0000-4000-8000-000000000104', 11, 'texto', '¿Qué funcionalidad le resultó más útil?', true, NULL, NULL),
+                ('00000000-0000-4000-8000-00000000050c', '00000000-0000-4000-8000-000000000104', 12, 'texto', '¿Qué parte fue confusa o difícil?', true, NULL, NULL),
+                ('00000000-0000-4000-8000-00000000050d', '00000000-0000-4000-8000-000000000104', 13, 'texto', '¿Qué mejoraría antes de usarla regularmente?', true, NULL, NULL),
+                ('00000000-0000-4000-8000-00000000050e', '00000000-0000-4000-8000-000000000104', 14, 'texto', '¿Qué preocupación de seguridad o privacidad mantiene?', true, NULL, NULL)
+            ON CONFLICT (id) DO NOTHING;
+            """);
     }
 
     protected override void Down(MigrationBuilder migrationBuilder)
     {
         migrationBuilder.Sql("""
-            UPDATE suscripciones.planes
-               SET precio = 45000
+            UPDATE suscripciones.planes SET precio = 45000
              WHERE codigo = 'premium-mensual';
-
-            UPDATE suscripciones.planes
-               SET precio = 450000
+            UPDATE suscripciones.planes SET precio = 450000
              WHERE codigo = 'premium-anual';
             """);
 
         migrationBuilder.Sql("""
+            UPDATE piloto.instrumentos SET activo = false
+             WHERE id = '00000000-0000-4000-8000-000000000104';
+            UPDATE piloto.instrumentos SET activo = true
+             WHERE id = '00000000-0000-4000-8000-000000000102';
+
             DO $rollback$
             BEGIN
+                IF NOT EXISTS (
+                    SELECT 1 FROM piloto.respuestas
+                     WHERE instrumento_id = '00000000-0000-4000-8000-000000000104'
+                ) THEN
+                    DELETE FROM piloto.preguntas
+                     WHERE instrumento_id = '00000000-0000-4000-8000-000000000104';
+                    DELETE FROM piloto.instrumentos
+                     WHERE id = '00000000-0000-4000-8000-000000000104';
+                END IF;
+
                 IF EXISTS (
-                    SELECT 1
-                      FROM piloto.respuestas
+                    SELECT 1 FROM piloto.respuestas
                      WHERE instrumento_id = '00000000-0000-4000-8000-000000000103'
                 ) THEN
-                    UPDATE piloto.instrumentos
-                       SET activo = false
+                    UPDATE piloto.instrumentos SET activo = false
                      WHERE id = '00000000-0000-4000-8000-000000000103';
                 ELSE
                     DELETE FROM piloto.preguntas
