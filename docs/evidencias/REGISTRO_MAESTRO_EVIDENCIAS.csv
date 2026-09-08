@@ -3,7 +3,7 @@ EVID-CP-01,CI,Flutter tests,GitHub Actions,,,,,PENDIENTE,,,
 EVID-CP-02,CI,Backend tests,GitHub Actions,,,,,PENDIENTE,,,
 EVID-CP-03,CI,Flutter analyze/build,GitHub Actions,,,,,PENDIENTE,,,
 EVID-CP-04,CI,Backend containers,GitHub Actions,,,,,PENDIENTE,,,
-EVID-E2E-01,Recuperacion,Supabase backup restore M0028,Produccion+Restore temporal,,,,,PENDIENTE,,,
+EVID-E2E-01,Recuperacion,Supabase backup restore M0028,Produccion+Restore temporal,,2026-09-08,Restaurar respaldo verificable y validar integridad antes de M0028,"Supabase Pro mostró backups diarios; se inició y completó exitosamente un restore del snapshot 08 Sep 2026 09:40:13 +0000 sobre el proyecto de producción",PARCIAL,"capturas privadas 2026-09-08",,"El restore administrado fue realizado sobre producción y no sobre un proyecto temporal. Antes de cerrar la evidencia se debe verificar posible pérdida de escrituras posteriores al snapshot, comparar integridad y probar M0028 sobre un restore aislado."
 EVID-E2E-02,Almacenamiento,S3 carga lectura autorizada privacidad,Piloto tecnico,,,,,PENDIENTE,,,
 EVID-E2E-03,OCR,Textract app-API-S3-Worker-Textract-app,Piloto tecnico,,,,,PENDIENTE,,,
 EVID-E2E-04,Correo,SES transaccional,Piloto tecnico,,,,,PENDIENTE,,,
