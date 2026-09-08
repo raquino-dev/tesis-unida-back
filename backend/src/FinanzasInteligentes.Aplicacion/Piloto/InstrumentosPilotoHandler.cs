@@ -15,6 +15,9 @@ public sealed record RespuestaInstrumentoRequest(Guid PreguntaId, int? ValorEsca
 
 public sealed class InstrumentosPilotoHandler(IPilotoRepository piloto, IUnidadDeTrabajo unidadDeTrabajo)
 {
+    private static readonly TimeZoneInfo ZonaHorariaPiloto =
+        TimeZoneInfo.FindSystemTimeZoneById("America/Asuncion");
+
     private static readonly HashSet<string> CodigosPermitidos = new(StringComparer.Ordinal)
     {
         "preuso",
@@ -73,8 +76,9 @@ public sealed class InstrumentosPilotoHandler(IPilotoRepository piloto, IUnidadD
 
         var fechaFin = await piloto.ObtenerFechaFinPiloto(usuarioId, ct);
         if (fechaFin is null) return (false, null);
-        var hoyUtc = DateOnly.FromDateTime(DateTime.UtcNow);
-        return (hoyUtc >= fechaFin.Value, fechaFin.Value);
+        var ahoraAsuncion = TimeZoneInfo.ConvertTime(DateTimeOffset.UtcNow, ZonaHorariaPiloto);
+        var hoyAsuncion = DateOnly.FromDateTime(ahoraAsuncion.DateTime);
+        return (hoyAsuncion >= fechaFin.Value, fechaFin.Value);
     }
 
     private async Task<InstrumentoPiloto> ObtenerActivo(string codigo, CancellationToken ct)
