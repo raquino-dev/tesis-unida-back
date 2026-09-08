@@ -7,7 +7,8 @@ namespace FinanzasInteligentes.Infraestructura.Persistencia.Migraciones;
 
 /// <summary>
 /// Alinea decisiones académicas consolidadas del piloto sin alterar respuestas
-/// históricas: precios aprobados, bloque complementario y postuso versionado.
+/// históricas: precios aprobados, registro de participantes, bloque complementario
+/// y postuso versionado.
 /// </summary>
 [DbContext(typeof(FinanzasDbContext))]
 [Migration("20260908010000_M0023_AlineacionPilotoTesis")]
@@ -20,6 +21,32 @@ public partial class M0023_AlineacionPilotoTesis : Migration
              WHERE codigo = 'premium-mensual';
             UPDATE suscripciones.planes SET precio = 390000
              WHERE codigo = 'premium-anual';
+
+            -- La política se presenta dentro de la aplicación. No se publica una URL web
+            -- ficticia como si fuera un documento externo real.
+            UPDATE identidad.politicas_privacidad
+               SET url_documento = ''
+             WHERE url_documento = 'https://example.invalid/privacidad/1.0';
+            """);
+
+        migrationBuilder.Sql("""
+            CREATE TABLE piloto.participantes (
+                usuario_id uuid PRIMARY KEY,
+                codigo_anonimo varchar(3) NOT NULL,
+                fecha_inicio date NOT NULL,
+                fecha_fin_planificada date NOT NULL,
+                activo boolean NOT NULL DEFAULT true,
+                creado_en timestamp with time zone NOT NULL DEFAULT now(),
+                CONSTRAINT fk_piloto_participantes_usuario
+                    FOREIGN KEY (usuario_id)
+                    REFERENCES identidad.usuarios(id)
+                    ON DELETE RESTRICT,
+                CONSTRAINT uq_piloto_participantes_codigo UNIQUE (codigo_anonimo),
+                CONSTRAINT ck_piloto_participantes_codigo
+                    CHECK (codigo_anonimo ~ '^U(0[1-9]|10)$'),
+                CONSTRAINT ck_piloto_participantes_ventana
+                    CHECK (fecha_fin_planificada = fecha_inicio + 28)
+            );
             """);
 
         migrationBuilder.Sql("""
@@ -91,6 +118,10 @@ public partial class M0023_AlineacionPilotoTesis : Migration
              WHERE codigo = 'premium-mensual';
             UPDATE suscripciones.planes SET precio = 450000
              WHERE codigo = 'premium-anual';
+
+            UPDATE identidad.politicas_privacidad
+               SET url_documento = 'https://example.invalid/privacidad/1.0'
+             WHERE url_documento = '';
             """);
 
         migrationBuilder.Sql("""
@@ -126,5 +157,7 @@ public partial class M0023_AlineacionPilotoTesis : Migration
             END
             $rollback$;
             """);
+
+        migrationBuilder.Sql("DROP TABLE IF EXISTS piloto.participantes;");
     }
 }
