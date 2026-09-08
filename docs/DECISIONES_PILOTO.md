@@ -1,245 +1,147 @@
-# Decisiones aprobadas para el piloto
+# Decisiones consolidadas para el piloto
 
-**Estado:** aprobado  
-**Fecha de decisión:** 29 de julio de 2026  
+**Estado:** aprobado para la fase de cierre de tesis  
+**Última alineación:** septiembre de 2026  
 **Ámbito:** aplicación Android Finanzas Inteligentes y backend .NET
 
-Este documento cierra las decisiones de alcance y proveedores del hito 0. Cualquier
-ampliación posterior debe registrar su impacto en calendario, pruebas, privacidad y
-evidencia académica antes de incorporarse.
+Este documento registra las decisiones consolidadas que deben permanecer coherentes con la tesis, el código, los instrumentos, la evidencia y la defensa.
 
 ## 1. Diseño del piloto
 
 | Aspecto | Decisión |
 |---|---|
 | Lugar | Asunción, Paraguay |
-| Participantes | 10 personas adultas |
-| Duración | 28 días consecutivos |
+| Muestra principal | 10 unidades familiares, cada una representada por un adulto referente (`n = 10`) |
+| Incorporación | Escalonada entre el 17/08/2026 y el 31/08/2026 |
+| Duración | 28 días consecutivos por unidad familiar desde su incorporación |
 | Plataforma | Android 10 o superior |
 | Distribución | Google Play Internal Testing |
-| Datos | Datos financieros reales aportados voluntariamente; sin conexión bancaria |
-| Instrumentos | Consentimiento, encuesta previa, tareas guiadas, métricas de uso y encuesta posterior |
+| Datos | Datos aportados voluntariamente, sin conexión bancaria |
+| Instrumentos | Consentimiento, preuso, bloque complementario descriptivo, tareas/métricas y postuso |
 | Moneda | PYG |
-| Abandono | El participante puede abandonar y solicitar borrado o anonimización |
+| Retiro | El participante puede retirarse; la cuenta solo se elimina cuando el propio usuario ejecuta la eliminación prevista en la aplicación |
 
-La evaluación no pretende obtener inferencia estadística poblacional. Busca comprobar
-factibilidad técnica, usabilidad, utilidad percibida y comportamiento del sistema en
-un grupo piloto controlado.
+Los diez referentes completaron el preuso principal antes de su primer uso. Los demás adultos de las familias pueden participar en funciones colaborativas, sin incorporarse automáticamente como observaciones independientes del análisis pre/post.
 
-## 2. Alcance funcional obligatorio
+La evaluación no pretende obtener inferencia estadística poblacional ni demostrar causalidad. Busca validar funcionamiento técnico, usabilidad y cambios observados dentro del grupo piloto.
 
-### Identidad y seguridad
+## 2. Alcance funcional consolidado
 
-- registro, inicio y cierre de sesión, recuperación y cambio de contraseña;
-- JWT y refresh token rotativo;
-- OTP para operaciones sensibles o de riesgo;
-- biometría local para reautorización en el dispositivo;
-- dispositivos, sesiones, eventos de seguridad y auditoría;
-- consentimiento, retiro del piloto y eliminación o anonimización.
+La referencia funcional es RF-01 a RF-26. Incluye identidad y seguridad, finanzas privadas y familiares, OCR/XML SIFEN, analítica explicable, suscripciones, cuentas, tarjetas por alias, transferencias contables, recurrencias y funcionamiento offline del subconjunto privado.
 
-### Finanzas personales
+### Roles
 
-- cuentas, categorías, ingresos y gastos;
-- tarjetas de crédito como instrumentos manuales de planificación;
-- transferencias contables entre cuentas propias;
-- movimientos recurrentes con ejecución automática e idempotente;
-- presupuestos y metas de ahorro;
-- filtros, historial y conciliación de saldos.
+- globales: `usuario` y `administrador`;
+- familiares: `propietario`, `administrador` e `integrante`.
 
-### Tarjetas sin datos del plástico
+### Tarjetas
 
-Una tarjeta se identifica visualmente mediante un **alias elegido por el usuario**.
-Puede registrar límite, saldo utilizado, cierre, vencimiento, cuenta de pago, color,
-estado y movimientos asociados.
+Las tarjetas se identifican mediante alias. No se solicitan ni persisten PAN, CVV, últimos cuatro dígitos, expiración, nombre impreso, token bancario ni otros datos del plástico.
 
-Está prohibido solicitar, transmitir o persistir:
+### Offline
 
-- emisor;
-- últimos cuatro dígitos;
-- PAN o número completo;
-- nombre impreso;
-- fecha de expiración;
-- CVV;
-- token bancario;
-- credenciales o cualquier otro dato del plástico.
+RF-26 forma parte del alcance de defensa. El subconjunto privado compatible utiliza SQLite cifrada, outbox local, UUID definitivos, `Idempotency-Key`, `If-Match`, cursor incremental y tombstones. Las capacidades dependientes de proveedores o colaboración familiar requieren conectividad.
 
-El alias debe ser único entre las tarjetas activas del mismo usuario. No existe
-integración con bancos, emisores ni redes de tarjetas.
+## 3. Suscripciones y monetización
 
-### Finanzas familiares
+La propuesta comercial aprobada contempla:
 
-- grupos con propietario, administradores e integrantes;
-- invitaciones y control de membresía;
-- cuentas, movimientos, categorías, presupuestos y metas familiares;
-- caja común lógica con aportes, retiros y trazabilidad;
-- separación verificable entre información privada y familiar.
-
-### Documentos y exportación
-
-- carga privada de imágenes y PDF;
-- OCR de comprobantes con revisión y corrección humana;
-- importación de XML SIFEN mediante parser propio;
-- creación del movimiento sólo después de la confirmación;
-- exportaciones PDF y XLSX, con CSV adicional.
-
-### Analítica
-
-- dashboard y reportes personales y familiares;
-- comparación de gasto real contra presupuesto;
-- proyecciones explicables, marcadas como preliminares con menos de tres meses;
-- alertas y recomendaciones;
-- indicador de salud financiera de 0 a 100, versionado y explicable;
-- factores positivos, negativos, recomendaciones e historial.
-
-El indicador de salud financiera no es un score crediticio, no consulta centrales de
-riesgo, no determina elegibilidad para productos financieros y no sustituye asesoría
-profesional. Con datos insuficientes debe indicar `provisional` o `datos insuficientes`.
-
-### Notificaciones
-
-- centro de alertas dentro de la aplicación como fuente canónica;
-- notificaciones push por presupuesto, recurrencia, actividad familiar, procesamiento
-  documental, suscripción y resumen semanal;
-- consentimiento y preferencia de activación;
-- renovación y revocación del token del dispositivo;
-- navegación al contexto correcto al abrir una notificación.
-
-No se incluyen campañas publicitarias ni segmentación comercial.
-
-### Suscripciones
-
-- una suscripción mensual Premium mediante Google Play Billing;
-- producto y plan configurados en Google Play Console;
-- flujo real de compra usando instrumentos de pago de prueba;
-- compra aprobada, rechazada y pendiente;
-- renovación, cancelación y restauración;
-- verificación del `purchaseToken` mediante Google Play Developer API desde el backend;
-- reconocimiento de compras y sincronización de cambios de estado;
-- Real-time Developer Notifications para eventos del ciclo de vida.
-
-El piloto no cobrará dinero real. La integración, verificación y gestión de derechos
-son reales; solamente el instrumento de pago pertenece al ambiente de prueba.
-
-## 3. Proveedores aprobados
-
-| Capacidad | Proveedor/tecnología | Modalidad del piloto |
-|---|---|---|
-| Aplicación | Flutter | Android 10+ |
-| Backend | ASP.NET Core .NET 10 | API y Worker |
-| Base de datos | Supabase PostgreSQL Pro | Administrada, backup diario |
-| Archivos | Amazon S3 | Bucket privado, cifrado y URL prefirmada |
-| OCR | Amazon Textract AnalyzeExpense | Sujeto a prueba de 30–50 comprobantes paraguayos |
-| XML SIFEN | Parser propio | Sin entidades externas |
-| Correo | Amazon SES | Acceso de producción antes del piloto |
-| Push | Firebase Cloud Messaging | API HTTP v1 |
-| Facturación | Google Play Billing | License testers y productos de prueba |
-| Caché | Sin Redis en el piloto | PostgreSQL/outbox cubren la carga de 10 usuarios; se reevalúa con métricas |
-| Servidor | AWS Lightsail, Ubuntu 24.04, North Virginia | Docker Compose y systemd |
-| Proxy/TLS | Nginx y Cloudflare | HTTPS y origen restringido |
-| Distribución | Google Play Internal Testing | Cuentas Google autorizadas |
-
-Textract se confirma definitivamente si la prueba local demuestra una extracción útil
-de total, fecha y comercio. Si no supera el criterio definido en la sección 5, debe
-compararse con un segundo proveedor antes de desarrollar adaptaciones específicas.
-
-## 4. Exclusiones
-
-- panel web administrativo o de usuario;
-- aplicación iOS;
-- conexión directa con bancos, billeteras, emisores o redes de tarjetas;
-- movimientos reales de dinero;
-- cobros reales durante el piloto;
-- datos del plástico de tarjetas;
-- score crediticio o consulta de centrales de riesgo;
-- machine learning opaco o entrenamiento de modelos complejos;
-- campañas comerciales;
-- soporte multi-moneda;
-- publicación abierta al público;
-- alta disponibilidad distribuida y motor antifraude avanzado.
-
-## 5. Criterios de éxito
-
-### Participación y usabilidad
-
-| Indicador | Objetivo |
+| Plan | Precio |
 |---|---:|
-| Participantes que completan encuesta inicial, uso y encuesta final | al menos 8 de 10 |
-| Duración observada | 28 días |
-| Reducción de la mediana de tiempo para registrar un gasto | al menos 30 % respecto a la medición inicial |
-| Flujos del guion completados sin defecto bloqueante | 100 % |
+| Premium mensual | Gs. 39.000 |
+| Premium anual | Gs. 390.000 |
 
-### Funcionalidad externa
+Google Play Billing se utiliza con productos mensual y anual y license testers. Durante el piloto **no existen cobros reales**. La compra, verificación y ciclo de derechos se prueban técnicamente mediante el ambiente de prueba de Google Play.
 
-| Capacidad | Criterio |
+El mecanismo de pago y comprobante fue solicitado verbalmente por tutoría. El comprobante de la transacción corresponde al emitido por Google Play; la aplicación no emite factura tributaria propia durante el piloto.
+
+## 4. Instrumentos
+
+El preuso principal permanece como medición basal. No se modifica retrospectivamente.
+
+Por indicación tutorial se incorpora un instrumento independiente `preuso-complementario` para:
+
+- intención de compra;
+- valoración de cuestiones técnicas;
+- disposición de compra.
+
+Este bloque se analiza descriptivamente y no se utiliza como variable pre/post porque fue incorporado después de que los participantes completaran el preuso principal.
+
+El consentimiento se actualiza a una segunda aceptación que explicita los **28 días de observación desde la incorporación individual**. Se conserva el registro histórico de la aceptación anterior.
+
+## 5. Análisis predictivo
+
+Los participantes pueden registrar movimientos históricos anteriores al inicio del piloto. No es obligatorio disponer de tres meses. Cuando el histórico es inferior a tres meses, la aplicación debe identificar la proyección como preliminar y continuar mostrando una explicación comprensible.
+
+## 6. Infraestructura real del piloto
+
+| Capacidad | Decisión/estado operativo |
 |---|---|
-| Billing | compra aprobada, rechazada, pendiente, renovación, cancelación y restauración verificadas |
-| Push | al menos 90 % de mensajes de prueba aceptados por FCM para dispositivos registrados; la alerta interna siempre queda disponible |
-| OCR | total correcto en al menos 90 %, fecha en 85 % y comercio en 80 % del conjunto de validación |
-| OCR corregible | 100 % de documentos permiten corregir o rechazar antes de crear un movimiento |
-| SIFEN | 100 % del conjunto válido se importa y los XML maliciosos o duplicados se rechazan |
-| Score | mismo conjunto de datos y versión produce el mismo resultado y explica sus factores |
+| Aplicación | Flutter, Android 10+ |
+| Backend | ASP.NET Core .NET 10, API + Worker |
+| Base de datos | Supabase PostgreSQL Pro |
+| Archivos | Amazon S3 privado |
+| OCR | Amazon Textract AnalyzeExpense |
+| Correo | Amazon SES con envío transaccional real |
+| Push | Firebase Cloud Messaging |
+| Facturación | Google Play Billing en ambiente de prueba |
+| Servidor | AWS Lightsail, Ubuntu 24.04, North Virginia |
+| Proxy | Nginx |
+| DNS | Cloudflare |
+| Distribución | Google Play Internal Testing |
+| Caché externa | Redis no forma parte del despliegue base |
 
-El tiempo total de OCR y la tasa de corrección humana se registran aparte de la
-exactitud de cada campo.
+`api.rodrigoaquino.com` corresponde al ambiente productivo del piloto. PostgreSQL permanece como fuente de verdad.
 
-### Rendimiento, operación y seguridad
+## 7. Exclusiones
 
-| Indicador | Objetivo |
+- iOS durante la tesis;
+- aplicación web de usuario final;
+- conexión directa con bancos o billeteras;
+- transferencias reales de dinero;
+- datos sensibles del plástico de tarjetas;
+- cobros reales durante el piloto;
+- score crediticio;
+- machine learning opaco;
+- microservicios distribuidos o Kubernetes para el piloto;
+- inferencia estadística poblacional.
+
+## 8. Criterios de aceptación del proyecto
+
+Los siguientes umbrales son **criterios definidos por el proyecto**, no exigencias universales ni requisitos impuestos por UNIDA:
+
+| Indicador | Meta de referencia |
 |---|---:|
+| Mejora de eficiencia del registro | 30 % respecto a referencia manual |
+| Tareas principales | ≥ 80 % |
+| Valoraciones favorables de facilidad/utilidad/seguridad | ≥ 80 % |
 | Autenticación | ≤ 2 s |
 | Consultas principales | ≤ 3 s |
-| OCR promedio | ≤ 5 s para el conjunto del piloto |
-| Recuperación autorizada de archivo | ≤ 4 s |
-| Usuarios simultáneos | 10 sin degradación crítica |
-| Disponibilidad | ≥ 95 %, excluyendo mantenimiento programado |
-| Backup | al menos cada 24 h, con restauración ensayada |
-| Recuperación después de reinicio | ≤ 10 min |
-| Operaciones críticas auditadas | 100 % |
-| Accesos exitosos entre usuarios o grupos no autorizados | 0 |
-| Datos del plástico solicitados, transmitidos o persistidos | 0 |
+| OCR promedio | ≤ 5 s |
+| Recuperación de archivo | ≤ 4 s |
+| Concurrencia | 10 usuarios sin degradación crítica |
+| Disponibilidad | ≥ 95 % durante la ventana efectivamente medida |
+| Auditoría de operaciones críticas definidas | 100 % |
 
-## 6. Evidencia mínima
+La meta del 30 % se utiliza como referencia del proyecto; el análisis final informa el valor observado aunque quede por debajo de esa meta.
 
-- versión, commit, ambiente y período exacto;
-- consentimiento anonimizado y encuestas pre/post;
-- resultados del guion funcional por participante;
-- capturas o registros anonimizados de Billing, push, OCR y SIFEN;
-- resultados de latencia, carga, disponibilidad, backup y restauración;
-- pruebas negativas de aislamiento y autorización;
-- incidentes, defectos, correcciones y decisión de cierre;
-- versión del algoritmo del indicador financiero y variables empleadas.
+## 9. Evidencia a producir
 
-La plantilla de recolección está en
-[`api/EVIDENCIA_PILOTO_TEMPLATE.md`](api/EVIDENCIA_PILOTO_TEMPLATE.md).
+- versión, commit, ambiente y periodo exacto;
+- aceptación del consentimiento actualizado;
+- instrumentos anonimizados;
+- pruebas por categoría, diferenciando dobles/mocks de E2E desplegado;
+- OCR con nuevo conjunto controlado y ground truth por campo;
+- S3, Textract, SES, FCM, Billing y sincronización offline;
+- disponibilidad y latencia medidas prospectivamente;
+- backup y restauración ensayada;
+- incidentes/hotfixes y builds usados en el piloto.
 
-## 7. Acciones externas pendientes
+Las evidencias nunca deben publicar credenciales, tokens, OTP, datos financieros identificables o comprobantes reconocibles.
 
-- crear o confirmar la cuenta de Google Play Console y el perfil de pagos;
-- reservar definitivamente el Application ID;
-- configurar Internal Testing, license testers, producto y plan mensual;
-- crear proyecto Firebase y credenciales de servicio para FCM HTTP v1;
-- crear Supabase Pro y probar restauración;
-- habilitar AWS, bucket S3, Textract y salida de sandbox de SES;
-- adquirir/configurar Lightsail en North Virginia, dominio, DNS y Cloudflare;
-- ejecutar la evaluación OCR con 30–50 comprobantes anonimizados;
-- aprobar consentimiento, política de privacidad, retención y encuestas;
-- reclutar diez participantes con cuenta Google y Android 10+.
+## 10. Historial relevante
 
-Las credenciales y documentos financieros de participantes nunca se incluyen en Git,
-capturas públicas o evidencia académica sin anonimización.
-
-## 8. Impacto técnico ya identificado
-
-La decisión de tarjetas por alias reemplaza el diseño anterior. El 30 de julio
-de 2026 se retiraron `Emisor` y `UltimosCuatro` de:
-
-- entidad y casos de uso del backend;
-- requests, responses y OpenAPI;
-- mapeo de Entity Framework y una nueva migración;
-- pruebas y ejemplos contractuales.
-
-Las migraciones históricas se conservan como evidencia de evolución. La migración
-`M0019_TarjetasSoloAlias` elimina las columnas vigentes y renombra `nombre` a
-`alias`. El contrato móvil/API de tarjetas, transferencias y recurrencias quedó
-integrado; aún debe validarse la migración y la ejecución automática del Worker
-sobre PostgreSQL real antes de habilitar estas capacidades en el piloto.
+- La incorporación de familias se realizó entre 17/08/2026 y 31/08/2026.
+- Algunos participantes iniciaron en build `0.1.0+7`; `0.1.0+8` incorporó un fix de envío de correo sin cambio funcional mayor del instrumento.
+- La evaluación OCR informal previa no se utilizará como resultado académico. Se ejecutará un nuevo benchmark controlado.
+- El Acta de Entrega y Conformidad ya no forma parte de los requisitos institucionales vigentes para esta tesis.
