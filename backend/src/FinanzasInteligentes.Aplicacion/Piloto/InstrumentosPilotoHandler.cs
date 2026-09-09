@@ -45,7 +45,7 @@ public sealed class InstrumentosPilotoHandler(IPilotoRepository piloto, IUnidadD
 
     private async Task<InstrumentoPiloto> ObtenerActivo(string codigo, CancellationToken ct)
     {
-        if (codigo is not ("preuso" or "postuso"))
+        if (codigo is not ("preuso" or "preuso-complementario" or "postuso"))
             throw new NotFoundException("instrumento_no_encontrado", "El instrumento solicitado no existe.");
         return await piloto.ObtenerInstrumentoActivo(codigo, ct)
             ?? throw new NotFoundException("instrumento_no_encontrado", "No hay una versión activa del instrumento.");
