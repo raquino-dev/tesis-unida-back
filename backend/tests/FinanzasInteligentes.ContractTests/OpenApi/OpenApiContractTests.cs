@@ -12,8 +12,8 @@ public sealed partial class OpenApiContractTests
     {
         var yaml = File.ReadAllText(OpenApiPath);
 
-        Assert.Equal(132, OperationIdRegex().Matches(yaml).Count);
-        Assert.Equal(83, PathRegex().Matches(yaml).Count);
+        Assert.Equal(140, OperationIdRegex().Matches(yaml).Count);
+        Assert.Equal(91, PathRegex().Matches(yaml).Count);
         Assert.DoesNotContain("CT-SIN-ASIGNAR", yaml);
         Assert.DoesNotContain("x-etapa: 0", yaml);
     }

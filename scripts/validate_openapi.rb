@@ -15,6 +15,8 @@ PUBLIC_OPERATIONS = [
   ["POST", "/restablecimientos-contrasena"],
   ["GET", "/invitaciones-familiares/{token}"],
   ["GET", "/planes-suscripcion"],
+  ["GET", "/privacidad/politica-vigente"],
+  ["POST", "/webhooks/google-play/rtdn"],
   ["GET", "/configuracion-cliente"]
 ].freeze
 

@@ -9,7 +9,7 @@ ENDPOINTS_PATH = File.join(ROOT, "docs/api/ENDPOINTS.md")
 CONTRACTS_PATH = File.join(ROOT, "docs/api/CONTRATOS.md")
 OUTPUT_PATH = File.join(ROOT, "docs/api/openapi.yaml")
 MUTABLE_RESPONSE_SCHEMAS = %w[
-  ProcesoAsyncResponse UsuarioResponse PreferenciasResponse CredencialBiometricaResponse
+  ProcesoAsyncResponse UsuarioResponse PreferenciasResponse UsuarioAdministracionResponse
   CuentaResponse CategoriaResponse TarjetaCreditoResponse MovimientoResponse
   DocumentoFinancieroResponse ProcesamientoDocumentalResponse MovimientoRecurrenteResponse
   TransferenciaResponse PresupuestoResponse MetaAhorroResponse GrupoFamiliarResponse
@@ -200,7 +200,11 @@ end
 
 def trace_for(path)
   cases = [
-    [/biometric|biometr/, %w[RF-18], 1, %w[CT-RF-18]],
+    [/administracion\/usuarios/, [], 1, %w[CT-ADMINISTRACION-USUARIOS]],
+    [/privacidad/, [], 1, %w[CT-PRIVACIDAD]],
+    [/instrumentos-piloto/, [], 7, %w[CT-INSTRUMENTOS-PILOTO]],
+    [/sincronizacion/, [], 2, %w[CT-SINCRONIZACION]],
+    [/webhooks\/google-play/, %w[RF-21], 7, %w[CT-RF-21]],
     [/desafios-otp|verificaciones-otp/, %w[RF-19], 1, %w[CT-RF-19]],
     [/eventos-seguridad|eventos-auditoria/, %w[RF-20], 1, %w[CT-RF-20]],
     [/recuperaciones-contrasena|restablecimientos-contrasena|perfil\/contrasena/, %w[RF-02], 1, %w[CT-RF-02]],
@@ -244,6 +248,8 @@ def public_operation?(method, path)
     ["POST", "/restablecimientos-contrasena"],
     ["GET", "/invitaciones-familiares/{token}"],
     ["GET", "/planes-suscripcion"],
+    ["GET", "/privacidad/politica-vigente"],
+    ["POST", "/webhooks/google-play/rtdn"],
     ["GET", "/configuracion-cliente"]
   ].include?([method, path])
 end
@@ -298,6 +304,10 @@ def query_parameters(path, request_cell)
              %w[periodo]
            when "/alertas-financieras"
              %w[nivel leida desde hasta]
+           when "/administracion/usuarios"
+             %w[estado busqueda limite]
+           when "/sincronizacion"
+             %w[desde limite]
            else
              []
            end
@@ -305,6 +315,10 @@ def query_parameters(path, request_cell)
     schema =
       if field.end_with?("Id")
         { "type" => "string", "format" => "uuid" }
+      elsif %w[desde limite].include?(field) && path == "/sincronizacion"
+        { "type" => "integer", "format" => "int64", "minimum" => 0 }
+      elsif field == "limite"
+        { "type" => "integer", "minimum" => 1, "maximum" => 100 }
       elsif %w[activas predefinida leida documento].include?(field)
         { "type" => "boolean" }
       elsif %w[desde hasta].include?(field)
@@ -312,7 +326,12 @@ def query_parameters(path, request_cell)
       else
         { "type" => "string" }
       end
-    parameters << { "name" => field, "in" => "query", "required" => false, "schema" => schema }
+    parameters << {
+      "name" => field,
+      "in" => "query",
+      "required" => path == "/sincronizacion" && %w[desde limite].include?(field),
+      "schema" => schema
+    }
   end
   parameters
 end
@@ -387,6 +406,90 @@ schema_sources = {
   "DispositivoResponse" => ["DispositivoRequest / DispositivoResponse", 1]
 }
 schema_sources.each { |name, (heading, index)| add_example_schema(schemas, name, sections, heading, index) }
+
+schemas["UsuarioAdministracionResponse"] = {
+  "type" => "object", "additionalProperties" => false,
+  "required" => %w[id correo nombre estado rol creadoEn actualizadoEn version],
+  "properties" => {
+    "id" => { "type" => "string", "format" => "uuid" },
+    "correo" => { "type" => "string", "format" => "email" },
+    "nombre" => { "type" => "string" }, "estado" => { "type" => "string" },
+    "rol" => { "type" => "string" }, "creadoEn" => { "type" => "string", "format" => "date-time" },
+    "actualizadoEn" => { "type" => "string", "format" => "date-time" },
+    "version" => { "type" => "integer", "format" => "int64", "minimum" => 1 }
+  }
+}
+schemas["PoliticaPrivacidadResponse"] = {
+  "type" => "object", "additionalProperties" => false,
+  "required" => %w[id version titulo urlDocumento vigenteDesde],
+  "properties" => {
+    "id" => { "type" => "string", "format" => "uuid" }, "version" => { "type" => "string" },
+    "titulo" => { "type" => "string" }, "urlDocumento" => { "type" => "string", "format" => "uri" },
+    "vigenteDesde" => { "type" => "string", "format" => "date-time" }
+  }
+}
+schemas["ConsentimientoPrivacidadResponse"] = {
+  "type" => "object", "additionalProperties" => false,
+  "required" => %w[id politicaId versionPolitica finalidad aceptadoEn revocadoEn],
+  "properties" => {
+    "id" => { "type" => "string", "format" => "uuid" },
+    "politicaId" => { "type" => "string", "format" => "uuid" },
+    "versionPolitica" => { "type" => "string" }, "finalidad" => { "type" => "string" },
+    "aceptadoEn" => { "type" => "string", "format" => "date-time" },
+    "revocadoEn" => { "type" => ["string", "null"], "format" => "date-time" }
+  }
+}
+schemas["InstrumentoPilotoResponse"] = {
+  "type" => "object", "additionalProperties" => false,
+  "required" => %w[codigo version titulo descripcion respondido preguntas],
+  "properties" => {
+    "codigo" => { "type" => "string" }, "version" => { "type" => "string" },
+    "titulo" => { "type" => "string" }, "descripcion" => { "type" => "string" },
+    "respondido" => { "type" => "boolean" },
+    "preguntas" => { "type" => "array", "items" => { "type" => "object", "additionalProperties" => true } }
+  }
+}
+schemas["EnviarRespuestasInstrumentoPilotoRequest"] = {
+  "type" => "object", "additionalProperties" => false, "required" => ["respuestas"],
+  "properties" => {
+    "respuestas" => { "type" => "array", "items" => {
+      "type" => "object", "additionalProperties" => false, "required" => ["preguntaId"],
+      "properties" => {
+        "preguntaId" => { "type" => "string", "format" => "uuid" },
+        "valorEscala" => { "type" => ["integer", "null"] },
+        "valorTexto" => { "type" => ["string", "null"] }
+      }
+    } }
+  }
+}
+schemas["CambiarPlanSuscripcionRequest"] = Marshal.load(Marshal.dump(schemas["SuscripcionRequest"]))
+schemas["GooglePubSubPushRequest"] = {
+  "type" => "object", "additionalProperties" => false, "required" => ["message"],
+  "properties" => { "message" => {
+    "type" => "object", "additionalProperties" => false, "required" => ["data"],
+    "properties" => { "data" => { "type" => "string", "writeOnly" => true }, "messageId" => { "type" => ["string", "null"] } }
+  } }
+}
+schemas["TransaccionSuscripcionResponse"] = {
+  "type" => "object", "additionalProperties" => false,
+  "required" => %w[id suscripcionId tipo estado proveedor monto moneda ocurridoEn],
+  "properties" => {
+    "id" => { "type" => "string", "format" => "uuid" },
+    "suscripcionId" => { "type" => "string", "format" => "uuid" },
+    "tipo" => { "type" => "string" }, "estado" => { "type" => "string" },
+    "proveedor" => { "type" => "string" }, "monto" => { "type" => "integer", "format" => "int64" },
+    "moneda" => { "type" => "string" }, "ocurridoEn" => { "type" => "string", "format" => "date-time" }
+  }
+}
+schemas["SincronizacionResponse"] = {
+  "type" => "object", "additionalProperties" => false,
+  "required" => %w[cambios siguienteCursor hayMas],
+  "properties" => {
+    "cambios" => { "type" => "array", "items" => { "type" => "object", "additionalProperties" => true } },
+    "siguienteCursor" => { "type" => "integer", "format" => "int64" },
+    "hayMas" => { "type" => "boolean" }
+  }
+}
 
 # Movimientos es un contrato crítico para saldos y analítica. Se define de
 # manera explícita porque inferirlo desde un ejemplo convierte campos opcionales
@@ -709,7 +812,13 @@ operations.each do |entry|
   operation["x-capacidad"] = tests.first if rf.empty?
 
   path.scan(/\{([^}]+)\}/).flatten.each do |parameter|
-    schema = parameter == "token" ? { "type" => "string", "minLength" => 32 } : { "type" => "string", "format" => "uuid" }
+    schema = if parameter == "token"
+      { "type" => "string", "minLength" => 32 }
+    elsif parameter == "codigo"
+      { "type" => "string", "minLength" => 1 }
+    else
+      { "type" => "string", "format" => "uuid" }
+    end
     operation["parameters"] << {
       "name" => parameter, "in" => "path", "required" => true, "schema" => schema
     }
