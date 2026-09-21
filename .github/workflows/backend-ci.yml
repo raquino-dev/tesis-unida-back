@@ -5,11 +5,15 @@ on:
     paths:
       - "backend/**"
       - "docs/api/**"
+      - "scripts/generate_openapi.rb"
+      - "scripts/validate_openapi.rb"
       - ".github/workflows/backend-ci.yml"
   pull_request:
     paths:
       - "backend/**"
       - "docs/api/**"
+      - "scripts/generate_openapi.rb"
+      - "scripts/validate_openapi.rb"
   workflow_dispatch:
 
 permissions:
@@ -19,6 +23,22 @@ jobs:
   build-test:
     runs-on: ubuntu-latest
     timeout-minutes: 20
+    services:
+      postgres:
+        image: postgres:17-alpine
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: finanzas_integration
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres -d finanzas_integration"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+    env:
+      FINANZAS_INTEGRATION_POSTGRESQL: Host=localhost;Port=5432;Database=finanzas_integration;Username=postgres;Password=postgres
     defaults:
       run:
         working-directory: backend
@@ -27,6 +47,12 @@ jobs:
       - uses: actions/setup-dotnet@v4
         with:
           dotnet-version: "10.0.x"
+      - name: Validar contrato OpenAPI versionado
+        working-directory: .
+        run: |
+          ruby scripts/generate_openapi.rb
+          ruby scripts/validate_openapi.rb
+          git diff --exit-code -- docs/api/openapi.yaml
       - run: dotnet restore FinanzasInteligentes.sln
       - run: dotnet build FinanzasInteligentes.sln -c Release --no-restore
       - run: dotnet test FinanzasInteligentes.sln -c Release --no-build --logger "trx;LogFileName=tests.trx"

@@ -12,7 +12,7 @@ El [roadmap de completitud](docs/ROADMAP_COMPLETITUD.md) detalla los hitos, depe
 
 - Application ID: `com.tesis.finanzasinteligentes`
 - Nombre visible: `Finanzas Inteligentes`
-- Versión: `0.1.0+1`
+- Versión móvil congelada para cierre: `0.1.0+9`
 - Compatibilidad mínima: Android 10
 
 ## Verificación local prevista

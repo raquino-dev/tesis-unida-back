@@ -12,4 +12,6 @@ public sealed record CrearMovimientoRequest(
     Guid? DocumentoId = null,
     Guid? MovimientoRecurrenteId = null,
     Guid? GrupoFamiliarId = null,
-    Guid? Id = null);
+    Guid? Id = null,
+    Guid? TarjetaCreditoId = null,
+    string? OperacionTarjeta = null);

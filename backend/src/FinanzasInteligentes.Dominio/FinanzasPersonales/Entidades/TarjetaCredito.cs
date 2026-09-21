@@ -22,6 +22,32 @@ public sealed partial class TarjetaCredito : MutableEntity
 
     public long CreditoDisponible => Math.Max(0, LimiteCredito - SaldoUtilizado);
 
+    public void AplicarMovimiento(string tipo, long monto)
+    {
+        if (monto <= 0) throw new DomainException("monto_invalido", "El monto debe ser positivo.");
+        SaldoUtilizado = tipo switch
+        {
+            "gasto" => checked(SaldoUtilizado + monto),
+            "ingreso" when monto <= SaldoUtilizado => SaldoUtilizado - monto,
+            "ingreso" => throw new DomainException("saldo_tarjeta_insuficiente", "El abono supera el saldo utilizado."),
+            _ => throw new DomainException("tipo_movimiento_invalido", "El tipo de movimiento no es válido.")
+        };
+        Touch();
+    }
+
+    public void RevertirMovimiento(string tipo, long monto)
+    {
+        if (monto <= 0) throw new DomainException("monto_invalido", "El monto debe ser positivo.");
+        SaldoUtilizado = tipo switch
+        {
+            "gasto" when monto <= SaldoUtilizado => SaldoUtilizado - monto,
+            "gasto" => throw new DomainException("saldo_tarjeta_invalido", "El saldo utilizado de la tarjeta es inconsistente."),
+            "ingreso" => checked(SaldoUtilizado + monto),
+            _ => throw new DomainException("tipo_movimiento_invalido", "El tipo de movimiento no es válido.")
+        };
+        Touch();
+    }
+
     public static TarjetaCredito Crear(
         Guid usuarioId,
         string alias,

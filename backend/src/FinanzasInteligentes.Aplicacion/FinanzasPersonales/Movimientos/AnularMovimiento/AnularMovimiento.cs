@@ -31,7 +31,18 @@ public sealed class AnularMovimientoHandler(
 
         movimiento.Anular("Anulación solicitada por el usuario.");
 
-        cuenta.RevertirMovimiento(movimiento.Tipo, movimiento.Monto);
+        if (movimiento.TarjetaCreditoId is { } tarjetaId)
+        {
+            var tarjeta = await finanzas.ObtenerTarjetaCredito(
+                command.UsuarioId, tarjetaId, false, cancellationToken,
+                incluirEliminadas: true)
+                ?? throw new NotFoundException("tarjeta_no_encontrada", "La tarjeta no existe.");
+            tarjeta.RevertirMovimiento(movimiento.Tipo, movimiento.Monto);
+            if (movimiento.EsPagoTarjeta)
+                cuenta.RevertirMovimiento("gasto", movimiento.Monto);
+        }
+        else
+            cuenta.RevertirMovimiento(movimiento.Tipo, movimiento.Monto);
 
         finanzas.Agregar(EventoOutbox.Crear(
             "movimiento.anulado", "movimiento", movimiento.Id, new { movimiento.Id }, command.CorrelationId));

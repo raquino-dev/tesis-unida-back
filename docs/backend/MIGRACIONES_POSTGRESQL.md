@@ -1,5 +1,17 @@
 # Modelo de datos y migraciones PostgreSQL
 
+> **Estado de cierre (21 de septiembre de 2026).** Este documento contiene
+> planificación histórica y no es una fuente válida para identificar las
+> migraciones aplicadas. La fuente de verdad es
+> `backend/src/FinanzasInteligentes.Infraestructura/Persistencia/Migraciones/`.
+> Al cierre del código congelado existen M0001 a M0029; después de M0022 se
+> aplicaron `M0023_PermisosPilotoSincronizacion`, `M0024_AliasUsuario`,
+> `M0025_FechasCreacionInstrumentosPiloto`, `M0026_PermisosWorkerSuscripciones`,
+> `M0027_CodigoRecuperacionCorto`, `M0028_CuestionarioPreusoComplementario` y
+> `M0029_MovimientosTarjetaCreditoYHora`.
+> No usar las descripciones históricas de M0022/M0023 de este archivo para la
+> tesis final.
+
 ## 1. Estrategia
 
 Las migraciones son incrementales, inmutables una vez desplegadas y se aplican en el orden de este documento. Cada etapa deja una base utilizable; no es necesario crear desde el inicio tablas de módulos que todavía no se desarrollan.
@@ -352,6 +364,18 @@ Regla transaccional de alta:
 6. confirmar.
 
 El endpoint DELETE no borra la fila: la marca anulada y revierte el saldo una sola vez.
+
+### M0030_OperacionesTarjeta
+
+Agrega `operacion_tarjeta varchar(20) NULL` a `finanzas.movimientos` para
+distinguir `compra`, `reintegro` y `pago`. El check exige que la operación sea
+nula sin tarjeta, `compra` con tipo `gasto`, o `reintegro`/`pago` con tipo
+`ingreso`.
+
+La migración conserva los datos existentes: una compra previa se clasifica como
+`compra` y todo ingreso de tarjeta previo como `reintegro`, reproduciendo el
+efecto histórico que ya tenía sobre el saldo utilizado. Los pagos nuevos debitan
+la cuenta de origen y reducen la deuda en una sola transacción.
 
 ### M0023_FinanzasTransferenciasYRecurrencias
 

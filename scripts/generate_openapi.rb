@@ -189,6 +189,7 @@ def patch_base_for(path)
     [%r{\A/cuentas/}, "CuentaRequest", nil],
     [%r{/categorias/}, "CategoriaRequest", nil],
     [%r{\A/tarjetas-credito/}, "TarjetaCreditoRequest", nil],
+    [%r{\A/movimientos/}, "MovimientoRequest", %w[descripcion categoriaIds documentoId cuentaId tipo monto fecha hora]],
     [%r{\A/movimientos-recurrentes/}, "MovimientoRecurrenteRequest", nil],
     [%r{/presupuestos/}, "PresupuestoRequest", nil],
     [%r{\A/metas-ahorro/}, "MetaAhorroRequest", %w[nombre montoObjetivo fechaObjetivo]],
@@ -386,6 +387,73 @@ schema_sources = {
   "DispositivoResponse" => ["DispositivoRequest / DispositivoResponse", 1]
 }
 schema_sources.each { |name, (heading, index)| add_example_schema(schemas, name, sections, heading, index) }
+
+# Movimientos es un contrato crítico para saldos y analítica. Se define de
+# manera explícita porque inferirlo desde un ejemplo convierte campos opcionales
+# en obligatorios y no expresa correctamente UUID, hora ni operaciones de tarjeta.
+nullable_uuid = -> { { "type" => %w[string null], "format" => "uuid" } }
+schemas["MovimientoRequest"] = {
+  "type" => "object",
+  "additionalProperties" => false,
+  "required" => %w[ambito cuentaId tipo monto descripcion fecha],
+  "properties" => {
+    "ambito" => { "type" => "string", "enum" => %w[privado familiar] },
+    "cuentaId" => { "type" => "string", "format" => "uuid" },
+    "tipo" => { "type" => "string", "enum" => %w[ingreso gasto] },
+    "monto" => { "type" => "integer", "format" => "int64", "minimum" => 1 },
+    "descripcion" => { "type" => "string", "maxLength" => 300 },
+    "fecha" => { "type" => "string", "format" => "date" },
+    "hora" => { "type" => %w[string null], "format" => "time" },
+    "categoriaIds" => {
+      "type" => %w[array null],
+      "items" => { "type" => "string", "format" => "uuid" },
+      "uniqueItems" => true
+    },
+    "documentoId" => nullable_uuid.call,
+    "movimientoRecurrenteId" => nullable_uuid.call,
+    "grupoFamiliarId" => nullable_uuid.call,
+    "id" => nullable_uuid.call,
+    "tarjetaCreditoId" => nullable_uuid.call,
+    "operacionTarjeta" => {
+      "type" => %w[string null],
+      "enum" => ["compra", "reintegro", "pago", nil],
+      "description" => "Sólo aplica a movimientos privados con tarjeta. Compra corresponde a gasto; reintegro y pago corresponden a ingreso."
+    }
+  }
+}
+
+schemas["MovimientoResponse"] = {
+  "type" => "object",
+  "additionalProperties" => false,
+  "required" => %w[id ambito cuentaId tipo monto moneda descripcion fecha estado creadoEn version categoriaIds],
+  "properties" => {
+    "id" => { "type" => "string", "format" => "uuid" },
+    "ambito" => { "type" => "string", "enum" => %w[privado familiar] },
+    "cuentaId" => { "type" => "string", "format" => "uuid" },
+    "tipo" => { "type" => "string", "enum" => %w[ingreso gasto] },
+    "monto" => { "type" => "integer", "format" => "int64", "minimum" => 1 },
+    "moneda" => { "type" => "string", "enum" => ["PYG"] },
+    "descripcion" => { "type" => "string", "maxLength" => 300 },
+    "fecha" => { "type" => "string", "format" => "date" },
+    "hora" => { "type" => %w[string null], "format" => "time" },
+    "estado" => { "type" => "string", "enum" => %w[confirmado anulado] },
+    "creadoEn" => { "type" => "string", "format" => "date-time" },
+    "version" => { "type" => "integer", "format" => "int64", "minimum" => 1 },
+    "categoriaIds" => {
+      "type" => "array",
+      "items" => { "type" => "string", "format" => "uuid" },
+      "uniqueItems" => true
+    },
+    "documentoId" => nullable_uuid.call,
+    "movimientoRecurrenteId" => nullable_uuid.call,
+    "transferenciaId" => nullable_uuid.call,
+    "tarjetaCreditoId" => nullable_uuid.call,
+    "operacionTarjeta" => {
+      "type" => %w[string null],
+      "enum" => ["compra", "reintegro", "pago", nil]
+    }
+  }
+}
 
 invitacion_request = schemas.fetch("InvitacionFamiliarRequest")
 invitacion_request["required"] = ["rol"]

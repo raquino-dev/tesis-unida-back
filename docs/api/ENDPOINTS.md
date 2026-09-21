@@ -74,10 +74,16 @@ Los eventos de auditoría son creados exclusivamente por el servidor; no existe 
 | `GET` | `/movimientos` | filtros comunes y paginación | `200 Pagina<MovimientoResponse>` | `200`, `400`, `401` |
 | `POST` | `/movimientos` | `MovimientoRequest`; `Idempotency-Key` | `201 MovimientoResponse` | `201`, `400`, `401`, `404`, `409 idempotencia/conflicto`, `422` |
 | `GET` | `/movimientos/{movimientoId}` | — | `200 MovimientoResponse` | `200`, `401`, `404` |
-| `PATCH` | `/movimientos/{movimientoId}` | `{descripcion?, categoriaIds?}`; `If-Match` | `200 MovimientoResponse` | `200`, `400`, `401`, `404`, `409`, `412`, `422` |
+| `PATCH` | `/movimientos/{movimientoId}` | `{descripcion?, categoriaIds?, documentoId?, cuentaId?, tipo?, monto?, fecha?, hora?}`; `If-Match` | `200 MovimientoResponse` | `200`, `400`, `401`, `404`, `409`, `412`, `422` |
 | `DELETE` | `/movimientos/{movimientoId}` | `If-Match` | `204` | `204`, `401`, `404`, `409`, `412` |
 
-Monto, tipo, cuenta y fecha son inmutables. Una corrección contable anula el movimiento y crea otro mediante dos operaciones idempotentes relacionadas. Saldos y outbox se actualizan en la transacción principal; presupuestos, score y proyecciones se recalculan con consistencia eventual.
+Monto, cuenta y fecha pueden corregirse con `PATCH`; en una operación de
+tarjeta no se permite cambiar su tipo, tarjeta ni cuenta de pago. Las compras
+incrementan la deuda; los reintegros la reducen sin mover saldo bancario; los
+pagos reducen la deuda y debitan la cuenta informada. Los pagos y transferencias
+internas no cuentan como ingresos o gastos en analítica. Saldos y outbox se
+actualizan en la transacción principal; presupuestos, score y proyecciones se
+recalculan con consistencia eventual.
 
 ## 7. Documentos, OCR y XML SIFEN
 

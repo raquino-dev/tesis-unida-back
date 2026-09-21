@@ -4,6 +4,7 @@ using System.Text.Json;
 using FinanzasInteligentes.Infraestructura.Persistencia;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -12,9 +13,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace FinanzasInteligentes.Infraestructura.Persistencia.Migraciones
 {
     [DbContext(typeof(FinanzasDbContext))]
-    partial class FinanzasDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260921140819_M0029_MovimientosTarjetaCreditoYHora")]
+    partial class M0029_MovimientosTarjetaCreditoYHora
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -1331,11 +1334,6 @@ namespace FinanzasInteligentes.Infraestructura.Persistencia.Migraciones
                         .HasColumnType("character varying(300)")
                         .HasColumnName("motivo_anulacion");
 
-                    b.Property<string>("OperacionTarjeta")
-                        .HasMaxLength(20)
-                        .HasColumnType("character varying(20)")
-                        .HasColumnName("operacion_tarjeta");
-
                     b.Property<string>("Origen")
                         .IsRequired()
                         .HasMaxLength(30)
@@ -1394,8 +1392,6 @@ namespace FinanzasInteligentes.Infraestructura.Persistencia.Migraciones
                             t.HasCheckConstraint("ck_movimientos_moneda", "moneda = 'PYG'");
 
                             t.HasCheckConstraint("ck_movimientos_monto", "monto > 0");
-
-                            t.HasCheckConstraint("ck_movimientos_operacion_tarjeta", "(tarjeta_credito_id IS NULL AND operacion_tarjeta IS NULL) OR (tarjeta_credito_id IS NOT NULL AND ((tipo = 'gasto' AND operacion_tarjeta = 'compra') OR (tipo = 'ingreso' AND operacion_tarjeta IN ('reintegro', 'pago'))))");
                         });
                 });
 

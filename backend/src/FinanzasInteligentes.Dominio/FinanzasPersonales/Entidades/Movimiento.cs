@@ -10,11 +10,14 @@ public sealed class Movimiento : Entity
 
     public Guid UsuarioId { get; private set; }
     public Guid CuentaId { get; private set; }
+    public Guid? TarjetaCreditoId { get; private set; }
+    public string? OperacionTarjeta { get; private set; }
     public string Tipo { get; private set; } = string.Empty;
     public long Monto { get; private set; }
     public string Moneda { get; private set; } = "PYG";
     public string Descripcion { get; private set; } = string.Empty;
     public DateOnly Fecha { get; private set; }
+    public TimeOnly? Hora { get; private set; }
     public string Estado { get; private set; } = "confirmado";
     public string Origen { get; private set; } = "manual";
     public DateTimeOffset? AnuladoEn { get; private set; }
@@ -38,7 +41,10 @@ public sealed class Movimiento : Entity
         DateOnly? periodoRecurrencia = null,
         Guid? transferenciaId = null,
         Guid? documentoId = null,
-        Guid? id = null)
+        Guid? id = null,
+        Guid? tarjetaCreditoId = null,
+        TimeOnly? hora = null,
+        string? operacionTarjeta = null)
     {
         if (monto <= 0) throw new DomainException("monto_invalido", "El monto debe ser positivo.");
         if (tipo is not ("ingreso" or "gasto"))
@@ -58,15 +64,21 @@ public sealed class Movimiento : Entity
             throw new DomainException(
                 "origen_ambiguo", "Un movimiento no puede pertenecer a dos operaciones.");
 
+        operacionTarjeta = NormalizarOperacionTarjeta(
+            tarjetaCreditoId, tipo, operacionTarjeta);
+
         return new Movimiento
         {
             Id = id ?? Guid.CreateVersion7(),
             UsuarioId = usuarioId,
             CuentaId = cuentaId,
+            TarjetaCreditoId = tarjetaCreditoId,
+            OperacionTarjeta = operacionTarjeta,
             Tipo = tipo,
             Monto = monto,
             Descripcion = descripcion.Trim(),
             Fecha = fecha,
+            Hora = hora,
             Origen = origen,
             RecurrenciaId = recurrenciaId,
             PeriodoRecurrencia = periodoRecurrencia,
@@ -94,14 +106,30 @@ public sealed class Movimiento : Entity
     public void Actualizar(
         string? descripcion,
         IReadOnlyCollection<Categoria>? categorias,
-        Guid? documentoId = null)
+        Guid? documentoId = null,
+        Guid? cuentaId = null,
+        string? tipo = null,
+        long? monto = null,
+        DateOnly? fecha = null,
+        TimeOnly? hora = null)
     {
-        if (descripcion is null && categorias is null && documentoId is null)
+        if (descripcion is null && categorias is null && documentoId is null &&
+            cuentaId is null && tipo is null && monto is null && fecha is null && hora is null)
             throw new DomainException(
                 "actualizacion_vacia", "Debe indicar al menos un campo para actualizar.");
         if (Estado == "anulado")
             throw new DomainException(
                 "movimiento_anulado", "Un movimiento anulado no puede modificarse.");
+        if (cuentaId == Guid.Empty)
+            throw new DomainException("cuenta_invalida", "La cuenta no es válida.");
+        if (tipo is not null && tipo is not ("ingreso" or "gasto"))
+            throw new DomainException("tipo_movimiento_invalido", "El tipo debe ser ingreso o gasto.");
+        if (monto is <= 0)
+            throw new DomainException("monto_invalido", "El monto debe ser positivo.");
+        if (TarjetaCreditoId is not null && tipo is not null && tipo != Tipo)
+            throw new DomainException(
+                "tipo_tarjeta_inmutable",
+                "El tipo de una operación de tarjeta no puede modificarse.");
 
         if (descripcion is not null)
         {
@@ -121,6 +149,55 @@ public sealed class Movimiento : Entity
         if (documentoId is not null)
             DocumentoId = documentoId;
 
+        CuentaId = cuentaId ?? CuentaId;
+        Tipo = tipo ?? Tipo;
+        Monto = monto ?? Monto;
+        Fecha = fecha ?? Fecha;
+        Hora = hora ?? Hora;
+
         Version = checked(Version + 1);
+    }
+
+    public long MontoIngresoAnalitico() =>
+        Estado == "confirmado" && TransferenciaId is null &&
+        TarjetaCreditoId is null && Tipo == "ingreso"
+            ? Monto
+            : 0;
+
+    public long MontoGastoAnalitico()
+    {
+        if (Estado != "confirmado" || TransferenciaId is not null || OperacionTarjeta == "pago")
+            return 0;
+        if (OperacionTarjeta == "reintegro") return -Monto;
+        return Tipo == "gasto" ? Monto : 0;
+    }
+
+    public bool EsPagoTarjeta => OperacionTarjeta == "pago";
+    public bool EsReintegroTarjeta => OperacionTarjeta == "reintegro";
+
+    private static string? NormalizarOperacionTarjeta(
+        Guid? tarjetaCreditoId, string tipo, string? operacion)
+    {
+        if (tarjetaCreditoId is null)
+        {
+            if (operacion is not null)
+                throw new DomainException(
+                    "operacion_tarjeta_invalida",
+                    "Una operación de tarjeta requiere una tarjeta.");
+            return null;
+        }
+
+        operacion ??= tipo == "gasto" ? "compra" : "reintegro";
+        var valida = tipo switch
+        {
+            "gasto" => operacion == "compra",
+            "ingreso" => operacion is "reintegro" or "pago",
+            _ => false
+        };
+        if (!valida)
+            throw new DomainException(
+                "operacion_tarjeta_invalida",
+                "La operación no corresponde al tipo de movimiento de tarjeta.");
+        return operacion;
     }
 }

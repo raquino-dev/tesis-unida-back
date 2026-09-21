@@ -22,7 +22,9 @@ public sealed record CrearMovimientoCommand(
     Guid? DocumentoId = null,
     Guid? MovimientoRecurrenteId = null,
     Guid? GrupoFamiliarId = null,
-    Guid? Id = null);
+    Guid? Id = null,
+    Guid? TarjetaCreditoId = null,
+    string? OperacionTarjeta = null);
 
 public sealed class CrearMovimientoHandler(
     IFinanzasRepository finanzas,
@@ -51,7 +53,8 @@ public sealed class CrearMovimientoHandler(
         var movimiento = Movimiento.Crear(
             command.UsuarioId, command.CuentaId, command.Tipo, command.Monto,
             command.Descripcion, command.Fecha, documentoId: command.DocumentoId,
-            id: command.Id);
+            id: command.Id, tarjetaCreditoId: command.TarjetaCreditoId,
+            hora: command.Hora, operacionTarjeta: command.OperacionTarjeta);
 
         if (command.CategoriaIds is not null)
         {
@@ -64,7 +67,19 @@ public sealed class CrearMovimientoHandler(
             movimiento.AsignarCategoriasIniciales(categorias);
         }
 
-        cuenta.AplicarMovimiento(command.Tipo, command.Monto);
+        if (command.TarjetaCreditoId is { } tarjetaId)
+        {
+            var tarjeta = await finanzas.ObtenerTarjetaCredito(
+                command.UsuarioId, tarjetaId, false, cancellationToken)
+                ?? throw new NotFoundException("tarjeta_no_encontrada", "La tarjeta no existe.");
+            if (!movimiento.EsPagoTarjeta && tarjeta.CuentaPagoId != command.CuentaId)
+                throw new DomainException("cuenta_tarjeta_invalida", "La tarjeta no pertenece a la cuenta indicada.");
+            tarjeta.AplicarMovimiento(command.Tipo, command.Monto);
+            if (movimiento.EsPagoTarjeta)
+                cuenta.AplicarMovimiento("gasto", command.Monto);
+        }
+        else
+            cuenta.AplicarMovimiento(command.Tipo, command.Monto);
 
         finanzas.Agregar(movimiento);
 

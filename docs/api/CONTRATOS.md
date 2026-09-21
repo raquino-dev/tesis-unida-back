@@ -386,10 +386,18 @@ El desafío es de un solo uso, está ligado a usuario, credencial, dispositivo y
   "categoriaIds": ["019b-category-..."],
   "descripcion": "Supermercado",
   "cuentaId": "019b-account-...",
+  "tarjetaCreditoId": "019b-card-...",
+  "operacionTarjeta": "compra",
   "documentoId": "019b-document-...",
   "movimientoRecurrenteId": null
 }
 ```
+
+`operacionTarjeta` se envía sólo con `tarjetaCreditoId`. Sus valores son
+`compra` para un gasto, y `reintegro` o `pago` para un ingreso. Un reintegro
+reduce la deuda de la tarjeta sin afectar una cuenta. Un pago reduce la deuda y
+debita `cuentaId`. Compras y reintegros usan la cuenta vinculada a la tarjeta;
+el pago puede salir de cualquier cuenta activa del usuario.
 
 Para ámbito familiar se agrega `grupoFamiliarId`; la cuenta debe estar compartida.
 
@@ -399,21 +407,22 @@ Para ámbito familiar se agrega `grupoFamiliarId`; la cuenta debe estar comparti
 {
   "id": "019b-movement-...",
   "ambito": "privado",
+  "cuentaId": "019b-account-...",
   "tipo": "gasto",
   "monto": 285000,
+  "moneda": "PYG",
+  "descripcion": "Supermercado",
   "fecha": "2026-07-22",
   "hora": "15:30:00",
-  "categorias": [{ "id": "019b-category-...", "nombre": "Alimentacion", "color": "#6868A6" }],
-  "descripcion": "Supermercado",
-  "cuenta": { "id": "019b-account-...", "nombre": "Debito", "tipo": "tarjeta-debito" },
-  "documento": {
-    "id": "019b-document-...",
-    "tipo": "imagen",
-    "estadoProcesamiento": "completado"
-  },
-  "creadoPor": { "id": "019b-user-...", "nombre": "Rodrigo Aquino" },
+  "estado": "confirmado",
   "creadoEn": "2026-07-22T18:30:00Z",
-  "version": 1
+  "version": 1,
+  "categoriaIds": ["019b-category-..."],
+  "documentoId": "019b-document-...",
+  "movimientoRecurrenteId": null,
+  "transferenciaId": null,
+  "tarjetaCreditoId": "019b-card-...",
+  "operacionTarjeta": "compra"
 }
 ```
 

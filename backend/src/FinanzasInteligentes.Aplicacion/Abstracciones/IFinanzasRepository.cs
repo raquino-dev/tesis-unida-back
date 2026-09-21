@@ -37,7 +37,8 @@ public interface IFinanzasRepository
         Guid usuarioId,
         Guid tarjetaId,
         bool soloLectura,
-        CancellationToken cancellationToken);
+        CancellationToken cancellationToken,
+        bool incluirEliminadas = false);
 
     Task<bool> ExisteTarjetaCreditoConAlias(
         Guid usuarioId,
@@ -48,6 +49,10 @@ public interface IFinanzasRepository
     void Agregar(TarjetaCredito tarjeta);
 
     Task<IReadOnlyCollection<Movimiento>> ListarMovimientos(Guid usuarioId, CancellationToken cancellationToken);
+
+    Task<IReadOnlyCollection<Movimiento>> ListarMovimientosPagina(
+        Guid usuarioId, Guid? cuentaId, DateOnly? desde, DateOnly? hasta,
+        DateOnly? cursorFecha, Guid? cursorId, int limite, CancellationToken cancellationToken);
 
     Task<Movimiento?> ObtenerMovimiento(Guid usuarioId, Guid movimientoId, bool soloLectura, CancellationToken cancellationToken);
 

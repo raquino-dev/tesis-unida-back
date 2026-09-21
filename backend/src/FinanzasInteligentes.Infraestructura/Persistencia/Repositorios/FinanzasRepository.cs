@@ -85,12 +85,14 @@ public sealed class FinanzasRepository(FinanzasDbContext db) : IFinanzasReposito
         Guid usuarioId,
         Guid tarjetaId,
         bool soloLectura,
-        CancellationToken cancellationToken)
+        CancellationToken cancellationToken,
+        bool incluirEliminadas = false)
     {
         IQueryable<TarjetaCredito> query = db.TarjetasCredito;
         if (soloLectura) query = query.AsNoTracking();
         return query.SingleOrDefaultAsync(
-            x => x.Id == tarjetaId && x.UsuarioId == usuarioId && x.EliminadoEn == null,
+            x => x.Id == tarjetaId && x.UsuarioId == usuarioId &&
+                (incluirEliminadas || x.EliminadoEn == null),
             cancellationToken);
     }
 
@@ -114,6 +116,24 @@ public sealed class FinanzasRepository(FinanzasDbContext db) : IFinanzasReposito
             .Where(x => x.UsuarioId == usuarioId)
             .OrderByDescending(x => x.Fecha).ThenByDescending(x => x.Id)
             .ToListAsync(cancellationToken);
+
+    public async Task<IReadOnlyCollection<Movimiento>> ListarMovimientosPagina(
+        Guid usuarioId, Guid? cuentaId, DateOnly? desde, DateOnly? hasta,
+        DateOnly? cursorFecha, Guid? cursorId, int limite, CancellationToken cancellationToken)
+    {
+        var query = db.Movimientos.AsNoTracking().Include(x => x.Categorias)
+            .Where(x => x.UsuarioId == usuarioId && x.Estado != "anulado");
+        if (cuentaId is { } account)
+            query = query.Where(x => x.CuentaId == account &&
+                (x.TarjetaCreditoId == null || x.OperacionTarjeta == "pago"));
+        if (desde is { } start) query = query.Where(x => x.Fecha >= start);
+        if (hasta is { } end) query = query.Where(x => x.Fecha <= end);
+        if (cursorFecha is { } date && cursorId is { } id)
+            query = query.Where(x => x.Fecha < date ||
+                (x.Fecha == date && x.Id.CompareTo(id) < 0));
+        return await query.OrderByDescending(x => x.Fecha).ThenByDescending(x => x.Id)
+            .Take(limite).ToListAsync(cancellationToken);
+    }
 
     public Task<Movimiento?> ObtenerMovimiento(
         Guid usuarioId,

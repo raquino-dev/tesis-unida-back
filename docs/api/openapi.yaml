@@ -407,10 +407,6 @@ paths:
           headers:
             X-Correlation-Id:
               "$ref": "#/components/headers/CorrelationId"
-          content:
-            application/json:
-              schema:
-                "$ref": "#/components/schemas/SolicitudRecuperacionResponse"
         '400':
           "$ref": "#/components/responses/Problem400"
         '429':
@@ -447,10 +443,6 @@ paths:
               "$ref": "#/components/headers/CorrelationId"
         '400':
           "$ref": "#/components/responses/Problem400"
-        '409':
-          "$ref": "#/components/responses/Problem409"
-        '410':
-          "$ref": "#/components/responses/Problem410"
         '422':
           "$ref": "#/components/responses/Problem422"
         '429':
@@ -462,7 +454,7 @@ paths:
         content:
           application/json:
             schema:
-              "$ref": "#/components/schemas/RestablecimientoContrasenaRequest"
+              "$ref": "#/components/schemas/PostRestablecimientosContrasenaRequest"
   "/perfil/contrasena":
     put:
       tags:
@@ -1913,7 +1905,7 @@ paths:
         content:
           application/json:
             schema:
-              "$ref": "#/components/schemas/PatchMovimientosByMovimientoIdRequest"
+              "$ref": "#/components/schemas/MovimientoPatchRequest"
     delete:
       tags:
       - Movimientos privados
@@ -6820,19 +6812,6 @@ components:
           example: rodrigo@correo.com.py
       required:
       - correo
-    SolicitudRecuperacionResponse:
-      type: object
-      additionalProperties: false
-      properties:
-        id:
-          type: string
-          format: uuid
-        expiraEn:
-          type: string
-          format: date-time
-      required:
-      - id
-      - expiraEn
     RestablecimientoContrasenaRequest:
       type: object
       additionalProperties: false
@@ -6842,8 +6821,7 @@ components:
           format: uuid
         codigo:
           type: string
-          pattern: '^[0-9]{6}$'
-          writeOnly: true
+          example: '123456'
         nuevaContrasena:
           type: string
           minLength: 12
@@ -7404,170 +7382,184 @@ components:
     MovimientoRequest:
       type: object
       additionalProperties: false
+      required:
+      - ambito
+      - cuentaId
+      - tipo
+      - monto
+      - descripcion
+      - fecha
       properties:
         ambito:
           type: string
-          example: privado
-        tipo:
-          type: string
-          example: gasto
-        monto:
-          type: integer
-          format: int64
-          example: 285000
-          minimum: 1
-        fecha:
-          type: string
-          format: date
-          example: '2026-07-22'
-        hora:
-          type: string
-          example: '15:30:00'
-        categoriaIds:
-          type: array
-          items:
-            type: string
-            example: '019b-category-...'
-        descripcion:
-          type: string
-          example: Supermercado
+          enum:
+          - privado
+          - familiar
         cuentaId:
           type: string
           format: uuid
-        documentoId:
+        tipo:
           type: string
+          enum:
+          - ingreso
+          - gasto
+        monto:
+          type: integer
+          format: int64
+          minimum: 1
+        descripcion:
+          type: string
+          maxLength: 300
+        fecha:
+          type: string
+          format: date
+        hora:
+          type:
+          - string
+          - 'null'
+          format: time
+        categoriaIds:
+          type:
+          - array
+          - 'null'
+          items:
+            type: string
+            format: uuid
+          uniqueItems: true
+        documentoId:
+          type:
+          - string
+          - 'null'
           format: uuid
         movimientoRecurrenteId:
           type:
           - string
           - 'null'
-      required:
-      - ambito
-      - tipo
-      - monto
-      - fecha
-      - hora
-      - categoriaIds
-      - descripcion
-      - cuentaId
-      - documentoId
+          format: uuid
+        grupoFamiliarId:
+          type:
+          - string
+          - 'null'
+          format: uuid
+        id:
+          type:
+          - string
+          - 'null'
+          format: uuid
+        tarjetaCreditoId:
+          type:
+          - string
+          - 'null'
+          format: uuid
+        operacionTarjeta:
+          type:
+          - string
+          - 'null'
+          enum:
+          - compra
+          - reintegro
+          - pago
+          -
+          description: Sólo aplica a movimientos privados con tarjeta. Compra corresponde a gasto; reintegro y pago corresponden a ingreso.
     MovimientoResponse:
       type: object
       additionalProperties: false
+      required:
+      - id
+      - ambito
+      - cuentaId
+      - tipo
+      - monto
+      - moneda
+      - descripcion
+      - fecha
+      - estado
+      - creadoEn
+      - version
+      - categoriaIds
       properties:
         id:
           type: string
           format: uuid
         ambito:
           type: string
-          example: privado
+          enum:
+          - privado
+          - familiar
+        cuentaId:
+          type: string
+          format: uuid
         tipo:
           type: string
-          example: gasto
+          enum:
+          - ingreso
+          - gasto
         monto:
           type: integer
           format: int64
-          example: 285000
           minimum: 1
+        moneda:
+          type: string
+          enum:
+          - PYG
+        descripcion:
+          type: string
+          maxLength: 300
         fecha:
           type: string
           format: date
-          example: '2026-07-22'
         hora:
+          type:
+          - string
+          - 'null'
+          format: time
+        estado:
           type: string
-          example: '15:30:00'
-        categorias:
-          type: array
-          items:
-            type: object
-            additionalProperties: false
-            properties:
-              id:
-                type: string
-                format: uuid
-              nombre:
-                type: string
-                example: Alimentacion
-              color:
-                type: string
-                pattern: "^#[0-9A-Fa-f]{6}$"
-                example: "#6868A6"
-            required:
-            - id
-            - nombre
-            - color
-        descripcion:
-          type: string
-          example: Supermercado
-        cuenta:
-          type: object
-          additionalProperties: false
-          properties:
-            id:
-              type: string
-              format: uuid
-            nombre:
-              type: string
-              example: Debito
-            tipo:
-              type: string
-              example: tarjeta-debito
-          required:
-          - id
-          - nombre
-          - tipo
-        documento:
-          type: object
-          additionalProperties: false
-          properties:
-            id:
-              type: string
-              format: uuid
-            tipo:
-              type: string
-              example: imagen
-            estadoProcesamiento:
-              type: string
-              example: completado
-          required:
-          - id
-          - tipo
-          - estadoProcesamiento
-        creadoPor:
-          type: object
-          additionalProperties: false
-          properties:
-            id:
-              type: string
-              format: uuid
-            nombre:
-              type: string
-              example: Rodrigo Aquino
-          required:
-          - id
-          - nombre
+          enum:
+          - confirmado
+          - anulado
         creadoEn:
           type: string
           format: date-time
-          example: '2026-07-22T18:30:00Z'
         version:
           type: integer
           format: int64
-          example: 1
-      required:
-      - id
-      - ambito
-      - tipo
-      - monto
-      - fecha
-      - hora
-      - categorias
-      - descripcion
-      - cuenta
-      - documento
-      - creadoPor
-      - creadoEn
-      - version
+          minimum: 1
+        categoriaIds:
+          type: array
+          items:
+            type: string
+            format: uuid
+          uniqueItems: true
+        documentoId:
+          type:
+          - string
+          - 'null'
+          format: uuid
+        movimientoRecurrenteId:
+          type:
+          - string
+          - 'null'
+          format: uuid
+        transferenciaId:
+          type:
+          - string
+          - 'null'
+          format: uuid
+        tarjetaCreditoId:
+          type:
+          - string
+          - 'null'
+          format: uuid
+        operacionTarjeta:
+          type:
+          - string
+          - 'null'
+          enum:
+          - compra
+          - reintegro
+          - pago
+          -
     DocumentoFinancieroResponse:
       type: object
       additionalProperties: false
@@ -9881,6 +9873,24 @@ components:
       required:
       - contrasena
       - verificacionOtpId
+    PostRestablecimientosContrasenaRequest:
+      type: object
+      additionalProperties: false
+      properties:
+        recuperacionId:
+          type: string
+          format: uuid
+        codigo:
+          type: string
+          writeOnly: true
+        nuevaContrasena:
+          type: string
+          writeOnly: true
+      minProperties: 1
+      required:
+      - recuperacionId
+      - codigo
+      - nuevaContrasena
     PutPerfilPreferenciasRequest:
       type: object
       additionalProperties: false
@@ -10016,19 +10026,47 @@ components:
           type: string
           pattern: "^#[0-9A-Fa-f]{6}$"
           example: "#6868A6"
-    PatchMovimientosByMovimientoIdRequest:
+    MovimientoPatchRequest:
       type: object
       additionalProperties: false
+      minProperties: 1
       properties:
+        cuentaId:
+          type: string
+          format: uuid
+        tipo:
+          type: string
+          enum:
+          - ingreso
+          - gasto
+        monto:
+          type: integer
+          format: int64
+          minimum: 1
         descripcion:
           type: string
+          maxLength: 300
+        fecha:
+          type: string
+          format: date
+        hora:
+          type:
+          - string
+          - 'null'
+          format: time
         categoriaIds:
-          type: array
+          type:
+          - array
+          - 'null'
           items:
             type: string
             format: uuid
           uniqueItems: true
-      minProperties: 1
+        documentoId:
+          type:
+          - string
+          - 'null'
+          format: uuid
     PostDocumentosFinancierosByDocumentoIdProcesamientosDocumentalesRequest:
       type: object
       additionalProperties: false
