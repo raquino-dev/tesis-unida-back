@@ -296,8 +296,6 @@ paths:
       - bearerAuth: []
       parameters:
       - "$ref": "#/components/parameters/CorrelationId"
-      - "$ref": "#/components/parameters/Cursor"
-      - "$ref": "#/components/parameters/Limite"
       responses:
         '200':
           description: Operación exitosa.
@@ -1077,18 +1075,6 @@ paths:
       - bearerAuth: []
       parameters:
       - "$ref": "#/components/parameters/CorrelationId"
-      - "$ref": "#/components/parameters/Cursor"
-      - "$ref": "#/components/parameters/Limite"
-      - name: activas
-        in: query
-        required: false
-        schema:
-          type: boolean
-      - name: tipo
-        in: query
-        required: false
-        schema:
-          type: string
       responses:
         '200':
           description: Operación exitosa.
@@ -1117,16 +1103,6 @@ paths:
       - bearerAuth: []
       parameters:
       - "$ref": "#/components/parameters/CorrelationId"
-      - name: activas
-        in: query
-        required: false
-        schema:
-          type: boolean
-      - name: tipo
-        in: query
-        required: false
-        schema:
-          type: string
       responses:
         '201':
           description: Operación exitosa.
@@ -1302,18 +1278,6 @@ paths:
       - bearerAuth: []
       parameters:
       - "$ref": "#/components/parameters/CorrelationId"
-      - "$ref": "#/components/parameters/Cursor"
-      - "$ref": "#/components/parameters/Limite"
-      - name: tipo
-        in: query
-        required: false
-        schema:
-          type: string
-      - name: predefinida
-        in: query
-        required: false
-        schema:
-          type: boolean
       responses:
         '200':
           description: Operación exitosa.
@@ -1342,16 +1306,6 @@ paths:
       - bearerAuth: []
       parameters:
       - "$ref": "#/components/parameters/CorrelationId"
-      - name: tipo
-        in: query
-        required: false
-        schema:
-          type: string
-      - name: predefinida
-        in: query
-        required: false
-        schema:
-          type: boolean
       responses:
         '201':
           description: Operación exitosa.
@@ -1740,29 +1694,7 @@ paths:
       - "$ref": "#/components/parameters/CorrelationId"
       - "$ref": "#/components/parameters/Cursor"
       - "$ref": "#/components/parameters/Limite"
-      - name: texto
-        in: query
-        required: false
-        schema:
-          type: string
-      - name: tipo
-        in: query
-        required: false
-        schema:
-          type: string
-      - name: categoriaId
-        in: query
-        required: false
-        schema:
-          type: string
-          format: uuid
       - name: cuentaId
-        in: query
-        required: false
-        schema:
-          type: string
-          format: uuid
-      - name: integranteId
         in: query
         required: false
         schema:
@@ -1780,11 +1712,6 @@ paths:
         schema:
           type: string
           format: date
-      - name: documento
-        in: query
-        required: false
-        schema:
-          type: boolean
       responses:
         '200':
           description: Operación exitosa.
@@ -1817,51 +1744,6 @@ paths:
       - bearerAuth: []
       parameters:
       - "$ref": "#/components/parameters/CorrelationId"
-      - name: texto
-        in: query
-        required: false
-        schema:
-          type: string
-      - name: tipo
-        in: query
-        required: false
-        schema:
-          type: string
-      - name: categoriaId
-        in: query
-        required: false
-        schema:
-          type: string
-          format: uuid
-      - name: cuentaId
-        in: query
-        required: false
-        schema:
-          type: string
-          format: uuid
-      - name: integranteId
-        in: query
-        required: false
-        schema:
-          type: string
-          format: uuid
-      - name: desde
-        in: query
-        required: false
-        schema:
-          type: string
-          format: date
-      - name: hasta
-        in: query
-        required: false
-        schema:
-          type: string
-          format: date
-      - name: documento
-        in: query
-        required: false
-        schema:
-          type: boolean
       - "$ref": "#/components/parameters/IdempotencyKey"
       responses:
         '201':
@@ -2047,28 +1929,6 @@ paths:
       - bearerAuth: []
       parameters:
       - "$ref": "#/components/parameters/CorrelationId"
-      - name: tipo
-        in: query
-        required: false
-        schema:
-          type: string
-      - name: estado
-        in: query
-        required: false
-        schema:
-          type: string
-      - name: desde
-        in: query
-        required: false
-        schema:
-          type: string
-          format: date
-      - name: hasta
-        in: query
-        required: false
-        schema:
-          type: string
-          format: date
       - "$ref": "#/components/parameters/IdempotencyKey"
       - name: X-Content-SHA256
         in: header
@@ -2542,16 +2402,6 @@ paths:
       - bearerAuth: []
       parameters:
       - "$ref": "#/components/parameters/CorrelationId"
-      - name: estado
-        in: query
-        required: false
-        schema:
-          type: string
-      - name: tipo
-        in: query
-        required: false
-        schema:
-          type: string
       responses:
         '201':
           description: Operación exitosa.
@@ -2780,30 +2630,6 @@ paths:
       - bearerAuth: []
       parameters:
       - "$ref": "#/components/parameters/CorrelationId"
-      - name: cuentaOrigenId
-        in: query
-        required: false
-        schema:
-          type: string
-          format: uuid
-      - name: cuentaDestinoId
-        in: query
-        required: false
-        schema:
-          type: string
-          format: uuid
-      - name: desde
-        in: query
-        required: false
-        schema:
-          type: string
-          format: date
-      - name: hasta
-        in: query
-        required: false
-        schema:
-          type: string
-          format: date
       - "$ref": "#/components/parameters/IdempotencyKey"
       responses:
         '201':
@@ -2977,22 +2803,6 @@ paths:
       - bearerAuth: []
       parameters:
       - "$ref": "#/components/parameters/CorrelationId"
-      - name: periodo
-        in: query
-        required: false
-        schema:
-          type: string
-      - name: estado
-        in: query
-        required: false
-        schema:
-          type: string
-      - name: categoriaId
-        in: query
-        required: false
-        schema:
-          type: string
-          format: uuid
       responses:
         '201':
           description: Operación exitosa.
@@ -3255,17 +3065,6 @@ paths:
       - bearerAuth: []
       parameters:
       - "$ref": "#/components/parameters/CorrelationId"
-      - name: ambito
-        in: query
-        required: false
-        schema:
-          type: string
-      - name: grupoFamiliarId
-        in: query
-        required: false
-        schema:
-          type: string
-          format: uuid
       responses:
         '201':
           description: Operación exitosa.
@@ -4018,11 +3817,6 @@ paths:
         schema:
           type: string
           format: uuid
-      - name: estado
-        in: query
-        required: false
-        schema:
-          type: string
       - "$ref": "#/components/parameters/IdempotencyKey"
       responses:
         '202':
@@ -4370,11 +4164,6 @@ paths:
         required: false
         schema:
           type: string
-      - name: predefinida
-        in: query
-        required: false
-        schema:
-          type: boolean
       responses:
         '200':
           description: Operación exitosa.
@@ -4415,16 +4204,6 @@ paths:
         schema:
           type: string
           format: uuid
-      - name: tipo
-        in: query
-        required: false
-        schema:
-          type: string
-      - name: predefinida
-        in: query
-        required: false
-        schema:
-          type: boolean
       responses:
         '201':
           description: Operación exitosa.
@@ -4631,11 +4410,6 @@ paths:
         schema:
           type: string
           format: date
-      - name: documento
-        in: query
-        required: false
-        schema:
-          type: boolean
       responses:
         '200':
           description: Operación exitosa.
@@ -4678,51 +4452,6 @@ paths:
         schema:
           type: string
           format: uuid
-      - name: texto
-        in: query
-        required: false
-        schema:
-          type: string
-      - name: tipo
-        in: query
-        required: false
-        schema:
-          type: string
-      - name: categoriaId
-        in: query
-        required: false
-        schema:
-          type: string
-          format: uuid
-      - name: cuentaId
-        in: query
-        required: false
-        schema:
-          type: string
-          format: uuid
-      - name: integranteId
-        in: query
-        required: false
-        schema:
-          type: string
-          format: uuid
-      - name: desde
-        in: query
-        required: false
-        schema:
-          type: string
-          format: date
-      - name: hasta
-        in: query
-        required: false
-        schema:
-          type: string
-          format: date
-      - name: documento
-        in: query
-        required: false
-        schema:
-          type: boolean
       - "$ref": "#/components/parameters/IdempotencyKey"
       responses:
         '201':
@@ -5040,29 +4769,6 @@ paths:
         schema:
           type: string
           format: uuid
-      - name: tipo
-        in: query
-        required: false
-        schema:
-          type: string
-      - name: integranteId
-        in: query
-        required: false
-        schema:
-          type: string
-          format: uuid
-      - name: desde
-        in: query
-        required: false
-        schema:
-          type: string
-          format: date
-      - name: hasta
-        in: query
-        required: false
-        schema:
-          type: string
-          format: date
       - "$ref": "#/components/parameters/IdempotencyKey"
       responses:
         '201':
@@ -5169,11 +4875,6 @@ paths:
         required: false
         schema:
           type: string
-      - name: estado
-        in: query
-        required: false
-        schema:
-          type: string
       - name: categoriaId
         in: query
         required: false
@@ -5217,22 +4918,6 @@ paths:
       - name: grupoId
         in: path
         required: true
-        schema:
-          type: string
-          format: uuid
-      - name: periodo
-        in: query
-        required: false
-        schema:
-          type: string
-      - name: estado
-        in: query
-        required: false
-        schema:
-          type: string
-      - name: categoriaId
-        in: query
-        required: false
         schema:
           type: string
           format: uuid
@@ -5735,28 +5420,6 @@ paths:
       - bearerAuth: []
       parameters:
       - "$ref": "#/components/parameters/CorrelationId"
-      - name: estado
-        in: query
-        required: false
-        schema:
-          type: string
-      - name: formato
-        in: query
-        required: false
-        schema:
-          type: string
-      - name: desde
-        in: query
-        required: false
-        schema:
-          type: string
-          format: date
-      - name: hasta
-        in: query
-        required: false
-        schema:
-          type: string
-          format: date
       - "$ref": "#/components/parameters/IdempotencyKey"
       responses:
         '202':

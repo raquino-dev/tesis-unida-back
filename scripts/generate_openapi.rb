@@ -254,7 +254,9 @@ def public_operation?(method, path)
   ].include?([method, path])
 end
 
-def query_parameters(path, request_cell)
+def query_parameters(method, path, request_cell)
+  return [] unless method == "GET"
+
   parameters = []
   if request_cell.include?("paginación")
     parameters << { "$ref" => "#/components/parameters/Cursor" }
@@ -266,12 +268,12 @@ def query_parameters(path, request_cell)
              %w[tipo desde hasta]
            when "/eventos-auditoria"
              %w[recurso usuarioId grupoFamiliarId desde hasta]
-           when "/cuentas"
-             %w[activas tipo]
            when %r{\A(?:/grupos-familiares/\{grupoId\})?/categorias\z}
-             %w[tipo predefinida]
+             path.start_with?("/grupos-familiares/") ? %w[tipo] : []
            when %r{\A(?:/grupos-familiares/\{grupoId\})?/movimientos\z}
-             %w[texto tipo categoriaId cuentaId integranteId desde hasta documento]
+             path.start_with?("/grupos-familiares/") ?
+               %w[texto tipo categoriaId cuentaId integranteId desde hasta] :
+               %w[cuentaId desde hasta]
            when "/documentos-financieros"
              %w[tipo estado desde hasta]
            when "/movimientos-recurrentes"
@@ -279,7 +281,7 @@ def query_parameters(path, request_cell)
            when "/transferencias"
              %w[cuentaOrigenId cuentaDestinoId desde hasta]
            when %r{\A(?:/grupos-familiares/\{grupoId\})?/presupuestos\z}
-             %w[periodo estado categoriaId]
+             path.start_with?("/grupos-familiares/") ? %w[periodo categoriaId] : %w[periodo estado categoriaId]
            when "/resumen-presupuestario"
              %w[desde hasta]
            when "/metas-ahorro"
@@ -823,7 +825,7 @@ operations.each do |entry|
       "name" => parameter, "in" => "path", "required" => true, "schema" => schema
     }
   end
-  operation["parameters"].concat(query_parameters(path, entry[:request]))
+  operation["parameters"].concat(query_parameters(method, path, entry[:request]))
   operation["parameters"] << { "$ref" => "#/components/parameters/IdempotencyKey" } if entry[:request].include?("Idempotency-Key")
   operation["parameters"] << { "$ref" => "#/components/parameters/IfMatch" } if entry[:request].include?("If-Match")
   if entry[:request].include?("X-Content-SHA256")

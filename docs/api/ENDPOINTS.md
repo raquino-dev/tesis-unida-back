@@ -12,7 +12,7 @@ Base: `/api/v1`. Los nombres indicados en Request/Response corresponden a [CONTR
 | `POST` | `/eliminaciones-perfil` | `{contrasena, verificacionOtpId}`; `Idempotency-Key` | `202 {id, estado, creadoEn, urlEstado}` | `202`, `401`, `403`, `409 propietario_grupo`, `422`, `429` |
 | `GET` | `/eliminaciones-perfil/{eliminacionId}` | — | `200 ProcesoAsyncResponse` | `200`, `401`, `404` |
 | `POST` | `/sesiones` | `CrearSesionRequest` | `201 SesionResponse` | `201`, `400`, `401 credenciales_invalidas`, `403 cuenta_bloqueada`, `429` |
-| `GET` | `/sesiones` | filtros de paginación | `200 Pagina<SesionActivaResponse>` | `200`, `401` |
+| `GET` | `/sesiones` | — | `200 Pagina<SesionActivaResponse>` | `200`, `401` |
 | `POST` | `/sesiones/renovaciones` | `RenovarSesionRequest` | `201 SesionResponse` con refresh token rotado | `201`, `400`, `401`, `409 token_reutilizado`, `429` |
 | `DELETE` | `/sesiones/{sesionId}` | — | `204` | `204`, `401`, `404` |
 | `POST` | `/recuperaciones-contrasena` | `RecuperacionContrasenaRequest` | `202 {id, expiraEn}` sin revelar si el correo existe | `202`, `400`, `429`, `503` |
@@ -43,7 +43,7 @@ Los eventos de auditoría son creados exclusivamente por el servidor; no existe 
 
 | Método | Endpoint | Request | Response exitosa | Códigos |
 |---|---|---|---|---|
-| `GET` | `/cuentas` | `activas?`, `tipo?`, paginación | `200 Pagina<CuentaResponse>` | `200`, `401` |
+| `GET` | `/cuentas` | — | `200 Pagina<CuentaResponse>` | `200`, `401` |
 | `POST` | `/cuentas` | `CuentaRequest` | `201 CuentaResponse` | `201`, `400`, `401`, `409 nombre_duplicado`, `422` |
 | `GET` | `/cuentas/{cuentaId}` | — | `200 CuentaResponse` | `200`, `401`, `404` |
 | `PATCH` | `/cuentas/{cuentaId}` | campos modificables de `CuentaRequest`; `If-Match` | `200 CuentaResponse` | `200`, `400`, `401`, `404`, `409`, `412`, `422` |
@@ -53,7 +53,7 @@ Los eventos de auditoría son creados exclusivamente por el servidor; no existe 
 
 | Método | Endpoint | Request | Response exitosa | Códigos |
 |---|---|---|---|---|
-| `GET` | `/categorias` | `tipo?`, `predefinida?`, paginación | `200 Pagina<CategoriaResponse>` | `200`, `401` |
+| `GET` | `/categorias` | — | `200 Pagina<CategoriaResponse>` | `200`, `401` |
 | `POST` | `/categorias` | `CategoriaRequest` | `201 CategoriaResponse` | `201`, `400`, `401`, `409 nombre_duplicado`, `422` |
 | `GET` | `/categorias/{categoriaId}` | — | `200 CategoriaResponse` | `200`, `401`, `404` |
 | `PATCH` | `/categorias/{categoriaId}` | campos modificables; `If-Match` | `200 CategoriaResponse` | `200`, `400`, `401`, `403 categoria_predefinida`, `404`, `409`, `412`, `422` |
@@ -73,7 +73,7 @@ Los eventos de auditoría son creados exclusivamente por el servidor; no existe 
 
 | Método | Endpoint | Request | Response exitosa | Códigos |
 |---|---|---|---|---|
-| `GET` | `/movimientos` | filtros comunes y paginación | `200 Pagina<MovimientoResponse>` | `200`, `400`, `401` |
+| `GET` | `/movimientos` | `cuentaId?`, `desde?`, `hasta?`, paginación | `200 Pagina<MovimientoResponse>` | `200`, `400`, `401` |
 | `POST` | `/movimientos` | `MovimientoRequest`; `Idempotency-Key` | `201 MovimientoResponse` | `201`, `400`, `401`, `404`, `409 idempotencia/conflicto`, `422` |
 | `GET` | `/movimientos/{movimientoId}` | — | `200 MovimientoResponse` | `200`, `401`, `404` |
 | `PATCH` | `/movimientos/{movimientoId}` | `{descripcion?, categoriaIds?, documentoId?, cuentaId?, tipo?, monto?, fecha?, hora?}`; `If-Match` | `200 MovimientoResponse` | `200`, `400`, `401`, `404`, `409`, `412`, `422` |
@@ -181,7 +181,7 @@ Las transferencias son registros lógicos internos; no representan operaciones b
 | `POST` | `/grupos-familiares/{grupoId}/categorias` | `CategoriaRequest` | `201 CategoriaFamiliarResponse` | `201`, `400`, `401`, `403`, `404`, `409 nombre_duplicado`, `422` |
 | `PATCH` | `/grupos-familiares/{grupoId}/categorias/{categoriaId}` | campos modificables; `If-Match` | `200 CategoriaFamiliarResponse` | `200`, `400`, `401`, `403`, `404`, `409`, `412`, `422` |
 | `DELETE` | `/grupos-familiares/{grupoId}/categorias/{categoriaId}` | `If-Match` | `204` | `204`, `401`, `403`, `404`, `409 categoria_en_uso`, `412` |
-| `GET` | `/grupos-familiares/{grupoId}/movimientos` | filtros familiares y paginación | `200 Pagina<MovimientoResponse>` | `200`, `400`, `401`, `403`, `404` |
+| `GET` | `/grupos-familiares/{grupoId}/movimientos` | `texto?`, `tipo?`, `categoriaId?`, `cuentaId?`, `integranteId?`, `desde?`, `hasta?`, paginación | `200 Pagina<MovimientoResponse>` | `200`, `400`, `401`, `403`, `404` |
 | `POST` | `/grupos-familiares/{grupoId}/movimientos` | `MovimientoRequest`; `Idempotency-Key` | `201 MovimientoResponse` | `201`, `400`, `401`, `403`, `404`, `409 cuenta_no_compartida`, `422` |
 | `GET` | `/grupos-familiares/{grupoId}/movimientos/{movimientoId}` | — | `200 MovimientoResponse` | `200`, `401`, `403`, `404` |
 | `PATCH` | `/grupos-familiares/{grupoId}/movimientos/{movimientoId}` | `{descripcion?, categoriaIds?}`; `If-Match` | `200 MovimientoResponse` | `200`, `400`, `401`, `403`, `404`, `412`, `422` |
@@ -202,7 +202,7 @@ Las operaciones de caja son inmutables. Una corrección se representa con una nu
 
 | Método | Endpoint | Request | Response exitosa | Códigos |
 |---|---|---|---|---|
-| `GET` | `/grupos-familiares/{grupoId}/presupuestos` | periodo, estado, categoría y paginación | `200 Pagina<PresupuestoResponse>` | `200`, `400`, `401`, `403`, `404` |
+| `GET` | `/grupos-familiares/{grupoId}/presupuestos` | `periodo?`, `categoriaId?`, paginación | `200 Pagina<PresupuestoResponse>` | `200`, `400`, `401`, `403`, `404` |
 | `POST` | `/grupos-familiares/{grupoId}/presupuestos` | `PresupuestoRequest` | `201 PresupuestoResponse` | `201`, `400`, `401`, `403`, `404`, `409`, `422` |
 | `GET` | `/grupos-familiares/{grupoId}/presupuestos/{presupuestoId}` | — | `200 PresupuestoResponse` | `200`, `401`, `403`, `404` |
 | `PATCH` | `/grupos-familiares/{grupoId}/presupuestos/{presupuestoId}` | campos modificables; `If-Match` | `200 PresupuestoResponse` | `200`, `400`, `401`, `403`, `404`, `409`, `412`, `422` |

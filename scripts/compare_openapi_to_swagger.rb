@@ -29,23 +29,64 @@ end
 contract = YAML.safe_load_file(CONTRACT_PATH, aliases: true)
 swagger = JSON.parse(swagger_text)
 
-def operations(document, swagger: false)
-  document.fetch("paths").each_with_object(Set.new) do |(raw_path, definition), result|
+def operation_map(document, swagger: false)
+  document.fetch("paths").each_with_object({}) do |(raw_path, definition), result|
     path = swagger ? raw_path.sub(%r{\A/api/v1(?=/|\z)}, "") : raw_path
     next if swagger && IGNORED_SWAGGER_PATHS.include?(path)
 
-    definition.each_key do |method|
-      result << [method.upcase, path] if HTTP_METHODS.include?(method.downcase)
+    definition.each do |method, operation|
+      result[[method.upcase, path]] = operation if HTTP_METHODS.include?(method.downcase)
     end
   end
 end
 
-documented = operations(contract)
-implemented = operations(swagger, swagger: true)
+def resolve(document, value)
+  reference = value.is_a?(Hash) ? value["$ref"] : nil
+  return value unless reference&.start_with?("#/")
+
+  reference.delete_prefix("#/").split("/").reduce(document) do |current, token|
+    current.fetch(token.gsub("~1", "/").gsub("~0", "~"))
+  end
+end
+
+def interface_parameters(document, operation)
+  Array(operation["parameters"]).filter_map do |raw|
+    parameter = resolve(document, raw)
+    next unless %w[path query].include?(parameter["in"])
+
+    [parameter["in"], parameter["name"], parameter["required"] == true]
+  end.sort
+end
+
+documented_map = operation_map(contract)
+implemented_map = operation_map(swagger, swagger: true)
+documented = documented_map.keys.to_set
+implemented = implemented_map.keys.to_set
 missing = implemented - documented
 obsolete = documented - implemented
+drift = []
 
-unless missing.empty? && obsolete.empty?
+(implemented & documented).sort.each do |key|
+  actual = implemented_map.fetch(key)
+  expected = documented_map.fetch(key)
+  if key.first == "GET"
+    actual_parameters = interface_parameters(swagger, actual)
+    expected_parameters = interface_parameters(contract, expected)
+    if actual_parameters != expected_parameters
+      drift << "#{key.join(' ')}: parámetros Swagger=#{actual_parameters.inspect}, OpenAPI=#{expected_parameters.inspect}"
+    end
+  end
+  if actual.key?("requestBody") != expected.key?("requestBody")
+    drift << "#{key.join(' ')}: presencia de requestBody diferente"
+  end
+  actual_public = Array(actual["security"]).empty?
+  expected_public = Array(expected["security"]).empty?
+  if actual_public != expected_public
+    drift << "#{key.join(' ')}: autenticación diferente"
+  end
+end
+
+unless missing.empty? && obsolete.empty? && drift.empty?
   warn "El OpenAPI versionado no coincide con el Swagger generado por la aplicación."
   unless missing.empty?
     warn "\nFaltan en docs/api/openapi.yaml:"
@@ -54,6 +95,10 @@ unless missing.empty? && obsolete.empty?
   unless obsolete.empty?
     warn "\nSobran en docs/api/openapi.yaml:"
     obsolete.sort.each { |method, path| warn "  #{method} #{path}" }
+  end
+  unless drift.empty?
+    warn "\nDiferencias de interfaz:"
+    drift.each { |difference| warn "  #{difference}" }
   end
   exit 1
 end
