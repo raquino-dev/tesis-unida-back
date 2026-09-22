@@ -5,11 +5,17 @@ on:
     paths:
       - "backend/**"
       - "docs/api/**"
+      - "scripts/generate_openapi.rb"
+      - "scripts/validate_openapi.rb"
+      - "scripts/compare_openapi_to_swagger.rb"
       - ".github/workflows/backend-ci.yml"
   pull_request:
     paths:
       - "backend/**"
       - "docs/api/**"
+      - "scripts/generate_openapi.rb"
+      - "scripts/validate_openapi.rb"
+      - "scripts/compare_openapi_to_swagger.rb"
   workflow_dispatch:
 
 permissions:
@@ -19,6 +25,22 @@ jobs:
   build-test:
     runs-on: ubuntu-latest
     timeout-minutes: 20
+    services:
+      postgres:
+        image: postgres:17-alpine
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: finanzas_integration
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres -d finanzas_integration"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+    env:
+      FINANZAS_INTEGRATION_POSTGRESQL: Host=localhost;Port=5432;Database=finanzas_integration;Username=postgres;Password=postgres
     defaults:
       run:
         working-directory: backend
@@ -27,8 +49,39 @@ jobs:
       - uses: actions/setup-dotnet@v4
         with:
           dotnet-version: "10.0.x"
+      - name: Validar contrato OpenAPI versionado
+        working-directory: .
+        run: |
+          ruby scripts/generate_openapi.rb
+          ruby scripts/validate_openapi.rb
+          git diff --exit-code -- docs/api/openapi.yaml
       - run: dotnet restore FinanzasInteligentes.sln
       - run: dotnet build FinanzasInteligentes.sln -c Release --no-restore
+      - name: Comparar OpenAPI con Swagger generado
+        working-directory: .
+        env:
+          ASPNETCORE_ENVIRONMENT: Development
+          ASPNETCORE_URLS: http://127.0.0.1:5099
+          ConnectionStrings__PostgreSql: Host=localhost;Port=5432;Database=finanzas_integration;Username=postgres;Password=postgres
+          Jwt__SigningKey: ci-jwt-signing-key-32-characters-minimum-value
+          Archivos__SigningKey: ci-files-signing-key-32-characters-minimum-value
+          Seguridad__TokenPushKey: ci-push-token-key-32-characters-minimum-value
+        run: |
+          dotnet run --project backend/src/FinanzasInteligentes.Api -c Release --no-build --no-launch-profile > /tmp/finanzas-api.log 2>&1 &
+          api_pid=$!
+          trap 'kill "$api_pid" 2>/dev/null || true' EXIT
+          for intento in $(seq 1 30); do
+            if curl --fail --silent --show-error http://127.0.0.1:5099/swagger/v1/swagger.json --output /tmp/swagger.json; then
+              break
+            fi
+            if ! kill -0 "$api_pid" 2>/dev/null; then
+              cat /tmp/finanzas-api.log
+              exit 1
+            fi
+            sleep 1
+          done
+          test -s /tmp/swagger.json || { cat /tmp/finanzas-api.log; exit 1; }
+          ruby scripts/compare_openapi_to_swagger.rb /tmp/swagger.json
       - run: dotnet test FinanzasInteligentes.sln -c Release --no-build --logger "trx;LogFileName=tests.trx"
       - uses: actions/upload-artifact@v4
         if: always()

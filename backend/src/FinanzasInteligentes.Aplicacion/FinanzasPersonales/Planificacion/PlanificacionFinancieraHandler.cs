@@ -265,9 +265,9 @@ public sealed class PlanificacionFinancieraHandler(
         var ids = entity.Categorias.Select(x => x.Id).ToHashSet();
         var movimientos = await finanzas.ListarMovimientos(entity.UsuarioId, ct);
         var gastado = movimientos.Where(x =>
-            x.Estado == "confirmado" && x.Tipo == "gasto" &&
+            x.MontoGastoAnalitico() != 0 &&
             x.Fecha >= rango.Desde && x.Fecha <= rango.Hasta &&
-            x.Categorias.Any(c => ids.Contains(c.Id))).Sum(x => x.Monto);
+            x.Categorias.Any(c => ids.Contains(c.Id))).Sum(x => x.MontoGastoAnalitico());
         var progresoReal = entity.Monto == 0 ? 0 : (double)gastado / entity.Monto;
         return new(
             entity.Id, "privado", entity.Nombre, entity.Monto, gastado,

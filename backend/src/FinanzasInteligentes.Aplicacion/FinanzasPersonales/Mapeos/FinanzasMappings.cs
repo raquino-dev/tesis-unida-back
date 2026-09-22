@@ -19,10 +19,12 @@ public static class FinanzasMappings
     public static MovimientoResponse ToResponse(this Movimiento movimiento) =>
         new(
             movimiento.Id, "privado", movimiento.CuentaId, movimiento.Tipo, movimiento.Monto,
-            movimiento.Moneda, movimiento.Descripcion, movimiento.Fecha, movimiento.Estado,
+            movimiento.Moneda, movimiento.Descripcion, movimiento.Fecha, movimiento.Hora, movimiento.Estado,
             movimiento.CreadoEn, movimiento.Version,
             movimiento.Categorias.Select(x => x.Id).ToArray(),
-            movimiento.DocumentoId, movimiento.RecurrenciaId);
+            movimiento.DocumentoId, movimiento.RecurrenciaId,
+            movimiento.TransferenciaId, movimiento.TarjetaCreditoId,
+            movimiento.OperacionTarjeta);
 
     public static TarjetaCreditoResponse ToResponse(
         this TarjetaCredito tarjeta,

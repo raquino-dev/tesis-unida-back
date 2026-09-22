@@ -41,7 +41,14 @@ public static class EndpointRegistration
             versionMinima = "0.1.0",
             versionRecomendada = "0.1.0",
             mantenimiento = false,
-            capacidades = new[] { "identidad", "cuentas", "categorias", "movimientos" }
+            capacidades = new[]
+            {
+                "identidad", "cuentas", "categorias", "tarjetas-credito",
+                "movimientos", "movimientos-recurrentes", "sincronizacion",
+                "transferencias", "planificacion", "analitica", "reportes",
+                "documentos", "exportaciones", "seguridad-dispositivos",
+                "familias", "suscripciones", "piloto"
+            }
         })).AllowAnonymous().WithTags("Configuración");
 
         return endpoints;

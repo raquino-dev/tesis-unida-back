@@ -33,11 +33,42 @@ jobs:
         with:
           dotnet-version: "10.0.x"
 
+      - name: Validate versioned OpenAPI
+        run: |
+          ruby scripts/generate_openapi.rb
+          ruby scripts/validate_openapi.rb
+          git diff --exit-code -- docs/api/openapi.yaml
+
       - name: Test backend
         working-directory: backend
         run: |
           dotnet restore FinanzasInteligentes.sln
           dotnet test FinanzasInteligentes.sln -c Release --no-restore
+
+      - name: Compare OpenAPI with generated Swagger
+        env:
+          ASPNETCORE_ENVIRONMENT: Development
+          ASPNETCORE_URLS: http://127.0.0.1:5099
+          ConnectionStrings__PostgreSql: Host=localhost;Port=5432;Database=finanzas_contract;Username=postgres;Password=postgres
+          Jwt__SigningKey: ci-jwt-signing-key-32-characters-minimum-value
+          Archivos__SigningKey: ci-files-signing-key-32-characters-minimum-value
+          Seguridad__TokenPushKey: ci-push-token-key-32-characters-minimum-value
+        run: |
+          dotnet run --project backend/src/FinanzasInteligentes.Api -c Release --no-build --no-launch-profile > /tmp/finanzas-api.log 2>&1 &
+          api_pid=$!
+          trap 'kill "$api_pid" 2>/dev/null || true' EXIT
+          for intento in $(seq 1 30); do
+            if curl --fail --silent --show-error http://127.0.0.1:5099/swagger/v1/swagger.json --output /tmp/swagger.json; then
+              break
+            fi
+            if ! kill -0 "$api_pid" 2>/dev/null; then
+              cat /tmp/finanzas-api.log
+              exit 1
+            fi
+            sleep 1
+          done
+          test -s /tmp/swagger.json || { cat /tmp/finanzas-api.log; exit 1; }
+          ruby scripts/compare_openapi_to_swagger.rb /tmp/swagger.json
 
       - id: meta
         name: Select immutable image tag

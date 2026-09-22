@@ -346,14 +346,29 @@ public sealed class OutboxProcessor(
             ? (await db.Movimientos.AsNoTracking().Where(x =>
                 x.UsuarioId == exportacion.UsuarioId && x.Estado == "confirmado" &&
                 x.Fecha >= exportacion.Desde && x.Fecha <= exportacion.Hasta &&
-                (exportacion.TipoMovimiento == null || x.Tipo == exportacion.TipoMovimiento) &&
-                (exportacion.CuentaId == null || x.CuentaId == exportacion.CuentaId) &&
+                (exportacion.TipoMovimiento == null ||
+                 (exportacion.TipoMovimiento == "ingreso" && x.Tipo == "ingreso" &&
+                  x.TransferenciaId == null && x.TarjetaCreditoId == null) ||
+                 (exportacion.TipoMovimiento == "gasto" &&
+                  ((x.Tipo == "gasto" && x.TransferenciaId == null) ||
+                   x.OperacionTarjeta == "reintegro"))) &&
+                (exportacion.CuentaId == null ||
+                 (x.CuentaId == exportacion.CuentaId &&
+                  (x.TarjetaCreditoId == null || x.OperacionTarjeta == "pago"))) &&
                 (exportacion.CategoriaId == null || x.Categorias.Any(c => c.Id == exportacion.CategoriaId)) &&
                 (exportacion.Documento == "cualquiera" ||
                  (exportacion.Documento == "con-documento" && x.DocumentoId != null) ||
-                 (exportacion.Documento == "sin-documento" && x.DocumentoId == null)))
+                (exportacion.Documento == "sin-documento" && x.DocumentoId == null)))
                 .OrderBy(x => x.Fecha).Select(x => new ExportRow(
-                    x.Fecha, x.Tipo, x.Monto, x.Descripcion, x.TransferenciaId != null))
+                    x.Fecha, x.Tipo, x.Monto, x.Descripcion, x.TransferenciaId != null,
+                    x.OperacionTarjeta,
+                    x.Tipo == "ingreso" && x.TransferenciaId == null &&
+                    x.TarjetaCreditoId == null ? x.Monto : 0,
+                    x.TransferenciaId != null || x.OperacionTarjeta == "pago"
+                        ? 0
+                        : x.OperacionTarjeta == "reintegro"
+                            ? -x.Monto
+                            : x.Tipo == "gasto" ? x.Monto : 0))
                 .ToListAsync(ct))
             : (await db.MovimientosFamiliares.AsNoTracking().Where(x =>
                 x.GrupoFamiliarId == exportacion.GrupoFamiliarId &&
@@ -363,14 +378,16 @@ public sealed class OutboxProcessor(
                 (exportacion.CuentaId == null || x.CuentaId == exportacion.CuentaId) &&
                 (exportacion.CategoriaId == null || x.CategoriaIds.Contains(exportacion.CategoriaId.Value)))
                 .OrderBy(x => x.Fecha).Select(x => new ExportRow(
-                    x.Fecha, x.Tipo, x.Monto, x.Descripcion, false)).ToListAsync(ct));
+                    x.Fecha, x.Tipo, x.Monto, x.Descripcion, false, null,
+                    x.Tipo == "ingreso" ? x.Monto : 0,
+                    x.Tipo == "gasto" ? x.Monto : 0)).ToListAsync(ct));
         var clave = $"exportaciones/{exportacion.UsuarioId:N}/{exportacion.Id:N}.{exportacion.Formato}";
         await using var bytes = new MemoryStream(CrearArchivo(exportacion.Formato, filas));
         await storage.Guardar(clave, bytes, ct);
         exportacion.Completar(
             clave, filas.Count,
-            filas.Where(x => x.Tipo == "ingreso").Sum(x => x.Monto),
-            filas.Where(x => x.Tipo == "gasto").Sum(x => x.Monto),
+            filas.Sum(x => x.IngresoAnalitico),
+            filas.Sum(x => x.GastoAnalitico),
             filas.Where(x => x.EsTransferencia).Sum(x => x.Monto));
     }
 
@@ -384,10 +401,12 @@ public sealed class OutboxProcessor(
 
     private static string CrearCsv(IEnumerable<ExportRow> filas)
     {
-        var contenido = new StringBuilder("fecha,tipo,monto,descripcion\r\n");
+        var contenido = new StringBuilder(
+            "fecha,tipo,monto,descripcion,operacion_tarjeta\r\n");
         foreach (var fila in filas)
             contenido.Append(fila.Fecha).Append(',').Append(fila.Tipo).Append(',').Append(fila.Monto)
-                .Append(",\"").Append(fila.Descripcion.Replace("\"", "\"\"")).AppendLine("\"");
+                .Append(",\"").Append(fila.Descripcion.Replace("\"", "\"\"")).Append("\",")
+                .AppendLine(fila.OperacionTarjeta ?? string.Empty);
         return contenido.ToString();
     }
 
@@ -414,9 +433,11 @@ public sealed class OutboxProcessor(
                         .Append("</t></is></c>");
                 xml.Append("</row>");
             }
-            AgregarFila("Fecha", "Tipo", "Monto", "Descripción");
+            AgregarFila("Fecha", "Tipo", "Monto", "Descripción", "Operación tarjeta");
             foreach (var fila in filas)
-                AgregarFila(fila.Fecha.ToString(), fila.Tipo, fila.Monto.ToString(), fila.Descripcion);
+                AgregarFila(
+                    fila.Fecha.ToString(), fila.Tipo, fila.Monto.ToString(), fila.Descripcion,
+                    fila.OperacionTarjeta ?? string.Empty);
             xml.Append("</sheetData></worksheet>");
             Escribir(zip, "xl/worksheets/sheet1.xml", xml.ToString());
         }
@@ -432,9 +453,10 @@ public sealed class OutboxProcessor(
 
     private static byte[] CrearPdf(IEnumerable<ExportRow> filas)
     {
-        var lineas = new[] { "Reporte financiero", "Fecha | Tipo | Monto | Descripcion" }
+        var lineas = new[]
+            { "Reporte financiero", "Fecha | Tipo | Monto | Descripcion | Operacion tarjeta" }
             .Concat(filas.Take(35).Select(x =>
-                $"{x.Fecha} | {x.Tipo} | {x.Monto} | {x.Descripcion}"));
+                $"{x.Fecha} | {x.Tipo} | {x.Monto} | {x.Descripcion} | {x.OperacionTarjeta}"));
         var stream = new StringBuilder("BT /F1 9 Tf 40 800 Td ");
         foreach (var linea in lineas)
             stream.Append('(').Append(linea.Replace("\\", "\\\\").Replace("(", "\\(").Replace(")", "\\)"))
@@ -464,7 +486,14 @@ public sealed class OutboxProcessor(
     }
 
     private sealed record ExportRow(
-        DateOnly Fecha, string Tipo, long Monto, string Descripcion, bool EsTransferencia);
+        DateOnly Fecha,
+        string Tipo,
+        long Monto,
+        string Descripcion,
+        bool EsTransferencia,
+        string? OperacionTarjeta,
+        long IngresoAnalitico,
+        long GastoAnalitico);
 
     private async Task ProcesarEliminacionPerfil(
         Guid eliminacionId,

@@ -70,10 +70,15 @@ public sealed class DashboardYReportesHandler(IFinanzasRepository finanzas)
         ValidarTipo(tipo);
         IEnumerable<Movimiento> consulta = FiltrarConfirmados(
             await finanzas.ListarMovimientos(usuarioId, ct), periodo.Desde, periodo.Hasta);
-        if (tipo is not null) consulta = consulta.Where(x => x.Tipo == tipo);
+        if (tipo is not null)
+            consulta = consulta.Where(x => tipo == "ingreso"
+                ? x.MontoIngresoAnalitico() > 0
+                : x.MontoGastoAnalitico() != 0);
         if (categoriaId is not null)
             consulta = consulta.Where(x => x.Categorias.Any(c => c.Id == categoriaId));
-        if (cuentaId is not null) consulta = consulta.Where(x => x.CuentaId == cuentaId);
+        if (cuentaId is not null)
+            consulta = consulta.Where(x => x.CuentaId == cuentaId &&
+                (x.TarjetaCreditoId == null || x.EsPagoTarjeta));
 
         var movimientos = consulta.ToArray();
         var ingresos = Sumar(movimientos, "ingreso");
@@ -181,18 +186,27 @@ public sealed class DashboardYReportesHandler(IFinanzasRepository finanzas)
             x.Estado == "confirmado" && x.Fecha >= desde && x.Fecha <= hasta).ToArray();
 
     private static long Sumar(IEnumerable<Movimiento> movimientos, string tipo) =>
-        movimientos.Where(x => x.Tipo == tipo).Sum(x => x.Monto);
+        tipo == "ingreso"
+            ? movimientos.Sum(x => x.MontoIngresoAnalitico())
+            : movimientos.Sum(x => x.MontoGastoAnalitico());
 
     private static CategoriaDashboardResponse[] CalcularDistribucion(
         IEnumerable<Movimiento> movimientos, string tipo, long total, int? limite = null)
     {
         var consulta = movimientos
-            .Where(x => x.Tipo == tipo && x.Categorias.Count > 0)
+            .Where(x => (tipo == "ingreso"
+                ? x.MontoIngresoAnalitico() > 0
+                : x.MontoGastoAnalitico() != 0) && x.Categorias.Count > 0)
             .Select(x => new { Movimiento = x, Categoria = x.Categorias.First() })
             .GroupBy(x => new { x.Categoria.Id, x.Categoria.Nombre })
             .Select(x => new CategoriaDashboardResponse(
-                x.Key.Id, x.Key.Nombre, x.Sum(y => y.Movimiento.Monto),
-                total == 0 ? 0 : (double)x.Sum(y => y.Movimiento.Monto) / total))
+                x.Key.Id, x.Key.Nombre,
+                tipo == "ingreso"
+                    ? x.Sum(y => y.Movimiento.MontoIngresoAnalitico())
+                    : x.Sum(y => y.Movimiento.MontoGastoAnalitico()),
+                total == 0 ? 0 : (double)(tipo == "ingreso"
+                    ? x.Sum(y => y.Movimiento.MontoIngresoAnalitico())
+                    : x.Sum(y => y.Movimiento.MontoGastoAnalitico())) / total))
             .OrderByDescending(x => x.Monto);
         return (limite is null ? consulta : consulta.Take(limite.Value)).ToArray();
     }

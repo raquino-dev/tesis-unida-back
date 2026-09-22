@@ -32,12 +32,16 @@ public sealed record MovimientoResponse(
     string Moneda,
     string Descripcion,
     DateOnly Fecha,
+    TimeOnly? Hora,
     string Estado,
     DateTimeOffset CreadoEn,
     long Version,
     IReadOnlyCollection<Guid> CategoriaIds,
     Guid? DocumentoId,
-    Guid? MovimientoRecurrenteId);
+    Guid? MovimientoRecurrenteId,
+    Guid? TransferenciaId,
+    Guid? TarjetaCreditoId,
+    string? OperacionTarjeta);
 
 public sealed record CuentaPagoTarjetaResponse(Guid Id, string Nombre, string Tipo);
 

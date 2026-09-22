@@ -431,16 +431,24 @@ public sealed class FinanzasDbContext(DbContextOptions<FinanzasDbContext> option
         {
             table.HasCheckConstraint("ck_movimientos_monto", "monto > 0");
             table.HasCheckConstraint("ck_movimientos_moneda", "moneda = 'PYG'");
+            table.HasCheckConstraint(
+                "ck_movimientos_operacion_tarjeta",
+                "(tarjeta_credito_id IS NULL AND operacion_tarjeta IS NULL) OR " +
+                "(tarjeta_credito_id IS NOT NULL AND ((tipo = 'gasto' AND operacion_tarjeta = 'compra') OR " +
+                "(tipo = 'ingreso' AND operacion_tarjeta IN ('reintegro', 'pago'))))");
         });
         movimiento.HasKey(x => x.Id);
         movimiento.Property(x => x.Id).HasColumnName("id");
         movimiento.Property(x => x.UsuarioId).HasColumnName("usuario_id");
         movimiento.Property(x => x.CuentaId).HasColumnName("cuenta_id");
+        movimiento.Property(x => x.TarjetaCreditoId).HasColumnName("tarjeta_credito_id");
+        movimiento.Property(x => x.OperacionTarjeta).HasColumnName("operacion_tarjeta").HasMaxLength(20);
         movimiento.Property(x => x.Tipo).HasColumnName("tipo").HasMaxLength(10);
         movimiento.Property(x => x.Monto).HasColumnName("monto");
         movimiento.Property(x => x.Moneda).HasColumnName("moneda").HasMaxLength(3);
         movimiento.Property(x => x.Descripcion).HasColumnName("descripcion").HasMaxLength(300);
         movimiento.Property(x => x.Fecha).HasColumnName("fecha");
+        movimiento.Property(x => x.Hora).HasColumnName("hora");
         movimiento.Property(x => x.Estado).HasColumnName("estado").HasMaxLength(20);
         movimiento.Property(x => x.Origen).HasColumnName("origen").HasMaxLength(30);
         movimiento.Property(x => x.AnuladoEn).HasColumnName("anulado_en");
@@ -452,6 +460,10 @@ public sealed class FinanzasDbContext(DbContextOptions<FinanzasDbContext> option
         movimiento.Property(x => x.CreadoEn).HasColumnName("creado_en");
         movimiento.Property(x => x.Version).HasColumnName("version").IsConcurrencyToken();
         movimiento.HasIndex(x => new { x.UsuarioId, x.Fecha, x.Id });
+        movimiento.HasIndex(x => x.TarjetaCreditoId);
+        movimiento.HasOne<TarjetaCredito>().WithMany()
+            .HasForeignKey(x => x.TarjetaCreditoId)
+            .OnDelete(DeleteBehavior.Restrict);
         movimiento.HasIndex(x => new { x.RecurrenciaId, x.PeriodoRecurrencia })
             .IsUnique().HasFilter("recurrencia_id IS NOT NULL");
         movimiento.HasOne<Cuenta>().WithMany().HasForeignKey(x => x.CuentaId).OnDelete(DeleteBehavior.Restrict);

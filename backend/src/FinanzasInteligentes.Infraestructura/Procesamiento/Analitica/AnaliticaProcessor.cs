@@ -40,8 +40,8 @@ public sealed class AnaliticaProcessor(FinanzasDbContext db) : IAnaliticaProcess
             .ToListAsync(cancellationToken);
         foreach (var grupo in movimientos.GroupBy(x => x.UsuarioId))
         {
-            var ingresos = grupo.Where(x => x.Tipo == "ingreso").Sum(x => x.Monto);
-            var gastos = grupo.Where(x => x.Tipo == "gasto").Sum(x => x.Monto);
+            var ingresos = grupo.Sum(x => x.MontoIngresoAnalitico());
+            var gastos = grupo.Sum(x => x.MontoGastoAnalitico());
             if (gastos <= ingresos || gastos == 0) continue;
             var clave = $"gastos-superiores:{periodo}";
             if (await db.AlertasFinancieras.AnyAsync(

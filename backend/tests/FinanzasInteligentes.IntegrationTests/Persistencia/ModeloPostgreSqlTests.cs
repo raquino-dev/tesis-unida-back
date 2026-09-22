@@ -1,6 +1,8 @@
 using FinanzasInteligentes.Infraestructura.Persistencia;
 using FinanzasInteligentes.Dominio.Piloto;
+using FinanzasInteligentes.Dominio.FinanzasPersonales;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
 
 namespace FinanzasInteligentes.IntegrationTests.Persistencia;
@@ -47,6 +49,51 @@ public sealed class ModeloPostgreSqlTests
         AssertCreadoEn<PreguntaInstrumentoPiloto>(db);
         AssertCreadoEn<RespuestaInstrumentoPiloto>(db);
         AssertCreadoEn<DetalleRespuestaInstrumentoPiloto>(db);
+    }
+
+    [Fact]
+    public void MovimientoVinculaTarjetaDeCreditoOpcional()
+    {
+        var options = new DbContextOptionsBuilder<FinanzasDbContext>()
+            .UseNpgsql("Host=localhost;Database=modelo;Username=modelo")
+            .Options;
+        using var db = new FinanzasDbContext(options);
+        var entity = db.Model.FindEntityType(typeof(Movimiento));
+        Assert.NotNull(entity);
+        var table = StoreObjectIdentifier.Table(entity!.GetTableName()!, entity.GetSchema());
+        Assert.Equal("tarjeta_credito_id",
+            entity.FindProperty(nameof(Movimiento.TarjetaCreditoId))?.GetColumnName(table));
+        Assert.Equal("hora",
+            entity.FindProperty(nameof(Movimiento.Hora))?.GetColumnName(table));
+        Assert.Equal("operacion_tarjeta",
+            entity.FindProperty(nameof(Movimiento.OperacionTarjeta))?.GetColumnName(table));
+        var designEntity = db.GetService<IDesignTimeModel>().Model
+            .FindEntityType(typeof(Movimiento));
+        Assert.NotNull(designEntity);
+        Assert.Contains(designEntity!.GetCheckConstraints(), constraint =>
+            constraint.Name == "ck_movimientos_operacion_tarjeta");
+        Assert.Contains(entity.GetForeignKeys(), fk =>
+            fk.PrincipalEntityType.ClrType == typeof(TarjetaCredito) &&
+            fk.Properties.Single().Name == nameof(Movimiento.TarjetaCreditoId));
+    }
+
+    [Fact]
+    public void CursorDeMovimientosSeTraduceAPostgreSql()
+    {
+        var options = new DbContextOptionsBuilder<FinanzasDbContext>()
+            .UseNpgsql("Host=localhost;Database=modelo;Username=modelo")
+            .Options;
+        using var db = new FinanzasDbContext(options);
+        var fecha = new DateOnly(2026, 9, 20);
+        var id = Guid.Parse("01900000-0000-7000-8000-000000000001");
+
+        var sql = db.Movimientos
+            .Where(x => x.Fecha < fecha ||
+                (x.Fecha == fecha && x.Id.CompareTo(id) < 0))
+            .ToQueryString();
+
+        Assert.Contains("fecha", sql, StringComparison.OrdinalIgnoreCase);
+        Assert.Contains("id", sql, StringComparison.OrdinalIgnoreCase);
     }
 
     private static void AssertCreadoEn<TEntity>(FinanzasDbContext db)

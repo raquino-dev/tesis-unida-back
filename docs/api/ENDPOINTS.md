@@ -12,7 +12,7 @@ Base: `/api/v1`. Los nombres indicados en Request/Response corresponden a [CONTR
 | `POST` | `/eliminaciones-perfil` | `{contrasena, verificacionOtpId}`; `Idempotency-Key` | `202 {id, estado, creadoEn, urlEstado}` | `202`, `401`, `403`, `409 propietario_grupo`, `422`, `429` |
 | `GET` | `/eliminaciones-perfil/{eliminacionId}` | — | `200 ProcesoAsyncResponse` | `200`, `401`, `404` |
 | `POST` | `/sesiones` | `CrearSesionRequest` | `201 SesionResponse` | `201`, `400`, `401 credenciales_invalidas`, `403 cuenta_bloqueada`, `429` |
-| `GET` | `/sesiones` | filtros de paginación | `200 Pagina<SesionActivaResponse>` | `200`, `401` |
+| `GET` | `/sesiones` | — | `200 Pagina<SesionActivaResponse>` | `200`, `401` |
 | `POST` | `/sesiones/renovaciones` | `RenovarSesionRequest` | `201 SesionResponse` con refresh token rotado | `201`, `400`, `401`, `409 token_reutilizado`, `429` |
 | `DELETE` | `/sesiones/{sesionId}` | — | `204` | `204`, `401`, `404` |
 | `POST` | `/recuperaciones-contrasena` | `RecuperacionContrasenaRequest` | `202 {id, expiraEn}` sin revelar si el correo existe | `202`, `400`, `429`, `503` |
@@ -20,20 +20,22 @@ Base: `/api/v1`. Los nombres indicados en Request/Response corresponden a [CONTR
 | `PUT` | `/perfil/contrasena` | `CambiarContrasenaRequest` | `204`; revoca otras sesiones | `204`, `400`, `401`, `403 otp_requerido`, `422`, `429` |
 | `GET` | `/perfil/preferencias` | — | `200 PreferenciasResponse` | `200`, `401` |
 | `PUT` | `/perfil/preferencias` | `{tema, idioma, notificacionesPush, resumenSemanal}`; `If-Match` | `200 PreferenciasResponse` | `200`, `400`, `401`, `412`, `422` |
+| `GET` | `/administracion/usuarios` | `estado?`, `busqueda?`, `limite?` | `200 UsuarioAdministracionResponse[]` | `200`, `401`, `403` |
+| `PUT` | `/administracion/usuarios/{usuarioId}/estado` | `{estado, motivo?}` | `200 UsuarioAdministracionResponse` | `200`, `400`, `401`, `403`, `404`, `422` |
+| `PUT` | `/administracion/usuarios/{usuarioId}/rol` | `{rol, motivo?}` | `200 UsuarioAdministracionResponse` | `200`, `400`, `401`, `403`, `404`, `422` |
 
-## 2. Seguridad, OTP, biometría y auditoría
+## 2. Seguridad, OTP, privacidad y auditoría
 
 | Método | Endpoint | Request | Response exitosa | Códigos |
 |---|---|---|---|---|
 | `POST` | `/desafios-otp` | `DesafioOtpRequest`; `Idempotency-Key` | `201 DesafioOtpResponse` | `201`, `400`, `401`, `409`, `429`, `503` |
 | `POST` | `/verificaciones-otp` | `VerificacionOtpRequest` | `201 {id, valida, expiraEn}` | `201`, `400`, `401`, `409 desafio_consumido`, `410`, `422 codigo_invalido`, `429` |
-| `POST` | `/credenciales-biometricas` | `{desafioId, identificadorDispositivo, clavePublica, atestacion}` | `201 CredencialBiometricaResponse` | `201`, `400`, `401`, `409`, `410`, `422` |
-| `GET` | `/credenciales-biometricas` | paginación | `200 Pagina<CredencialBiometricaResponse>` | `200`, `401` |
-| `DELETE` | `/credenciales-biometricas/{credencialId}` | `If-Match` | `204` | `204`, `401`, `404`, `412` |
-| `POST` | `/desafios-biometricos` | `{proposito, dispositivoId, credencialId?}` | `201 DesafioBiometricoResponse` | `201`, `400`, `401`, `404`, `409`, `429` |
-| `POST` | `/verificaciones-biometricas` | `VerificacionBiometricaRequest` | `201 {id, valida, expiraEn}` | `201`, `400`, `401`, `403`, `422`, `429` |
 | `GET` | `/eventos-seguridad` | `tipo`, `desde`, `hasta`, paginación | `200 Pagina<EventoSeguridadResponse>` | `200`, `400`, `401` |
 | `GET` | `/eventos-auditoria` | filtros por recurso, usuario, grupo y fecha, paginación | `200 Pagina<EventoAuditoriaResponse>` | `200`, `400`, `401`, `403` |
+| `GET` | `/privacidad/politica-vigente` | — | `200 PoliticaPrivacidadResponse` | `200`, `404` |
+| `GET` | `/privacidad/consentimientos` | — | `200 ConsentimientoPrivacidadResponse[]` | `200`, `401` |
+| `POST` | `/privacidad/consentimientos` | `{versionPolitica, finalidad}` | `201 ConsentimientoPrivacidadResponse` | `201`, `400`, `401`, `404`, `422` |
+| `DELETE` | `/privacidad/consentimientos/{consentimientoId}` | — | `204` | `204`, `401`, `404`, `409` |
 
 Los eventos de auditoría son creados exclusivamente por el servidor; no existe un `POST` público.
 
@@ -41,7 +43,7 @@ Los eventos de auditoría son creados exclusivamente por el servidor; no existe 
 
 | Método | Endpoint | Request | Response exitosa | Códigos |
 |---|---|---|---|---|
-| `GET` | `/cuentas` | `activas?`, `tipo?`, paginación | `200 Pagina<CuentaResponse>` | `200`, `401` |
+| `GET` | `/cuentas` | — | `200 Pagina<CuentaResponse>` | `200`, `401` |
 | `POST` | `/cuentas` | `CuentaRequest` | `201 CuentaResponse` | `201`, `400`, `401`, `409 nombre_duplicado`, `422` |
 | `GET` | `/cuentas/{cuentaId}` | — | `200 CuentaResponse` | `200`, `401`, `404` |
 | `PATCH` | `/cuentas/{cuentaId}` | campos modificables de `CuentaRequest`; `If-Match` | `200 CuentaResponse` | `200`, `400`, `401`, `404`, `409`, `412`, `422` |
@@ -51,7 +53,7 @@ Los eventos de auditoría son creados exclusivamente por el servidor; no existe 
 
 | Método | Endpoint | Request | Response exitosa | Códigos |
 |---|---|---|---|---|
-| `GET` | `/categorias` | `tipo?`, `predefinida?`, paginación | `200 Pagina<CategoriaResponse>` | `200`, `401` |
+| `GET` | `/categorias` | — | `200 Pagina<CategoriaResponse>` | `200`, `401` |
 | `POST` | `/categorias` | `CategoriaRequest` | `201 CategoriaResponse` | `201`, `400`, `401`, `409 nombre_duplicado`, `422` |
 | `GET` | `/categorias/{categoriaId}` | — | `200 CategoriaResponse` | `200`, `401`, `404` |
 | `PATCH` | `/categorias/{categoriaId}` | campos modificables; `If-Match` | `200 CategoriaResponse` | `200`, `400`, `401`, `403 categoria_predefinida`, `404`, `409`, `412`, `422` |
@@ -71,13 +73,19 @@ Los eventos de auditoría son creados exclusivamente por el servidor; no existe 
 
 | Método | Endpoint | Request | Response exitosa | Códigos |
 |---|---|---|---|---|
-| `GET` | `/movimientos` | filtros comunes y paginación | `200 Pagina<MovimientoResponse>` | `200`, `400`, `401` |
+| `GET` | `/movimientos` | `cuentaId?`, `desde?`, `hasta?`, paginación | `200 Pagina<MovimientoResponse>` | `200`, `400`, `401` |
 | `POST` | `/movimientos` | `MovimientoRequest`; `Idempotency-Key` | `201 MovimientoResponse` | `201`, `400`, `401`, `404`, `409 idempotencia/conflicto`, `422` |
 | `GET` | `/movimientos/{movimientoId}` | — | `200 MovimientoResponse` | `200`, `401`, `404` |
-| `PATCH` | `/movimientos/{movimientoId}` | `{descripcion?, categoriaIds?}`; `If-Match` | `200 MovimientoResponse` | `200`, `400`, `401`, `404`, `409`, `412`, `422` |
+| `PATCH` | `/movimientos/{movimientoId}` | `{descripcion?, categoriaIds?, documentoId?, cuentaId?, tipo?, monto?, fecha?, hora?}`; `If-Match` | `200 MovimientoResponse` | `200`, `400`, `401`, `404`, `409`, `412`, `422` |
 | `DELETE` | `/movimientos/{movimientoId}` | `If-Match` | `204` | `204`, `401`, `404`, `409`, `412` |
 
-Monto, tipo, cuenta y fecha son inmutables. Una corrección contable anula el movimiento y crea otro mediante dos operaciones idempotentes relacionadas. Saldos y outbox se actualizan en la transacción principal; presupuestos, score y proyecciones se recalculan con consistencia eventual.
+Monto, cuenta y fecha pueden corregirse con `PATCH`; en una operación de
+tarjeta no se permite cambiar su tipo, tarjeta ni cuenta de pago. Las compras
+incrementan la deuda; los reintegros la reducen sin mover saldo bancario; los
+pagos reducen la deuda y debitan la cuenta informada. Los pagos y transferencias
+internas no cuentan como ingresos o gastos en analítica. Saldos y outbox se
+actualizan en la transacción principal; presupuestos, score y proyecciones se
+recalculan con consistencia eventual.
 
 ## 7. Documentos, OCR y XML SIFEN
 
@@ -173,7 +181,7 @@ Las transferencias son registros lógicos internos; no representan operaciones b
 | `POST` | `/grupos-familiares/{grupoId}/categorias` | `CategoriaRequest` | `201 CategoriaFamiliarResponse` | `201`, `400`, `401`, `403`, `404`, `409 nombre_duplicado`, `422` |
 | `PATCH` | `/grupos-familiares/{grupoId}/categorias/{categoriaId}` | campos modificables; `If-Match` | `200 CategoriaFamiliarResponse` | `200`, `400`, `401`, `403`, `404`, `409`, `412`, `422` |
 | `DELETE` | `/grupos-familiares/{grupoId}/categorias/{categoriaId}` | `If-Match` | `204` | `204`, `401`, `403`, `404`, `409 categoria_en_uso`, `412` |
-| `GET` | `/grupos-familiares/{grupoId}/movimientos` | filtros familiares y paginación | `200 Pagina<MovimientoResponse>` | `200`, `400`, `401`, `403`, `404` |
+| `GET` | `/grupos-familiares/{grupoId}/movimientos` | `texto?`, `tipo?`, `categoriaId?`, `cuentaId?`, `integranteId?`, `desde?`, `hasta?`, paginación | `200 Pagina<MovimientoResponse>` | `200`, `400`, `401`, `403`, `404` |
 | `POST` | `/grupos-familiares/{grupoId}/movimientos` | `MovimientoRequest`; `Idempotency-Key` | `201 MovimientoResponse` | `201`, `400`, `401`, `403`, `404`, `409 cuenta_no_compartida`, `422` |
 | `GET` | `/grupos-familiares/{grupoId}/movimientos/{movimientoId}` | — | `200 MovimientoResponse` | `200`, `401`, `403`, `404` |
 | `PATCH` | `/grupos-familiares/{grupoId}/movimientos/{movimientoId}` | `{descripcion?, categoriaIds?}`; `If-Match` | `200 MovimientoResponse` | `200`, `400`, `401`, `403`, `404`, `412`, `422` |
@@ -194,7 +202,7 @@ Las operaciones de caja son inmutables. Una corrección se representa con una nu
 
 | Método | Endpoint | Request | Response exitosa | Códigos |
 |---|---|---|---|---|
-| `GET` | `/grupos-familiares/{grupoId}/presupuestos` | periodo, estado, categoría y paginación | `200 Pagina<PresupuestoResponse>` | `200`, `400`, `401`, `403`, `404` |
+| `GET` | `/grupos-familiares/{grupoId}/presupuestos` | `periodo?`, `categoriaId?`, paginación | `200 Pagina<PresupuestoResponse>` | `200`, `400`, `401`, `403`, `404` |
 | `POST` | `/grupos-familiares/{grupoId}/presupuestos` | `PresupuestoRequest` | `201 PresupuestoResponse` | `201`, `400`, `401`, `403`, `404`, `409`, `422` |
 | `GET` | `/grupos-familiares/{grupoId}/presupuestos/{presupuestoId}` | — | `200 PresupuestoResponse` | `200`, `401`, `403`, `404` |
 | `PATCH` | `/grupos-familiares/{grupoId}/presupuestos/{presupuestoId}` | campos modificables; `If-Match` | `200 PresupuestoResponse` | `200`, `400`, `401`, `403`, `404`, `409`, `412`, `422` |
@@ -243,6 +251,9 @@ No se exponen endpoints públicos para crear predicciones o alertas: las genera 
 | `POST` | `/suscripciones` | `SuscripcionRequest`; `Idempotency-Key` | `201 SuscripcionResponse` | `201`, `400`, `401`, `403 otp_requerido`, `409 ya_activa`, `422 comprobante_invalido`, `503` |
 | `POST` | `/suscripcion/cancelaciones` | `{motivo?}`; `Idempotency-Key`, `If-Match` | `200 SuscripcionResponse` con fin de vigencia | `200`, `401`, `404`, `409`, `412`, `503` |
 | `POST` | `/restauraciones-suscripcion` | `{proveedor, comprobante}` | `202 SuscripcionResponse` | `202`, `400`, `401`, `404`, `409`, `422`, `503` |
+| `GET` | `/suscripcion/transacciones` | — | `200 TransaccionSuscripcionResponse[]` | `200`, `401` |
+| `PUT` | `/suscripcion/plan` | `CambiarPlanSuscripcionRequest`; `Idempotency-Key`, `If-Match` | `200 SuscripcionResponse` | `200`, `400`, `401`, `403`, `409`, `412`, `422` |
+| `POST` | `/webhooks/google-play/rtdn` | `GooglePubSubPushRequest` | `204` | `204`, `401`, `422` |
 
 ## 21. Endpoints operativos del cliente
 
@@ -252,5 +263,8 @@ No se exponen endpoints públicos para crear predicciones o alertas: las genera 
 | `POST` | `/dispositivos` | token push, plataforma, versión | `201 DispositivoResponse` | `201`, `400`, `401`, `409`, `422` |
 | `PATCH` | `/dispositivos/{dispositivoId}` | token push y preferencias; `If-Match` | `200 DispositivoResponse` | `200`, `400`, `401`, `404`, `412`, `422` |
 | `DELETE` | `/dispositivos/{dispositivoId}` | `If-Match` | `204` | `204`, `401`, `404`, `412` |
+| `GET` | `/sincronizacion` | `desde`, `limite?` | `200 SincronizacionResponse` | `200`, `400`, `401` |
+| `GET` | `/instrumentos-piloto/{codigo}` | — | `200 InstrumentoPilotoResponse` | `200`, `401`, `404` |
+| `POST` | `/instrumentos-piloto/{codigo}/respuestas` | `EnviarRespuestasInstrumentoPilotoRequest` | `200 InstrumentoPilotoResponse` | `200`, `400`, `401`, `404`, `409`, `422` |
 
 Estos recursos permiten notificaciones, invalidación de sesiones y compatibilidad mínima de la app sin introducir lógica financiera en el cliente.

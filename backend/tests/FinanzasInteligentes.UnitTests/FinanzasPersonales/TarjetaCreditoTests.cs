@@ -40,6 +40,29 @@ public sealed class TarjetaCreditoTests
         Assert.Equal(3, tarjeta.Version);
     }
 
+    [Fact]
+    public void ConsumoYAnulacionRestauranCreditoDisponible()
+    {
+        var tarjeta = Crear();
+
+        tarjeta.AplicarMovimiento("gasto", 250_000);
+        Assert.Equal(250_000, tarjeta.SaldoUtilizado);
+        Assert.Equal(14_750_000, tarjeta.CreditoDisponible);
+
+        tarjeta.RevertirMovimiento("gasto", 250_000);
+        Assert.Equal(0, tarjeta.SaldoUtilizado);
+        Assert.Equal(15_000_000, tarjeta.CreditoDisponible);
+    }
+
+    [Fact]
+    public void AbonoNoPuedeSuperarSaldoUtilizado()
+    {
+        var tarjeta = Crear();
+        var error = Assert.Throws<DomainException>(() =>
+            tarjeta.AplicarMovimiento("ingreso", 1));
+        Assert.Equal("saldo_tarjeta_insuficiente", error.Code);
+    }
+
     private static TarjetaCredito Crear() =>
         TarjetaCredito.Crear(
             Guid.CreateVersion7(), "Compras del hogar",

@@ -14,7 +14,7 @@ security:
 - bearerAuth: []
 tags:
 - name: Usuarios, perfil y sesiones
-- name: Seguridad, OTP, biometría y auditoría
+- name: Seguridad, OTP, privacidad y auditoría
 - name: Cuentas financieras
 - name: Categorías
 - name: Tarjetas de crédito
@@ -296,8 +296,6 @@ paths:
       - bearerAuth: []
       parameters:
       - "$ref": "#/components/parameters/CorrelationId"
-      - "$ref": "#/components/parameters/Cursor"
-      - "$ref": "#/components/parameters/Limite"
       responses:
         '200':
           description: Operación exitosa.
@@ -407,10 +405,6 @@ paths:
           headers:
             X-Correlation-Id:
               "$ref": "#/components/headers/CorrelationId"
-          content:
-            application/json:
-              schema:
-                "$ref": "#/components/schemas/SolicitudRecuperacionResponse"
         '400':
           "$ref": "#/components/responses/Problem400"
         '429':
@@ -447,10 +441,6 @@ paths:
               "$ref": "#/components/headers/CorrelationId"
         '400':
           "$ref": "#/components/responses/Problem400"
-        '409':
-          "$ref": "#/components/responses/Problem409"
-        '410':
-          "$ref": "#/components/responses/Problem410"
         '422':
           "$ref": "#/components/responses/Problem422"
         '429':
@@ -462,7 +452,7 @@ paths:
         content:
           application/json:
             schema:
-              "$ref": "#/components/schemas/RestablecimientoContrasenaRequest"
+              "$ref": "#/components/schemas/PostRestablecimientosContrasenaRequest"
   "/perfil/contrasena":
     put:
       tags:
@@ -576,10 +566,162 @@ paths:
           application/json:
             schema:
               "$ref": "#/components/schemas/PutPerfilPreferenciasRequest"
+  "/administracion/usuarios":
+    get:
+      tags:
+      - Usuarios, perfil y sesiones
+      summary: GET /administracion/usuarios
+      operationId: getAdministracionUsuarios
+      x-requisitos-funcionales: []
+      x-etapa: 1
+      x-pruebas-contrato:
+      - CT-ADMINISTRACION-USUARIOS
+      security:
+      - bearerAuth: []
+      parameters:
+      - "$ref": "#/components/parameters/CorrelationId"
+      - name: estado
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: busqueda
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: limite
+        in: query
+        required: false
+        schema:
+          type: integer
+          minimum: 1
+          maximum: 100
+      responses:
+        '200':
+          description: Operación exitosa.
+          headers:
+            X-Correlation-Id:
+              "$ref": "#/components/headers/CorrelationId"
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  "$ref": "#/components/schemas/UsuarioAdministracionResponse"
+        '401':
+          "$ref": "#/components/responses/Problem401"
+        '403':
+          "$ref": "#/components/responses/Problem403"
+        '500':
+          "$ref": "#/components/responses/Problem500"
+      x-capacidad: CT-ADMINISTRACION-USUARIOS
+  "/administracion/usuarios/{usuarioId}/estado":
+    put:
+      tags:
+      - Usuarios, perfil y sesiones
+      summary: PUT /administracion/usuarios/{usuarioId}/estado
+      operationId: putAdministracionUsuariosByUsuarioIdEstado
+      x-requisitos-funcionales: []
+      x-etapa: 1
+      x-pruebas-contrato:
+      - CT-ADMINISTRACION-USUARIOS
+      security:
+      - bearerAuth: []
+      parameters:
+      - "$ref": "#/components/parameters/CorrelationId"
+      - name: usuarioId
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      responses:
+        '200':
+          description: Operación exitosa.
+          headers:
+            X-Correlation-Id:
+              "$ref": "#/components/headers/CorrelationId"
+            ETag:
+              "$ref": "#/components/headers/ETag"
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/UsuarioAdministracionResponse"
+        '400':
+          "$ref": "#/components/responses/Problem400"
+        '401':
+          "$ref": "#/components/responses/Problem401"
+        '403':
+          "$ref": "#/components/responses/Problem403"
+        '404':
+          "$ref": "#/components/responses/Problem404"
+        '422':
+          "$ref": "#/components/responses/Problem422"
+        '500':
+          "$ref": "#/components/responses/Problem500"
+      x-capacidad: CT-ADMINISTRACION-USUARIOS
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              "$ref": "#/components/schemas/PutAdministracionUsuariosByUsuarioIdEstadoRequest"
+  "/administracion/usuarios/{usuarioId}/rol":
+    put:
+      tags:
+      - Usuarios, perfil y sesiones
+      summary: PUT /administracion/usuarios/{usuarioId}/rol
+      operationId: putAdministracionUsuariosByUsuarioIdRol
+      x-requisitos-funcionales: []
+      x-etapa: 1
+      x-pruebas-contrato:
+      - CT-ADMINISTRACION-USUARIOS
+      security:
+      - bearerAuth: []
+      parameters:
+      - "$ref": "#/components/parameters/CorrelationId"
+      - name: usuarioId
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      responses:
+        '200':
+          description: Operación exitosa.
+          headers:
+            X-Correlation-Id:
+              "$ref": "#/components/headers/CorrelationId"
+            ETag:
+              "$ref": "#/components/headers/ETag"
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/UsuarioAdministracionResponse"
+        '400':
+          "$ref": "#/components/responses/Problem400"
+        '401':
+          "$ref": "#/components/responses/Problem401"
+        '403':
+          "$ref": "#/components/responses/Problem403"
+        '404':
+          "$ref": "#/components/responses/Problem404"
+        '422':
+          "$ref": "#/components/responses/Problem422"
+        '500':
+          "$ref": "#/components/responses/Problem500"
+      x-capacidad: CT-ADMINISTRACION-USUARIOS
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              "$ref": "#/components/schemas/PutAdministracionUsuariosByUsuarioIdRolRequest"
   "/desafios-otp":
     post:
       tags:
-      - Seguridad, OTP, biometría y auditoría
+      - Seguridad, OTP, privacidad y auditoría
       summary: POST /desafios-otp
       operationId: postDesafiosOtp
       x-requisitos-funcionales:
@@ -625,7 +767,7 @@ paths:
   "/verificaciones-otp":
     post:
       tags:
-      - Seguridad, OTP, biometría y auditoría
+      - Seguridad, OTP, privacidad y auditoría
       summary: POST /verificaciones-otp
       operationId: postVerificacionesOtp
       x-requisitos-funcionales:
@@ -669,213 +811,10 @@ paths:
           application/json:
             schema:
               "$ref": "#/components/schemas/VerificacionOtpRequest"
-  "/credenciales-biometricas":
-    post:
-      tags:
-      - Seguridad, OTP, biometría y auditoría
-      summary: POST /credenciales-biometricas
-      operationId: postCredencialesBiometricas
-      x-requisitos-funcionales:
-      - RF-18
-      x-etapa: 1
-      x-pruebas-contrato:
-      - CT-RF-18
-      security:
-      - bearerAuth: []
-      parameters:
-      - "$ref": "#/components/parameters/CorrelationId"
-      responses:
-        '201':
-          description: Operación exitosa.
-          headers:
-            X-Correlation-Id:
-              "$ref": "#/components/headers/CorrelationId"
-            Location:
-              "$ref": "#/components/headers/Location"
-            ETag:
-              "$ref": "#/components/headers/ETag"
-          content:
-            application/json:
-              schema:
-                "$ref": "#/components/schemas/CredencialBiometricaResponse"
-        '400':
-          "$ref": "#/components/responses/Problem400"
-        '401':
-          "$ref": "#/components/responses/Problem401"
-        '409':
-          "$ref": "#/components/responses/Problem409"
-        '410':
-          "$ref": "#/components/responses/Problem410"
-        '422':
-          "$ref": "#/components/responses/Problem422"
-        '500':
-          "$ref": "#/components/responses/Problem500"
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              "$ref": "#/components/schemas/PostCredencialesBiometricasRequest"
-    get:
-      tags:
-      - Seguridad, OTP, biometría y auditoría
-      summary: GET /credenciales-biometricas
-      operationId: getCredencialesBiometricas
-      x-requisitos-funcionales:
-      - RF-18
-      x-etapa: 1
-      x-pruebas-contrato:
-      - CT-RF-18
-      security:
-      - bearerAuth: []
-      parameters:
-      - "$ref": "#/components/parameters/CorrelationId"
-      - "$ref": "#/components/parameters/Cursor"
-      - "$ref": "#/components/parameters/Limite"
-      responses:
-        '200':
-          description: Operación exitosa.
-          headers:
-            X-Correlation-Id:
-              "$ref": "#/components/headers/CorrelationId"
-          content:
-            application/json:
-              schema:
-                "$ref": "#/components/schemas/PaginaCredencialBiometricaResponse"
-        '401':
-          "$ref": "#/components/responses/Problem401"
-        '500':
-          "$ref": "#/components/responses/Problem500"
-  "/credenciales-biometricas/{credencialId}":
-    delete:
-      tags:
-      - Seguridad, OTP, biometría y auditoría
-      summary: DELETE /credenciales-biometricas/{credencialId}
-      operationId: deleteCredencialesBiometricasByCredencialId
-      x-requisitos-funcionales:
-      - RF-18
-      x-etapa: 1
-      x-pruebas-contrato:
-      - CT-RF-18
-      security:
-      - bearerAuth: []
-      parameters:
-      - "$ref": "#/components/parameters/CorrelationId"
-      - name: credencialId
-        in: path
-        required: true
-        schema:
-          type: string
-          format: uuid
-      - "$ref": "#/components/parameters/IfMatch"
-      responses:
-        '204':
-          description: Operación completada sin cuerpo.
-          headers:
-            X-Correlation-Id:
-              "$ref": "#/components/headers/CorrelationId"
-        '401':
-          "$ref": "#/components/responses/Problem401"
-        '404':
-          "$ref": "#/components/responses/Problem404"
-        '412':
-          "$ref": "#/components/responses/Problem412"
-        '500':
-          "$ref": "#/components/responses/Problem500"
-  "/desafios-biometricos":
-    post:
-      tags:
-      - Seguridad, OTP, biometría y auditoría
-      summary: POST /desafios-biometricos
-      operationId: postDesafiosBiometricos
-      x-requisitos-funcionales:
-      - RF-18
-      x-etapa: 1
-      x-pruebas-contrato:
-      - CT-RF-18
-      security:
-      - bearerAuth: []
-      parameters:
-      - "$ref": "#/components/parameters/CorrelationId"
-      responses:
-        '201':
-          description: Operación exitosa.
-          headers:
-            X-Correlation-Id:
-              "$ref": "#/components/headers/CorrelationId"
-            Location:
-              "$ref": "#/components/headers/Location"
-          content:
-            application/json:
-              schema:
-                "$ref": "#/components/schemas/DesafioBiometricoResponse"
-        '400':
-          "$ref": "#/components/responses/Problem400"
-        '401':
-          "$ref": "#/components/responses/Problem401"
-        '404':
-          "$ref": "#/components/responses/Problem404"
-        '409':
-          "$ref": "#/components/responses/Problem409"
-        '429':
-          "$ref": "#/components/responses/Problem429"
-        '500':
-          "$ref": "#/components/responses/Problem500"
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              "$ref": "#/components/schemas/PostDesafiosBiometricosRequest"
-  "/verificaciones-biometricas":
-    post:
-      tags:
-      - Seguridad, OTP, biometría y auditoría
-      summary: POST /verificaciones-biometricas
-      operationId: postVerificacionesBiometricas
-      x-requisitos-funcionales:
-      - RF-18
-      x-etapa: 1
-      x-pruebas-contrato:
-      - CT-RF-18
-      security:
-      - bearerAuth: []
-      parameters:
-      - "$ref": "#/components/parameters/CorrelationId"
-      responses:
-        '201':
-          description: Operación exitosa.
-          headers:
-            X-Correlation-Id:
-              "$ref": "#/components/headers/CorrelationId"
-            Location:
-              "$ref": "#/components/headers/Location"
-          content:
-            application/json:
-              schema:
-                "$ref": "#/components/schemas/VerificacionSeguridadResponse"
-        '400':
-          "$ref": "#/components/responses/Problem400"
-        '401':
-          "$ref": "#/components/responses/Problem401"
-        '403':
-          "$ref": "#/components/responses/Problem403"
-        '422':
-          "$ref": "#/components/responses/Problem422"
-        '429':
-          "$ref": "#/components/responses/Problem429"
-        '500':
-          "$ref": "#/components/responses/Problem500"
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              "$ref": "#/components/schemas/VerificacionBiometricaRequest"
   "/eventos-seguridad":
     get:
       tags:
-      - Seguridad, OTP, biometría y auditoría
+      - Seguridad, OTP, privacidad y auditoría
       summary: GET /eventos-seguridad
       operationId: getEventosSeguridad
       x-requisitos-funcionales:
@@ -925,7 +864,7 @@ paths:
   "/eventos-auditoria":
     get:
       tags:
-      - Seguridad, OTP, biometría y auditoría
+      - Seguridad, OTP, privacidad y auditoría
       summary: GET /eventos-auditoria
       operationId: getEventosAuditoria
       x-requisitos-funcionales:
@@ -986,6 +925,142 @@ paths:
           "$ref": "#/components/responses/Problem403"
         '500':
           "$ref": "#/components/responses/Problem500"
+  "/privacidad/politica-vigente":
+    get:
+      tags:
+      - Seguridad, OTP, privacidad y auditoría
+      summary: GET /privacidad/politica-vigente
+      operationId: getPrivacidadPoliticaVigente
+      x-requisitos-funcionales: []
+      x-etapa: 1
+      x-pruebas-contrato:
+      - CT-PRIVACIDAD
+      security: []
+      parameters:
+      - "$ref": "#/components/parameters/CorrelationId"
+      responses:
+        '200':
+          description: Operación exitosa.
+          headers:
+            X-Correlation-Id:
+              "$ref": "#/components/headers/CorrelationId"
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/PoliticaPrivacidadResponse"
+        '404':
+          "$ref": "#/components/responses/Problem404"
+        '500':
+          "$ref": "#/components/responses/Problem500"
+      x-capacidad: CT-PRIVACIDAD
+  "/privacidad/consentimientos":
+    get:
+      tags:
+      - Seguridad, OTP, privacidad y auditoría
+      summary: GET /privacidad/consentimientos
+      operationId: getPrivacidadConsentimientos
+      x-requisitos-funcionales: []
+      x-etapa: 1
+      x-pruebas-contrato:
+      - CT-PRIVACIDAD
+      security:
+      - bearerAuth: []
+      parameters:
+      - "$ref": "#/components/parameters/CorrelationId"
+      responses:
+        '200':
+          description: Operación exitosa.
+          headers:
+            X-Correlation-Id:
+              "$ref": "#/components/headers/CorrelationId"
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  "$ref": "#/components/schemas/ConsentimientoPrivacidadResponse"
+        '401':
+          "$ref": "#/components/responses/Problem401"
+        '500':
+          "$ref": "#/components/responses/Problem500"
+      x-capacidad: CT-PRIVACIDAD
+    post:
+      tags:
+      - Seguridad, OTP, privacidad y auditoría
+      summary: POST /privacidad/consentimientos
+      operationId: postPrivacidadConsentimientos
+      x-requisitos-funcionales: []
+      x-etapa: 1
+      x-pruebas-contrato:
+      - CT-PRIVACIDAD
+      security:
+      - bearerAuth: []
+      parameters:
+      - "$ref": "#/components/parameters/CorrelationId"
+      responses:
+        '201':
+          description: Operación exitosa.
+          headers:
+            X-Correlation-Id:
+              "$ref": "#/components/headers/CorrelationId"
+            Location:
+              "$ref": "#/components/headers/Location"
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/ConsentimientoPrivacidadResponse"
+        '400':
+          "$ref": "#/components/responses/Problem400"
+        '401':
+          "$ref": "#/components/responses/Problem401"
+        '404':
+          "$ref": "#/components/responses/Problem404"
+        '422':
+          "$ref": "#/components/responses/Problem422"
+        '500':
+          "$ref": "#/components/responses/Problem500"
+      x-capacidad: CT-PRIVACIDAD
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              "$ref": "#/components/schemas/PostPrivacidadConsentimientosRequest"
+  "/privacidad/consentimientos/{consentimientoId}":
+    delete:
+      tags:
+      - Seguridad, OTP, privacidad y auditoría
+      summary: DELETE /privacidad/consentimientos/{consentimientoId}
+      operationId: deletePrivacidadConsentimientosByConsentimientoId
+      x-requisitos-funcionales: []
+      x-etapa: 1
+      x-pruebas-contrato:
+      - CT-PRIVACIDAD
+      security:
+      - bearerAuth: []
+      parameters:
+      - "$ref": "#/components/parameters/CorrelationId"
+      - name: consentimientoId
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      responses:
+        '204':
+          description: Operación completada sin cuerpo.
+          headers:
+            X-Correlation-Id:
+              "$ref": "#/components/headers/CorrelationId"
+        '401':
+          "$ref": "#/components/responses/Problem401"
+        '404':
+          "$ref": "#/components/responses/Problem404"
+        '409':
+          "$ref": "#/components/responses/Problem409"
+        '500':
+          "$ref": "#/components/responses/Problem500"
+      x-capacidad: CT-PRIVACIDAD
   "/cuentas":
     get:
       tags:
@@ -1000,18 +1075,6 @@ paths:
       - bearerAuth: []
       parameters:
       - "$ref": "#/components/parameters/CorrelationId"
-      - "$ref": "#/components/parameters/Cursor"
-      - "$ref": "#/components/parameters/Limite"
-      - name: activas
-        in: query
-        required: false
-        schema:
-          type: boolean
-      - name: tipo
-        in: query
-        required: false
-        schema:
-          type: string
       responses:
         '200':
           description: Operación exitosa.
@@ -1040,16 +1103,6 @@ paths:
       - bearerAuth: []
       parameters:
       - "$ref": "#/components/parameters/CorrelationId"
-      - name: activas
-        in: query
-        required: false
-        schema:
-          type: boolean
-      - name: tipo
-        in: query
-        required: false
-        schema:
-          type: string
       responses:
         '201':
           description: Operación exitosa.
@@ -1225,18 +1278,6 @@ paths:
       - bearerAuth: []
       parameters:
       - "$ref": "#/components/parameters/CorrelationId"
-      - "$ref": "#/components/parameters/Cursor"
-      - "$ref": "#/components/parameters/Limite"
-      - name: tipo
-        in: query
-        required: false
-        schema:
-          type: string
-      - name: predefinida
-        in: query
-        required: false
-        schema:
-          type: boolean
       responses:
         '200':
           description: Operación exitosa.
@@ -1265,16 +1306,6 @@ paths:
       - bearerAuth: []
       parameters:
       - "$ref": "#/components/parameters/CorrelationId"
-      - name: tipo
-        in: query
-        required: false
-        schema:
-          type: string
-      - name: predefinida
-        in: query
-        required: false
-        schema:
-          type: boolean
       responses:
         '201':
           description: Operación exitosa.
@@ -1663,29 +1694,7 @@ paths:
       - "$ref": "#/components/parameters/CorrelationId"
       - "$ref": "#/components/parameters/Cursor"
       - "$ref": "#/components/parameters/Limite"
-      - name: texto
-        in: query
-        required: false
-        schema:
-          type: string
-      - name: tipo
-        in: query
-        required: false
-        schema:
-          type: string
-      - name: categoriaId
-        in: query
-        required: false
-        schema:
-          type: string
-          format: uuid
       - name: cuentaId
-        in: query
-        required: false
-        schema:
-          type: string
-          format: uuid
-      - name: integranteId
         in: query
         required: false
         schema:
@@ -1703,11 +1712,6 @@ paths:
         schema:
           type: string
           format: date
-      - name: documento
-        in: query
-        required: false
-        schema:
-          type: boolean
       responses:
         '200':
           description: Operación exitosa.
@@ -1740,51 +1744,6 @@ paths:
       - bearerAuth: []
       parameters:
       - "$ref": "#/components/parameters/CorrelationId"
-      - name: texto
-        in: query
-        required: false
-        schema:
-          type: string
-      - name: tipo
-        in: query
-        required: false
-        schema:
-          type: string
-      - name: categoriaId
-        in: query
-        required: false
-        schema:
-          type: string
-          format: uuid
-      - name: cuentaId
-        in: query
-        required: false
-        schema:
-          type: string
-          format: uuid
-      - name: integranteId
-        in: query
-        required: false
-        schema:
-          type: string
-          format: uuid
-      - name: desde
-        in: query
-        required: false
-        schema:
-          type: string
-          format: date
-      - name: hasta
-        in: query
-        required: false
-        schema:
-          type: string
-          format: date
-      - name: documento
-        in: query
-        required: false
-        schema:
-          type: boolean
       - "$ref": "#/components/parameters/IdempotencyKey"
       responses:
         '201':
@@ -1913,7 +1872,7 @@ paths:
         content:
           application/json:
             schema:
-              "$ref": "#/components/schemas/PatchMovimientosByMovimientoIdRequest"
+              "$ref": "#/components/schemas/MovimientoPatchRequest"
     delete:
       tags:
       - Movimientos privados
@@ -1970,28 +1929,6 @@ paths:
       - bearerAuth: []
       parameters:
       - "$ref": "#/components/parameters/CorrelationId"
-      - name: tipo
-        in: query
-        required: false
-        schema:
-          type: string
-      - name: estado
-        in: query
-        required: false
-        schema:
-          type: string
-      - name: desde
-        in: query
-        required: false
-        schema:
-          type: string
-          format: date
-      - name: hasta
-        in: query
-        required: false
-        schema:
-          type: string
-          format: date
       - "$ref": "#/components/parameters/IdempotencyKey"
       - name: X-Content-SHA256
         in: header
@@ -2465,16 +2402,6 @@ paths:
       - bearerAuth: []
       parameters:
       - "$ref": "#/components/parameters/CorrelationId"
-      - name: estado
-        in: query
-        required: false
-        schema:
-          type: string
-      - name: tipo
-        in: query
-        required: false
-        schema:
-          type: string
       responses:
         '201':
           description: Operación exitosa.
@@ -2703,30 +2630,6 @@ paths:
       - bearerAuth: []
       parameters:
       - "$ref": "#/components/parameters/CorrelationId"
-      - name: cuentaOrigenId
-        in: query
-        required: false
-        schema:
-          type: string
-          format: uuid
-      - name: cuentaDestinoId
-        in: query
-        required: false
-        schema:
-          type: string
-          format: uuid
-      - name: desde
-        in: query
-        required: false
-        schema:
-          type: string
-          format: date
-      - name: hasta
-        in: query
-        required: false
-        schema:
-          type: string
-          format: date
       - "$ref": "#/components/parameters/IdempotencyKey"
       responses:
         '201':
@@ -2900,22 +2803,6 @@ paths:
       - bearerAuth: []
       parameters:
       - "$ref": "#/components/parameters/CorrelationId"
-      - name: periodo
-        in: query
-        required: false
-        schema:
-          type: string
-      - name: estado
-        in: query
-        required: false
-        schema:
-          type: string
-      - name: categoriaId
-        in: query
-        required: false
-        schema:
-          type: string
-          format: uuid
       responses:
         '201':
           description: Operación exitosa.
@@ -3178,17 +3065,6 @@ paths:
       - bearerAuth: []
       parameters:
       - "$ref": "#/components/parameters/CorrelationId"
-      - name: ambito
-        in: query
-        required: false
-        schema:
-          type: string
-      - name: grupoFamiliarId
-        in: query
-        required: false
-        schema:
-          type: string
-          format: uuid
       responses:
         '201':
           description: Operación exitosa.
@@ -3941,11 +3817,6 @@ paths:
         schema:
           type: string
           format: uuid
-      - name: estado
-        in: query
-        required: false
-        schema:
-          type: string
       - "$ref": "#/components/parameters/IdempotencyKey"
       responses:
         '202':
@@ -4293,11 +4164,6 @@ paths:
         required: false
         schema:
           type: string
-      - name: predefinida
-        in: query
-        required: false
-        schema:
-          type: boolean
       responses:
         '200':
           description: Operación exitosa.
@@ -4338,16 +4204,6 @@ paths:
         schema:
           type: string
           format: uuid
-      - name: tipo
-        in: query
-        required: false
-        schema:
-          type: string
-      - name: predefinida
-        in: query
-        required: false
-        schema:
-          type: boolean
       responses:
         '201':
           description: Operación exitosa.
@@ -4554,11 +4410,6 @@ paths:
         schema:
           type: string
           format: date
-      - name: documento
-        in: query
-        required: false
-        schema:
-          type: boolean
       responses:
         '200':
           description: Operación exitosa.
@@ -4601,51 +4452,6 @@ paths:
         schema:
           type: string
           format: uuid
-      - name: texto
-        in: query
-        required: false
-        schema:
-          type: string
-      - name: tipo
-        in: query
-        required: false
-        schema:
-          type: string
-      - name: categoriaId
-        in: query
-        required: false
-        schema:
-          type: string
-          format: uuid
-      - name: cuentaId
-        in: query
-        required: false
-        schema:
-          type: string
-          format: uuid
-      - name: integranteId
-        in: query
-        required: false
-        schema:
-          type: string
-          format: uuid
-      - name: desde
-        in: query
-        required: false
-        schema:
-          type: string
-          format: date
-      - name: hasta
-        in: query
-        required: false
-        schema:
-          type: string
-          format: date
-      - name: documento
-        in: query
-        required: false
-        schema:
-          type: boolean
       - "$ref": "#/components/parameters/IdempotencyKey"
       responses:
         '201':
@@ -4963,29 +4769,6 @@ paths:
         schema:
           type: string
           format: uuid
-      - name: tipo
-        in: query
-        required: false
-        schema:
-          type: string
-      - name: integranteId
-        in: query
-        required: false
-        schema:
-          type: string
-          format: uuid
-      - name: desde
-        in: query
-        required: false
-        schema:
-          type: string
-          format: date
-      - name: hasta
-        in: query
-        required: false
-        schema:
-          type: string
-          format: date
       - "$ref": "#/components/parameters/IdempotencyKey"
       responses:
         '201':
@@ -5092,11 +4875,6 @@ paths:
         required: false
         schema:
           type: string
-      - name: estado
-        in: query
-        required: false
-        schema:
-          type: string
       - name: categoriaId
         in: query
         required: false
@@ -5140,22 +4918,6 @@ paths:
       - name: grupoId
         in: path
         required: true
-        schema:
-          type: string
-          format: uuid
-      - name: periodo
-        in: query
-        required: false
-        schema:
-          type: string
-      - name: estado
-        in: query
-        required: false
-        schema:
-          type: string
-      - name: categoriaId
-        in: query
-        required: false
         schema:
           type: string
           format: uuid
@@ -5658,28 +5420,6 @@ paths:
       - bearerAuth: []
       parameters:
       - "$ref": "#/components/parameters/CorrelationId"
-      - name: estado
-        in: query
-        required: false
-        schema:
-          type: string
-      - name: formato
-        in: query
-        required: false
-        schema:
-          type: string
-      - name: desde
-        in: query
-        required: false
-        schema:
-          type: string
-          format: date
-      - name: hasta
-        in: query
-        required: false
-        schema:
-          type: string
-          format: date
       - "$ref": "#/components/parameters/IdempotencyKey"
       responses:
         '202':
@@ -6316,6 +6056,118 @@ paths:
           application/json:
             schema:
               "$ref": "#/components/schemas/PostRestauracionesSuscripcionRequest"
+  "/suscripcion/transacciones":
+    get:
+      tags:
+      - Planes y suscripciones
+      summary: GET /suscripcion/transacciones
+      operationId: getSuscripcionTransacciones
+      x-requisitos-funcionales:
+      - RF-21
+      x-etapa: 7
+      x-pruebas-contrato:
+      - CT-RF-21
+      security:
+      - bearerAuth: []
+      parameters:
+      - "$ref": "#/components/parameters/CorrelationId"
+      responses:
+        '200':
+          description: Operación exitosa.
+          headers:
+            X-Correlation-Id:
+              "$ref": "#/components/headers/CorrelationId"
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  "$ref": "#/components/schemas/TransaccionSuscripcionResponse"
+        '401':
+          "$ref": "#/components/responses/Problem401"
+        '500':
+          "$ref": "#/components/responses/Problem500"
+  "/suscripcion/plan":
+    put:
+      tags:
+      - Planes y suscripciones
+      summary: PUT /suscripcion/plan
+      operationId: putSuscripcionPlan
+      x-requisitos-funcionales:
+      - RF-21
+      x-etapa: 7
+      x-pruebas-contrato:
+      - CT-RF-21
+      security:
+      - bearerAuth: []
+      parameters:
+      - "$ref": "#/components/parameters/CorrelationId"
+      - "$ref": "#/components/parameters/IdempotencyKey"
+      - "$ref": "#/components/parameters/IfMatch"
+      responses:
+        '200':
+          description: Operación exitosa.
+          headers:
+            X-Correlation-Id:
+              "$ref": "#/components/headers/CorrelationId"
+            ETag:
+              "$ref": "#/components/headers/ETag"
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/SuscripcionResponse"
+        '400':
+          "$ref": "#/components/responses/Problem400"
+        '401':
+          "$ref": "#/components/responses/Problem401"
+        '403':
+          "$ref": "#/components/responses/Problem403"
+        '409':
+          "$ref": "#/components/responses/Problem409"
+        '412':
+          "$ref": "#/components/responses/Problem412"
+        '422':
+          "$ref": "#/components/responses/Problem422"
+        '500':
+          "$ref": "#/components/responses/Problem500"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              "$ref": "#/components/schemas/CambiarPlanSuscripcionRequest"
+  "/webhooks/google-play/rtdn":
+    post:
+      tags:
+      - Planes y suscripciones
+      summary: POST /webhooks/google-play/rtdn
+      operationId: postWebhooksGooglePlayRtdn
+      x-requisitos-funcionales:
+      - RF-21
+      x-etapa: 7
+      x-pruebas-contrato:
+      - CT-RF-21
+      security: []
+      parameters:
+      - "$ref": "#/components/parameters/CorrelationId"
+      responses:
+        '204':
+          description: Operación completada sin cuerpo.
+          headers:
+            X-Correlation-Id:
+              "$ref": "#/components/headers/CorrelationId"
+        '401':
+          "$ref": "#/components/responses/Problem401"
+        '422':
+          "$ref": "#/components/responses/Problem422"
+        '500':
+          "$ref": "#/components/responses/Problem500"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              "$ref": "#/components/schemas/GooglePubSubPushRequest"
   "/configuracion-cliente":
     get:
       tags:
@@ -6474,6 +6326,137 @@ paths:
         '500':
           "$ref": "#/components/responses/Problem500"
       x-capacidad: CT-DISPOSITIVOS
+  "/sincronizacion":
+    get:
+      tags:
+      - Endpoints operativos del cliente
+      summary: GET /sincronizacion
+      operationId: getSincronizacion
+      x-requisitos-funcionales: []
+      x-etapa: 2
+      x-pruebas-contrato:
+      - CT-SINCRONIZACION
+      security:
+      - bearerAuth: []
+      parameters:
+      - "$ref": "#/components/parameters/CorrelationId"
+      - name: desde
+        in: query
+        required: true
+        schema:
+          type: integer
+          format: int64
+          minimum: 0
+      - name: limite
+        in: query
+        required: true
+        schema:
+          type: integer
+          format: int64
+          minimum: 0
+      responses:
+        '200':
+          description: Operación exitosa.
+          headers:
+            X-Correlation-Id:
+              "$ref": "#/components/headers/CorrelationId"
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/SincronizacionResponse"
+        '400':
+          "$ref": "#/components/responses/Problem400"
+        '401':
+          "$ref": "#/components/responses/Problem401"
+        '500':
+          "$ref": "#/components/responses/Problem500"
+      x-capacidad: CT-SINCRONIZACION
+  "/instrumentos-piloto/{codigo}":
+    get:
+      tags:
+      - Endpoints operativos del cliente
+      summary: GET /instrumentos-piloto/{codigo}
+      operationId: getInstrumentosPilotoByCodigo
+      x-requisitos-funcionales: []
+      x-etapa: 7
+      x-pruebas-contrato:
+      - CT-INSTRUMENTOS-PILOTO
+      security:
+      - bearerAuth: []
+      parameters:
+      - "$ref": "#/components/parameters/CorrelationId"
+      - name: codigo
+        in: path
+        required: true
+        schema:
+          type: string
+          minLength: 1
+      responses:
+        '200':
+          description: Operación exitosa.
+          headers:
+            X-Correlation-Id:
+              "$ref": "#/components/headers/CorrelationId"
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/InstrumentoPilotoResponse"
+        '401':
+          "$ref": "#/components/responses/Problem401"
+        '404':
+          "$ref": "#/components/responses/Problem404"
+        '500':
+          "$ref": "#/components/responses/Problem500"
+      x-capacidad: CT-INSTRUMENTOS-PILOTO
+  "/instrumentos-piloto/{codigo}/respuestas":
+    post:
+      tags:
+      - Endpoints operativos del cliente
+      summary: POST /instrumentos-piloto/{codigo}/respuestas
+      operationId: postInstrumentosPilotoByCodigoRespuestas
+      x-requisitos-funcionales: []
+      x-etapa: 7
+      x-pruebas-contrato:
+      - CT-INSTRUMENTOS-PILOTO
+      security:
+      - bearerAuth: []
+      parameters:
+      - "$ref": "#/components/parameters/CorrelationId"
+      - name: codigo
+        in: path
+        required: true
+        schema:
+          type: string
+          minLength: 1
+      responses:
+        '200':
+          description: Operación exitosa.
+          headers:
+            X-Correlation-Id:
+              "$ref": "#/components/headers/CorrelationId"
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/InstrumentoPilotoResponse"
+        '400':
+          "$ref": "#/components/responses/Problem400"
+        '401':
+          "$ref": "#/components/responses/Problem401"
+        '404':
+          "$ref": "#/components/responses/Problem404"
+        '409':
+          "$ref": "#/components/responses/Problem409"
+        '422':
+          "$ref": "#/components/responses/Problem422"
+        '500':
+          "$ref": "#/components/responses/Problem500"
+      x-capacidad: CT-INSTRUMENTOS-PILOTO
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              "$ref": "#/components/schemas/EnviarRespuestasInstrumentoPilotoRequest"
 components:
   securitySchemes:
     bearerAuth:
@@ -6820,19 +6803,6 @@ components:
           example: rodrigo@correo.com.py
       required:
       - correo
-    SolicitudRecuperacionResponse:
-      type: object
-      additionalProperties: false
-      properties:
-        id:
-          type: string
-          format: uuid
-        expiraEn:
-          type: string
-          format: date-time
-      required:
-      - id
-      - expiraEn
     RestablecimientoContrasenaRequest:
       type: object
       additionalProperties: false
@@ -6842,8 +6812,7 @@ components:
           format: uuid
         codigo:
           type: string
-          pattern: '^[0-9]{6}$'
-          writeOnly: true
+          example: '123456'
         nuevaContrasena:
           type: string
           minLength: 12
@@ -7404,170 +7373,184 @@ components:
     MovimientoRequest:
       type: object
       additionalProperties: false
+      required:
+      - ambito
+      - cuentaId
+      - tipo
+      - monto
+      - descripcion
+      - fecha
       properties:
         ambito:
           type: string
-          example: privado
-        tipo:
-          type: string
-          example: gasto
-        monto:
-          type: integer
-          format: int64
-          example: 285000
-          minimum: 1
-        fecha:
-          type: string
-          format: date
-          example: '2026-07-22'
-        hora:
-          type: string
-          example: '15:30:00'
-        categoriaIds:
-          type: array
-          items:
-            type: string
-            example: '019b-category-...'
-        descripcion:
-          type: string
-          example: Supermercado
+          enum:
+          - privado
+          - familiar
         cuentaId:
           type: string
           format: uuid
-        documentoId:
+        tipo:
           type: string
+          enum:
+          - ingreso
+          - gasto
+        monto:
+          type: integer
+          format: int64
+          minimum: 1
+        descripcion:
+          type: string
+          maxLength: 300
+        fecha:
+          type: string
+          format: date
+        hora:
+          type:
+          - string
+          - 'null'
+          format: time
+        categoriaIds:
+          type:
+          - array
+          - 'null'
+          items:
+            type: string
+            format: uuid
+          uniqueItems: true
+        documentoId:
+          type:
+          - string
+          - 'null'
           format: uuid
         movimientoRecurrenteId:
           type:
           - string
           - 'null'
-      required:
-      - ambito
-      - tipo
-      - monto
-      - fecha
-      - hora
-      - categoriaIds
-      - descripcion
-      - cuentaId
-      - documentoId
+          format: uuid
+        grupoFamiliarId:
+          type:
+          - string
+          - 'null'
+          format: uuid
+        id:
+          type:
+          - string
+          - 'null'
+          format: uuid
+        tarjetaCreditoId:
+          type:
+          - string
+          - 'null'
+          format: uuid
+        operacionTarjeta:
+          type:
+          - string
+          - 'null'
+          enum:
+          - compra
+          - reintegro
+          - pago
+          -
+          description: Sólo aplica a movimientos privados con tarjeta. Compra corresponde a gasto; reintegro y pago corresponden a ingreso.
     MovimientoResponse:
       type: object
       additionalProperties: false
+      required:
+      - id
+      - ambito
+      - cuentaId
+      - tipo
+      - monto
+      - moneda
+      - descripcion
+      - fecha
+      - estado
+      - creadoEn
+      - version
+      - categoriaIds
       properties:
         id:
           type: string
           format: uuid
         ambito:
           type: string
-          example: privado
+          enum:
+          - privado
+          - familiar
+        cuentaId:
+          type: string
+          format: uuid
         tipo:
           type: string
-          example: gasto
+          enum:
+          - ingreso
+          - gasto
         monto:
           type: integer
           format: int64
-          example: 285000
           minimum: 1
+        moneda:
+          type: string
+          enum:
+          - PYG
+        descripcion:
+          type: string
+          maxLength: 300
         fecha:
           type: string
           format: date
-          example: '2026-07-22'
         hora:
+          type:
+          - string
+          - 'null'
+          format: time
+        estado:
           type: string
-          example: '15:30:00'
-        categorias:
-          type: array
-          items:
-            type: object
-            additionalProperties: false
-            properties:
-              id:
-                type: string
-                format: uuid
-              nombre:
-                type: string
-                example: Alimentacion
-              color:
-                type: string
-                pattern: "^#[0-9A-Fa-f]{6}$"
-                example: "#6868A6"
-            required:
-            - id
-            - nombre
-            - color
-        descripcion:
-          type: string
-          example: Supermercado
-        cuenta:
-          type: object
-          additionalProperties: false
-          properties:
-            id:
-              type: string
-              format: uuid
-            nombre:
-              type: string
-              example: Debito
-            tipo:
-              type: string
-              example: tarjeta-debito
-          required:
-          - id
-          - nombre
-          - tipo
-        documento:
-          type: object
-          additionalProperties: false
-          properties:
-            id:
-              type: string
-              format: uuid
-            tipo:
-              type: string
-              example: imagen
-            estadoProcesamiento:
-              type: string
-              example: completado
-          required:
-          - id
-          - tipo
-          - estadoProcesamiento
-        creadoPor:
-          type: object
-          additionalProperties: false
-          properties:
-            id:
-              type: string
-              format: uuid
-            nombre:
-              type: string
-              example: Rodrigo Aquino
-          required:
-          - id
-          - nombre
+          enum:
+          - confirmado
+          - anulado
         creadoEn:
           type: string
           format: date-time
-          example: '2026-07-22T18:30:00Z'
         version:
           type: integer
           format: int64
-          example: 1
-      required:
-      - id
-      - ambito
-      - tipo
-      - monto
-      - fecha
-      - hora
-      - categorias
-      - descripcion
-      - cuenta
-      - documento
-      - creadoPor
-      - creadoEn
-      - version
+          minimum: 1
+        categoriaIds:
+          type: array
+          items:
+            type: string
+            format: uuid
+          uniqueItems: true
+        documentoId:
+          type:
+          - string
+          - 'null'
+          format: uuid
+        movimientoRecurrenteId:
+          type:
+          - string
+          - 'null'
+          format: uuid
+        transferenciaId:
+          type:
+          - string
+          - 'null'
+          format: uuid
+        tarjetaCreditoId:
+          type:
+          - string
+          - 'null'
+          format: uuid
+        operacionTarjeta:
+          type:
+          - string
+          - 'null'
+          enum:
+          - compra
+          - reintegro
+          - pago
+          -
     DocumentoFinancieroResponse:
       type: object
       additionalProperties: false
@@ -9371,6 +9354,235 @@ components:
       - confiable
       - ultimoAccesoEn
       - version
+    UsuarioAdministracionResponse:
+      type: object
+      additionalProperties: false
+      required:
+      - id
+      - correo
+      - nombre
+      - estado
+      - rol
+      - creadoEn
+      - actualizadoEn
+      - version
+      properties:
+        id:
+          type: string
+          format: uuid
+        correo:
+          type: string
+          format: email
+        nombre:
+          type: string
+        estado:
+          type: string
+        rol:
+          type: string
+        creadoEn:
+          type: string
+          format: date-time
+        actualizadoEn:
+          type: string
+          format: date-time
+        version:
+          type: integer
+          format: int64
+          minimum: 1
+    PoliticaPrivacidadResponse:
+      type: object
+      additionalProperties: false
+      required:
+      - id
+      - version
+      - titulo
+      - urlDocumento
+      - vigenteDesde
+      properties:
+        id:
+          type: string
+          format: uuid
+        version:
+          type: string
+        titulo:
+          type: string
+        urlDocumento:
+          type: string
+          format: uri
+        vigenteDesde:
+          type: string
+          format: date-time
+    ConsentimientoPrivacidadResponse:
+      type: object
+      additionalProperties: false
+      required:
+      - id
+      - politicaId
+      - versionPolitica
+      - finalidad
+      - aceptadoEn
+      - revocadoEn
+      properties:
+        id:
+          type: string
+          format: uuid
+        politicaId:
+          type: string
+          format: uuid
+        versionPolitica:
+          type: string
+        finalidad:
+          type: string
+        aceptadoEn:
+          type: string
+          format: date-time
+        revocadoEn:
+          type:
+          - string
+          - 'null'
+          format: date-time
+    InstrumentoPilotoResponse:
+      type: object
+      additionalProperties: false
+      required:
+      - codigo
+      - version
+      - titulo
+      - descripcion
+      - respondido
+      - preguntas
+      properties:
+        codigo:
+          type: string
+        version:
+          type: string
+        titulo:
+          type: string
+        descripcion:
+          type: string
+        respondido:
+          type: boolean
+        preguntas:
+          type: array
+          items:
+            type: object
+            additionalProperties: true
+    EnviarRespuestasInstrumentoPilotoRequest:
+      type: object
+      additionalProperties: false
+      required:
+      - respuestas
+      properties:
+        respuestas:
+          type: array
+          items:
+            type: object
+            additionalProperties: false
+            required:
+            - preguntaId
+            properties:
+              preguntaId:
+                type: string
+                format: uuid
+              valorEscala:
+                type:
+                - integer
+                - 'null'
+              valorTexto:
+                type:
+                - string
+                - 'null'
+    CambiarPlanSuscripcionRequest:
+      type: object
+      additionalProperties: false
+      properties:
+        planCodigo:
+          type: string
+          example: premium-mensual
+        proveedor:
+          type: string
+          example: google-play
+        comprobante:
+          type: string
+          writeOnly: true
+        verificacionOtpId:
+          type: string
+          format: uuid
+      required:
+      - planCodigo
+      - proveedor
+      - comprobante
+      - verificacionOtpId
+    GooglePubSubPushRequest:
+      type: object
+      additionalProperties: false
+      required:
+      - message
+      properties:
+        message:
+          type: object
+          additionalProperties: false
+          required:
+          - data
+          properties:
+            data:
+              type: string
+              writeOnly: true
+            messageId:
+              type:
+              - string
+              - 'null'
+    TransaccionSuscripcionResponse:
+      type: object
+      additionalProperties: false
+      required:
+      - id
+      - suscripcionId
+      - tipo
+      - estado
+      - proveedor
+      - monto
+      - moneda
+      - ocurridoEn
+      properties:
+        id:
+          type: string
+          format: uuid
+        suscripcionId:
+          type: string
+          format: uuid
+        tipo:
+          type: string
+        estado:
+          type: string
+        proveedor:
+          type: string
+        monto:
+          type: integer
+          format: int64
+        moneda:
+          type: string
+        ocurridoEn:
+          type: string
+          format: date-time
+    SincronizacionResponse:
+      type: object
+      additionalProperties: false
+      required:
+      - cambios
+      - siguienteCursor
+      - hayMas
+      properties:
+        cambios:
+          type: array
+          items:
+            type: object
+            additionalProperties: true
+        siguienteCursor:
+          type: integer
+          format: int64
+        hayMas:
+          type: boolean
     CrearInvitacionFamiliarResponse:
       type: object
       additionalProperties: false
@@ -9579,19 +9791,6 @@ components:
           type: array
           items:
             "$ref": "#/components/schemas/SesionActivaResponse"
-        paginacion:
-          "$ref": "#/components/schemas/Paginacion"
-    PaginaCredencialBiometricaResponse:
-      type: object
-      additionalProperties: false
-      required:
-      - datos
-      - paginacion
-      properties:
-        datos:
-          type: array
-          items:
-            "$ref": "#/components/schemas/CredencialBiometricaResponse"
         paginacion:
           "$ref": "#/components/schemas/Paginacion"
     PaginaEventoSeguridadResponse:
@@ -9881,6 +10080,24 @@ components:
       required:
       - contrasena
       - verificacionOtpId
+    PostRestablecimientosContrasenaRequest:
+      type: object
+      additionalProperties: false
+      properties:
+        recuperacionId:
+          type: string
+          format: uuid
+        codigo:
+          type: string
+          writeOnly: true
+        nuevaContrasena:
+          type: string
+          writeOnly: true
+      minProperties: 1
+      required:
+      - recuperacionId
+      - codigo
+      - nuevaContrasena
     PutPerfilPreferenciasRequest:
       type: object
       additionalProperties: false
@@ -9899,43 +10116,40 @@ components:
       - idioma
       - notificacionesPush
       - resumenSemanal
-    PostCredencialesBiometricasRequest:
+    PutAdministracionUsuariosByUsuarioIdEstadoRequest:
       type: object
       additionalProperties: false
       properties:
-        desafioId:
+        estado:
           type: string
-          format: uuid
-        identificadorDispositivo:
+        motivo:
           type: string
-        clavePublica:
-          type: string
-        atestacion:
-          type: object
-          additionalProperties: true
-          writeOnly: true
       minProperties: 1
       required:
-      - desafioId
-      - identificadorDispositivo
-      - clavePublica
-      - atestacion
-    PostDesafiosBiometricosRequest:
+      - estado
+    PutAdministracionUsuariosByUsuarioIdRolRequest:
       type: object
       additionalProperties: false
       properties:
-        proposito:
+        rol:
           type: string
-        dispositivoId:
+        motivo:
           type: string
-          format: uuid
-        credencialId:
-          type: string
-          format: uuid
       minProperties: 1
       required:
-      - proposito
-      - dispositivoId
+      - rol
+    PostPrivacidadConsentimientosRequest:
+      type: object
+      additionalProperties: false
+      properties:
+        versionPolitica:
+          type: string
+        finalidad:
+          type: string
+      minProperties: 1
+      required:
+      - versionPolitica
+      - finalidad
     CuentaPatchRequest:
       type: object
       additionalProperties: false
@@ -10016,19 +10230,47 @@ components:
           type: string
           pattern: "^#[0-9A-Fa-f]{6}$"
           example: "#6868A6"
-    PatchMovimientosByMovimientoIdRequest:
+    MovimientoPatchRequest:
       type: object
       additionalProperties: false
+      minProperties: 1
       properties:
+        cuentaId:
+          type: string
+          format: uuid
+        tipo:
+          type: string
+          enum:
+          - ingreso
+          - gasto
+        monto:
+          type: integer
+          format: int64
+          minimum: 1
         descripcion:
           type: string
+          maxLength: 300
+        fecha:
+          type: string
+          format: date
+        hora:
+          type:
+          - string
+          - 'null'
+          format: time
         categoriaIds:
-          type: array
+          type:
+          - array
+          - 'null'
           items:
             type: string
             format: uuid
           uniqueItems: true
-      minProperties: 1
+        documentoId:
+          type:
+          - string
+          - 'null'
+          format: uuid
     PostDocumentosFinancierosByDocumentoIdProcesamientosDocumentalesRequest:
       type: object
       additionalProperties: false

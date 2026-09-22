@@ -33,11 +33,20 @@ public static class MovimientosEndpoints
     }
 
     private static async Task<IResult> Listar(
+        Guid? cuentaId,
+        DateOnly? desde,
+        DateOnly? hasta,
+        string? cursor,
+        int? limite,
         ListarMovimientosHandler handler,
         HttpContext context,
         CancellationToken cancellationToken)
     {
-        return Results.Ok(await handler.Handle(new ListarMovimientosQuery(context.UsuarioId()), cancellationToken));
+        var solicitudLegada = limite is null && cursor is null && cuentaId is null &&
+            desde is null && hasta is null;
+        return Results.Ok(await handler.Handle(new ListarMovimientosQuery(
+            context.UsuarioId(), cuentaId, desde, hasta, cursor, limite ?? 100,
+            solicitudLegada), cancellationToken));
     }
 
     private static async Task<IResult> Crear(
@@ -50,7 +59,8 @@ public static class MovimientosEndpoints
             context.UsuarioId(), context.TraceIdentifier, request.Ambito, request.CuentaId,
             request.Tipo, request.Monto, request.Descripcion, request.Fecha, request.Hora,
             request.CategoriaIds, request.DocumentoId, request.MovimientoRecurrenteId,
-            request.GrupoFamiliarId, request.Id);
+            request.GrupoFamiliarId, request.Id, request.TarjetaCreditoId,
+            request.OperacionTarjeta);
 
         var response = await handler.Handle(command, cancellationToken);
 
@@ -102,7 +112,9 @@ public static class MovimientosEndpoints
             return ETagExtensions.IfMatchInvalido(context);
         var response = await handler.Handle(new(
             context.UsuarioId(), movimientoId, version, request.Descripcion,
-            request.CategoriaIds, request.DocumentoId, context.TraceIdentifier), cancellationToken);
+            request.CategoriaIds, request.DocumentoId, context.TraceIdentifier,
+            request.CuentaId, request.Tipo, request.Monto, request.Fecha,
+            request.Hora), cancellationToken);
         context.Response.Headers.ETag = ETagExtensions.Formatear(response.Version);
         return Results.Ok(response);
     }

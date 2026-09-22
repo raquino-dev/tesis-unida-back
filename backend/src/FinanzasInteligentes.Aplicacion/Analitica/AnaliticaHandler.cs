@@ -50,19 +50,19 @@ public sealed class AnaliticaHandler(IFinanzasRepository finanzas, IUnidadDeTrab
         var desdeHistorial = movimientos.Min(x => x.Fecha);
         var mesesHistorial = (DateOnly.FromDateTime(DateTime.UtcNow).Year - desdeHistorial.Year) * 12
             + DateOnly.FromDateTime(DateTime.UtcNow).Month - desdeHistorial.Month + 1;
-        var gastos = movimientos.Where(x => x.Tipo == "gasto").ToArray();
-        var ingresos = movimientos.Where(x => x.Tipo == "ingreso").ToArray();
-        var promedioGasto = gastos.Sum(x => x.Monto) / Math.Max(1, mesesHistorial);
-        var promedioIngreso = ingresos.Sum(x => x.Monto) / Math.Max(1, mesesHistorial);
+        var gastos = movimientos.Where(x => x.MontoGastoAnalitico() != 0).ToArray();
+        var ingresos = movimientos.Where(x => x.MontoIngresoAnalitico() > 0).ToArray();
+        var promedioGasto = gastos.Sum(x => x.MontoGastoAnalitico()) / Math.Max(1, mesesHistorial);
+        var promedioIngreso = ingresos.Sum(x => x.MontoIngresoAnalitico()) / Math.Max(1, mesesHistorial);
         var categorias = gastos
             .GroupBy(x => x.Categorias.FirstOrDefault()?.Nombre ?? "Sin categoría")
             .Select(x => new CategoriaProyeccionResponse(
-                x.Key, x.Sum(y => y.Monto) / Math.Max(1, mesesHistorial) * meses, 0))
+                x.Key, x.Sum(y => y.MontoGastoAnalitico()) / Math.Max(1, mesesHistorial) * meses, 0))
             .OrderByDescending(x => x.MontoProyectado).ToArray();
         var historial = movimientos.GroupBy(x => $"{x.Fecha:yyyy-MM}")
             .OrderBy(x => x.Key)
             .Select(x => new HistorialProyeccionResponse(
-                x.Key, promedioGasto, x.Where(y => y.Tipo == "gasto").Sum(y => y.Monto)))
+                x.Key, promedioGasto, x.Sum(y => y.MontoGastoAnalitico())))
             .ToArray();
         var hoy = DateOnly.FromDateTime(DateTime.UtcNow);
         return new(
@@ -124,8 +124,8 @@ public sealed class AnaliticaHandler(IFinanzasRepository finanzas, IUnidadDeTrab
         ValidarDatos(movimientos);
         var desde = movimientos.Min(x => x.Fecha);
         var hasta = movimientos.Max(x => x.Fecha);
-        var ingresos = movimientos.Where(x => x.Tipo == "ingreso").Sum(x => x.Monto);
-        var gastos = movimientos.Where(x => x.Tipo == "gasto").Sum(x => x.Monto);
+        var ingresos = movimientos.Sum(x => x.MontoIngresoAnalitico());
+        var gastos = movimientos.Sum(x => x.MontoGastoAnalitico());
         var balance = ingresos - gastos;
         var score = 50L;
         var positivos = new List<string>();
