@@ -1,0 +1,132 @@
+digraph ComponentesSolucion {
+  graph [
+    rankdir=TB,
+    splines=ortho,
+    bgcolor="white",
+    pad="0.30",
+    nodesep="0.55",
+    ranksep="0.75",
+    fontname="Arial",
+    fontsize=24,
+    labelloc="t",
+    label="Diagrama de componentes de la solución",
+    compound=true,
+    newrank=true
+  ];
+
+  node [
+    shape=box,
+    style="rounded,filled",
+    fillcolor="white",
+    color="#111111",
+    fontcolor="#111111",
+    fontname="Arial",
+    fontsize=12,
+    penwidth=1.4,
+    margin="0.17,0.12"
+  ];
+
+  edge [
+    color="#111111",
+    fontcolor="#111111",
+    fontname="Arial",
+    fontsize=11,
+    penwidth=1.6,
+    arrowsize=0.75
+  ];
+
+  subgraph cluster_presentacion {
+    label=<<B>Capa de Presentación</B>>;
+    color="#111111";
+    penwidth=1.4;
+    style="rounded";
+    margin=18;
+
+    flutter [label=<<TABLE BORDER="0" CELLBORDER="0" CELLPADDING="3"><TR><TD><FONT POINT-SIZE="18">▣</FONT></TD><TD><B>Aplicación móvil<BR/>Flutter</B></TD></TR></TABLE>>];
+    flutter_note [shape=note, style="filled", fillcolor="#FAFAFA", color="#999999", label="• Vistas\l• ViewModels / Riverpod\l• Repositorios\l• Cliente HTTPS\l"];
+    flutter -> flutter_note [style=invis, weight=20];
+  }
+
+  subgraph cluster_aplicacion {
+    label=<<B>Capa de Aplicación</B>>;
+    color="#111111";
+    penwidth=1.4;
+    style="rounded";
+    margin=18;
+
+    api [label=<<TABLE BORDER="0" CELLBORDER="0" CELLPADDING="3"><TR><TD><FONT POINT-SIZE="18">▣</FONT></TD><TD><B>API ASP.NET Core</B></TD></TR></TABLE>>];
+    api_note [shape=note, style="filled", fillcolor="#FAFAFA", color="#999999", label="• Endpoints / OpenAPI\l• Casos de uso\l• Dominio\l• Autenticación y autorización\l"];
+    api_validation [shape=note, style="filled", fillcolor="#FAFAFA", color="#999999", label="Aplica validaciones, idempotencia\ly auditoría.\l"];
+    api -> api_note -> api_validation [style=invis, weight=20];
+  }
+
+  subgraph cluster_datos {
+    label=<<B>Capa de Datos</B>>;
+    color="#111111";
+    penwidth=1.4;
+    style="rounded";
+    margin=18;
+
+    postgres [label=<<TABLE BORDER="0" CELLBORDER="0" CELLPADDING="3"><TR><TD><FONT POINT-SIZE="18">▣</FONT></TD><TD><B>PostgreSQL /<BR/>Supabase</B></TD></TR></TABLE>>];
+    postgres_note [shape=note, style="filled", fillcolor="#FAFAFA", color="#999999", label="Persistencia principal.\lLa comunicación se realiza\lmediante EF Core / Npgsql + TLS.\l"];
+    s3 [label=<<TABLE BORDER="0" CELLBORDER="0" CELLPADDING="3"><TR><TD><FONT POINT-SIZE="18">▣</FONT></TD><TD><B>Amazon S3</B></TD></TR></TABLE>>];
+    s3_note [shape=note, style="filled", fillcolor="#FAFAFA", color="#999999", label="Almacenamiento privado\lde comprobantes y archivos.\l"];
+
+    { rank=same; postgres; postgres_note; }
+    { rank=same; s3; s3_note; }
+    postgres -> postgres_note [style=invis, weight=10];
+    s3 -> s3_note [style=invis, weight=10];
+    postgres -> s3 [style=invis, weight=20];
+    postgres_note -> s3_note [style=invis, weight=20];
+  }
+
+  subgraph cluster_procesamiento {
+    label=<<B>Capa de Procesamiento</B>>;
+    color="#111111";
+    penwidth=1.4;
+    style="rounded";
+    margin=18;
+
+    worker [label=<<TABLE BORDER="0" CELLBORDER="0" CELLPADDING="3"><TR><TD><FONT POINT-SIZE="18">▣</FONT></TD><TD><B>Worker .NET</B></TD></TR></TABLE>>];
+    worker_note [shape=note, style="filled", fillcolor="#FAFAFA", color="#999999", label="• Outbox\l• OCR / SIFEN\l• Recurrencias\l• Analítica y notificaciones\l"];
+    worker -> worker_note [style=invis, weight=20];
+  }
+
+  subgraph cluster_integracion {
+    label=<<B>Capa de Integración Externa</B>>;
+    color="#111111";
+    penwidth=1.4;
+    style="rounded";
+    margin=18;
+
+    textract [label=<<TABLE BORDER="0" CELLBORDER="0" CELLPADDING="3"><TR><TD><FONT POINT-SIZE="18">▣</FONT></TD><TD><B>AWS Textract</B></TD></TR></TABLE>>];
+    firebase [label=<<TABLE BORDER="0" CELLBORDER="0" CELLPADDING="3"><TR><TD><FONT POINT-SIZE="18">▣</FONT></TD><TD><B>Firebase Cloud<BR/>Messaging</B></TD></TR></TABLE>>];
+    ses [label=<<TABLE BORDER="0" CELLBORDER="0" CELLPADDING="3"><TR><TD><FONT POINT-SIZE="18">▣</FONT></TD><TD><B>Amazon SES</B></TD></TR></TABLE>>];
+    billing [label=<<TABLE BORDER="0" CELLBORDER="0" CELLPADDING="3"><TR><TD><FONT POINT-SIZE="18">▣</FONT></TD><TD><B>Google Play Billing</B></TD></TR></TABLE>>];
+    textract -> firebase -> ses -> billing [style=invis, weight=20];
+  }
+
+  { rank=same; flutter; api; postgres; postgres_note; }
+  { rank=same; worker; textract; }
+
+  flutter -> api [style=invis, weight=100];
+  api -> postgres [style=invis, weight=100];
+  api_validation -> worker [style=invis, weight=100, minlen=2];
+  s3_note -> textract [style=invis, weight=100, minlen=2];
+  worker -> textract [style=invis, weight=100];
+
+  flutter:e -> api:w [constraint=false, xlabel="HTTPS / REST / JSON"];
+  api:e -> postgres:w [constraint=false, xlabel="EF Core / Npgsql + TLS"];
+  api:e -> s3:w [constraint=false, xlabel="HTTPS / SDK"];
+  api:s -> worker:n [constraint=false, xlabel="jobs / outbox"];
+  worker:n -> postgres:s [constraint=false, xlabel="lectura / escritura"];
+  worker:n -> s3:s [constraint=false, xlabel="lectura de archivos"];
+  worker:e -> textract:w [constraint=false, xlabel="OCR"];
+  worker:e -> firebase:w [constraint=false, xlabel="notificaciones push"];
+  worker:e -> ses:w [constraint=false, xlabel="envío de correos"];
+  api:s -> billing:w [constraint=false, xlabel="validación de compras"];
+
+  footer [shape=plain, fontsize=12, label="Las capas agrupan componentes reales de la solución. Las notas describen responsabilidades internas o tecnologías de soporte."];
+  { rank=max; footer; }
+  billing -> footer [style=invis, weight=10];
+}

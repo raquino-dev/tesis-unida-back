@@ -1,0 +1,47 @@
+---
+title: Finanza - Diagrama entidad relación
+config:
+  layout: elk
+---
+erDiagram
+  direction LR
+  piloto__instrumentos["piloto.instrumentos"] {
+    uuid id PK "required"
+    boolean activo "required"
+    character_varying(40) codigo UK "required"
+    timestamp_with_time_zone creado_en "required"
+    character_varying(1000) descripcion "required"
+    character_varying(160) titulo "required"
+    character_varying(30) version_instrumento "required"
+  }
+  piloto__preguntas["piloto.preguntas"] {
+    uuid id PK "required"
+    timestamp_with_time_zone creado_en "required"
+    uuid instrumento_id "required"
+    integer? maximo "nullable"
+    integer? minimo "nullable"
+    integer orden "required"
+    boolean requerida "required"
+    character_varying(1000) texto "required"
+    character_varying(20) tipo "required"
+  }
+  piloto__respuestas["piloto.respuestas"] {
+    uuid id PK "required"
+    timestamp_with_time_zone creado_en "required"
+    uuid instrumento_id "required"
+    timestamp_with_time_zone respondido_en "required"
+    uuid usuario_id "required"
+    character_varying(30) version_instrumento "required"
+  }
+  piloto__respuestas_detalle["piloto.respuestas_detalle"] {
+    uuid id PK "required"
+    timestamp_with_time_zone creado_en "required"
+    uuid pregunta_id "required"
+    uuid respuesta_id "required"
+    integer? valor_escala "nullable"
+    character_varying(2000)? valor_texto "nullable"
+  }
+  piloto__instrumentos ||--o{ piloto__preguntas : "fk_preguntas_instrumentos_instrumento_id"
+  piloto__instrumentos ||--o{ piloto__respuestas : "fk_respuestas_instrumentos_instrumento_id"
+  piloto__preguntas ||--o{ piloto__respuestas_detalle : "fk_respuestas_detalle_preguntas_pregunta_id"
+  piloto__respuestas ||--o{ piloto__respuestas_detalle : "fk_respuestas_detalle_respuestas_respuesta_id"

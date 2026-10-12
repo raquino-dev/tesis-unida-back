@@ -1,0 +1,187 @@
+Project Finanza {
+  database_type: 'PostgreSQL'
+  Note: 'DER generado automáticamente desde FinanzasDbContextModelSnapshot'
+}
+
+Table familias.cajas_compartidas [headerColor: #4C956C] {
+  id uuid [pk, not null]
+  actualizado_en "timestamp with time zone" [not null]
+  creado_en "timestamp with time zone" [not null]
+  grupo_familiar_id uuid [not null]
+  saldo bigint [not null]
+  version bigint [not null]
+
+  indexes {
+    (grupo_familiar_id) [name: 'ix_cajas_compartidas_grupo_familiar_id', unique]
+  }
+}
+
+Table familias.categorias [headerColor: #4C956C] {
+  id uuid [pk, not null]
+  actualizado_en "timestamp with time zone" [not null]
+  color "character varying(7)" [not null]
+  creado_en "timestamp with time zone" [not null]
+  eliminado_en "timestamp with time zone"
+  grupo_familiar_id uuid [not null]
+  icono "character varying(50)" [not null]
+  nombre "character varying(100)" [not null]
+  tipo "character varying(20)" [not null]
+  version bigint [not null]
+
+  indexes {
+    (grupo_familiar_id, nombre) [name: 'ix_categorias_grupo_familiar_id_nombre', unique]
+  }
+}
+
+Table familias.cuentas_compartidas [headerColor: #4C956C] {
+  id uuid [pk, not null]
+  actualizado_en "timestamp with time zone" [not null]
+  compartida_por_usuario_id uuid [not null]
+  creado_en "timestamp with time zone" [not null]
+  cuenta_id uuid [not null]
+  eliminado_en "timestamp with time zone"
+  grupo_familiar_id uuid [not null]
+  version bigint [not null]
+
+  indexes {
+    (cuenta_id) [name: 'ix_cuentas_compartidas_cuenta_id']
+    (grupo_familiar_id, cuenta_id) [name: 'ix_cuentas_compartidas_grupo_familiar_id_cuenta_id', unique]
+  }
+}
+
+Table familias.eliminaciones [headerColor: #4C956C] {
+  id uuid [pk, not null]
+  actualizado_en "timestamp with time zone" [not null]
+  completado_en "timestamp with time zone"
+  creado_en "timestamp with time zone" [not null]
+  error_codigo "character varying(80)"
+  estado "character varying(20)" [not null]
+  grupo_familiar_id uuid [not null]
+  version bigint [not null]
+
+  indexes {
+    (grupo_familiar_id) [name: 'ix_eliminaciones_grupo_familiar_id', unique]
+  }
+}
+
+Table familias.grupos_familiares [headerColor: #4C956C] {
+  id uuid [pk, not null]
+  actualizado_en "timestamp with time zone" [not null]
+  creado_en "timestamp with time zone" [not null]
+  eliminado_en "timestamp with time zone"
+  nombre "character varying(120)" [not null]
+  version bigint [not null]
+}
+
+Table familias.integrantes [headerColor: #4C956C] {
+  id uuid [pk, not null]
+  actualizado_en "timestamp with time zone" [not null]
+  creado_en "timestamp with time zone" [not null]
+  eliminado_en "timestamp with time zone"
+  grupo_familiar_id uuid [not null]
+  rol "character varying(20)" [not null]
+  usuario_id uuid [not null]
+  version bigint [not null]
+
+  indexes {
+    (usuario_id) [name: 'ix_integrantes_usuario_id']
+    (grupo_familiar_id, usuario_id) [name: 'ix_integrantes_grupo_familiar_id_usuario_id', unique]
+  }
+}
+
+Table familias.invitaciones [headerColor: #4C956C] {
+  id uuid [pk, not null]
+  actualizado_en "timestamp with time zone" [not null]
+  correo "character varying(320)"
+  creado_en "timestamp with time zone" [not null]
+  estado "character varying(20)" [not null]
+  expira_en "timestamp with time zone" [not null]
+  grupo_familiar_id uuid [not null]
+  hash_codigo "character varying(64)" [not null]
+  hash_token "character varying(64)" [not null]
+  rol "character varying(20)" [not null]
+  usuario_destino_id uuid
+  version bigint [not null]
+
+  indexes {
+    (grupo_familiar_id) [name: 'ix_invitaciones_grupo_familiar_id']
+    (hash_token) [name: 'ix_invitaciones_hash_token', unique]
+  }
+}
+
+Table familias.movimientos [headerColor: #4C956C] {
+  id uuid [pk, not null]
+  actualizado_en "timestamp with time zone" [not null]
+  creado_en "timestamp with time zone" [not null]
+  cuenta_id uuid [not null]
+  descripcion "character varying(300)" [not null]
+  estado "character varying(20)" [not null]
+  fecha date [not null]
+  grupo_familiar_id uuid [not null]
+  monto bigint [not null]
+  tipo "character varying(10)" [not null]
+  usuario_id uuid [not null]
+  version bigint [not null]
+
+  indexes {
+    (cuenta_id) [name: 'IX_familias_movimientos_cuenta_id']
+    (grupo_familiar_id, fecha, id) [name: 'ix_movimientos_grupo_familiar_id_fecha_id']
+  }
+}
+
+Table familias.operaciones_caja [headerColor: #4C956C] {
+  id uuid [pk, not null]
+  creado_en "timestamp with time zone" [not null]
+  cuenta_privada_id uuid [not null]
+  descripcion "character varying(300)" [not null]
+  grupo_familiar_id uuid [not null]
+  monto bigint [not null]
+  saldo_anterior bigint [not null]
+  saldo_posterior bigint [not null]
+  tipo "character varying(10)" [not null]
+  usuario_id uuid [not null]
+
+  indexes {
+    (cuenta_privada_id) [name: 'ix_operaciones_caja_cuenta_privada_id']
+    (grupo_familiar_id) [name: 'ix_operaciones_caja_grupo_familiar_id']
+  }
+}
+
+Table familias.presupuestos [headerColor: #4C956C] {
+  id uuid [pk, not null]
+  actualizado_en "timestamp with time zone" [not null]
+  creado_en "timestamp with time zone" [not null]
+  eliminado_en "timestamp with time zone"
+  grupo_familiar_id uuid [not null]
+  monto bigint [not null]
+  nombre "character varying(120)" [not null]
+  periodo "character varying(20)" [not null]
+  version bigint [not null]
+
+  indexes {
+    (grupo_familiar_id) [name: 'ix_presupuestos_grupo_familiar_id']
+  }
+}
+
+Ref fk_cajas_compartidas_grupos_familiares_grupo_familiar_id: familias.cajas_compartidas.grupo_familiar_id > familias.grupos_familiares.id [delete: cascade]
+Ref fk_categorias_grupos_familiares_grupo_familiar_id: familias.categorias.grupo_familiar_id > familias.grupos_familiares.id [delete: cascade]
+Ref fk_cuentas_compartidas_grupos_familiares_grupo_familiar_id: familias.cuentas_compartidas.grupo_familiar_id > familias.grupos_familiares.id [delete: cascade]
+Ref fk_eliminaciones_grupos_familiares_grupo_familiar_id: familias.eliminaciones.grupo_familiar_id > familias.grupos_familiares.id [delete: cascade]
+Ref fk_integrantes_grupos_familiares_grupo_familiar_id: familias.integrantes.grupo_familiar_id > familias.grupos_familiares.id [delete: cascade]
+Ref fk_invitaciones_grupos_familiares_grupo_familiar_id: familias.invitaciones.grupo_familiar_id > familias.grupos_familiares.id [delete: cascade]
+Ref fk_movimientos_grupos_familiares_grupo_familiar_id: familias.movimientos.grupo_familiar_id > familias.grupos_familiares.id [delete: cascade]
+Ref fk_operaciones_caja_grupos_familiares_grupo_familiar_id: familias.operaciones_caja.grupo_familiar_id > familias.grupos_familiares.id [delete: cascade]
+Ref fk_presupuestos_grupos_familiares_grupo_familiar_id: familias.presupuestos.grupo_familiar_id > familias.grupos_familiares.id [delete: cascade]
+
+TableGroup familias {
+  familias.cajas_compartidas
+  familias.categorias
+  familias.cuentas_compartidas
+  familias.eliminaciones
+  familias.grupos_familiares
+  familias.integrantes
+  familias.invitaciones
+  familias.movimientos
+  familias.operaciones_caja
+  familias.presupuestos
+}

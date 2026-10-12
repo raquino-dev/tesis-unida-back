@@ -41,7 +41,7 @@ public sealed class SuscripcionesHandler(
             ?? throw new InvalidOperationException("No está configurado el plan gratuito.");
         return new(
             usuario.Id, "activa", new(plan.Id, plan.Codigo, plan.Nombre),
-            usuario.CreadoEn, null, usuario.CreadoEn.AddYears(100),
+            usuario.CreadoEn, null, null,
             plan.Capacidades, usuario.Version);
     }
 

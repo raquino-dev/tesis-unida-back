@@ -1,0 +1,126 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="1220" viewBox="0 0 1600 1220">
+<defs><marker id="arrow" markerWidth="10" markerHeight="8" refX="9" refY="4" orient="auto"><path d="M0,0 L10,4 L0,8 z" fill="#111"/></marker><marker id="arrowStart" markerWidth="10" markerHeight="8" refX="1" refY="4" orient="auto"><path d="M10,0 L0,4 L10,8 z" fill="#111"/></marker></defs>
+<rect width="100%" height="100%" fill="white"/>
+<text x="800.0" y="58" font-family="Arial" font-size="32" font-weight="bold" font-style="normal" text-anchor="middle" fill="#111"><tspan x="800.0" dy="0">Arquitectura integral y sincronización sin conexión</tspan></text>
+<rect x="20" y="100" width="1560" height="190" rx="9" fill="white" stroke="#777" stroke-width="1.4"/>
+<rect x="21" y="101" width="205" height="188" fill="#f2f2f2"/>
+<text x="40" y="202.0" font-family="Arial" font-size="21" font-weight="bold" font-style="normal" text-anchor="start" fill="#111"><tspan x="40" dy="0">Cliente móvil</tspan></text>
+<rect x="20" y="310" width="1560" height="130" rx="9" fill="white" stroke="#777" stroke-width="1.4"/>
+<rect x="21" y="311" width="205" height="128" fill="#f2f2f2"/>
+<text x="40" y="382.0" font-family="Arial" font-size="21" font-weight="bold" font-style="normal" text-anchor="start" fill="#111"><tspan x="40" dy="0">Exposición</tspan></text>
+<rect x="20" y="460" width="1560" height="220" rx="9" fill="white" stroke="#777" stroke-width="1.4"/>
+<rect x="21" y="461" width="205" height="218" fill="#f2f2f2"/>
+<text x="40" y="577.0" font-family="Arial" font-size="21" font-weight="bold" font-style="normal" text-anchor="start" fill="#111"><tspan x="40" dy="0">Aplicación y dominio</tspan></text>
+<rect x="20" y="700" width="1560" height="180" rx="9" fill="white" stroke="#777" stroke-width="1.4"/>
+<rect x="21" y="701" width="205" height="178" fill="#f2f2f2"/>
+<text x="40" y="797.0" font-family="Arial" font-size="21" font-weight="bold" font-style="normal" text-anchor="start" fill="#111"><tspan x="40" dy="0">Infraestructura y procesamiento</tspan></text>
+<rect x="20" y="900" width="1560" height="130" rx="9" fill="white" stroke="#777" stroke-width="1.4"/>
+<rect x="21" y="901" width="205" height="128" fill="#f2f2f2"/>
+<text x="40" y="972.0" font-family="Arial" font-size="21" font-weight="bold" font-style="normal" text-anchor="start" fill="#111"><tspan x="40" dy="0">Integraciones externas</tspan></text>
+<rect x="20" y="1050" width="1560" height="130" rx="9" fill="white" stroke="#777" stroke-width="1.4"/>
+<rect x="21" y="1051" width="205" height="128" fill="#f2f2f2"/>
+<text x="40" y="1122.0" font-family="Arial" font-size="21" font-weight="bold" font-style="normal" text-anchor="start" fill="#111"><tspan x="40" dy="0">Controles transversales</tspan></text>
+<polyline points="480,180 550,180" fill="none" stroke="#111" stroke-width="1.7" marker-end="url(#arrow)" marker-start="url(#arrowStart)"/>
+<polyline points="800,160 860,160" fill="none" stroke="#111" stroke-width="1.7" marker-end="url(#arrow)" marker-start="url(#arrowStart)"/>
+<rect x="795.0" y="147.0" width="70" height="22" fill="white"/>
+<text x="830.0" y="164.0" font-family="Arial" font-size="12" font-weight="normal" font-style="normal" text-anchor="middle" fill="#111"><tspan x="830.0" dy="0">cache</tspan></text>
+<polyline points="800,205 1100,205" fill="none" stroke="#111" stroke-width="1.7" marker-end="url(#arrow)" marker-start="url(#arrowStart)"/>
+<rect x="868.6" y="192.0" width="162.8" height="22" fill="white"/>
+<text x="950.0" y="209.0" font-family="Arial" font-size="12" font-weight="normal" font-style="normal" text-anchor="middle" fill="#111"><tspan x="950.0" dy="0">operaciones pendientes</tspan></text>
+<polyline points="675,220 675,285 425,285 425,335" fill="none" stroke="#111" stroke-width="1.7" marker-end="url(#arrow)"/>
+<rect x="442.7" y="272.0" width="214.60000000000002" height="22" fill="white"/>
+<text x="550.0" y="289.0" font-family="Arial" font-size="12" font-weight="normal" font-style="normal" text-anchor="middle" fill="#111"><tspan x="550.0" dy="0">HTTPS cuando hay conectividad</tspan></text>
+<polyline points="550,370 650,370" fill="none" stroke="#111" stroke-width="1.7" marker-end="url(#arrow)"/>
+<rect x="565.0" y="357.0" width="70" height="22" fill="white"/>
+<text x="600.0" y="374.0" font-family="Arial" font-size="12" font-weight="normal" font-style="normal" text-anchor="middle" fill="#111"><tspan x="600.0" dy="0">HTTPS/TLS</tspan></text>
+<polyline points="780,405 780,525" fill="none" stroke="#111" stroke-width="1.7" marker-end="url(#arrow)"/>
+<rect x="735.6" y="452.0" width="88.80000000000001" height="22" fill="white"/>
+<text x="780.0" y="469.0" font-family="Arial" font-size="12" font-weight="normal" font-style="normal" text-anchor="middle" fill="#111"><tspan x="780.0" dy="0">proxy seguro</tspan></text>
+<polyline points="1230,225 1230,445 920,445 920,525" fill="none" stroke="#111" stroke-width="1.7" marker-end="url(#arrow)" stroke-dasharray="7 5"/>
+<rect x="927.0" y="432.0" width="296.0" height="22" fill="white"/>
+<text x="1075.0" y="449.0" font-family="Arial" font-size="12" font-weight="normal" font-style="normal" text-anchor="middle" fill="#111"><tspan x="1075.0" dy="0">sincronización al recuperar conectividad</tspan></text>
+<polyline points="540,535 700,535" fill="none" stroke="#111" stroke-width="1.7" marker-end="url(#arrow)" marker-start="url(#arrowStart)"/>
+<rect x="585.0" y="522.0" width="70" height="22" fill="white"/>
+<text x="620.0" y="539.0" font-family="Arial" font-size="12" font-weight="normal" font-style="normal" text-anchor="middle" fill="#111"><tspan x="620.0" dy="0">JWT + OTP</tspan></text>
+<polyline points="540,620 650,620 650,585 700,585" fill="none" stroke="#111" stroke-width="1.7" marker-end="url(#arrow)" marker-start="url(#arrowStart)"/>
+<rect x="509.9" y="607.0" width="170.20000000000002" height="22" fill="white"/>
+<text x="595.0" y="624.0" font-family="Arial" font-size="12" font-weight="normal" font-style="normal" text-anchor="middle" fill="#111"><tspan x="595.0" dy="0">control de concurrencia</tspan></text>
+<polyline points="990,565 1060,565" fill="none" stroke="#111" stroke-width="1.7" marker-end="url(#arrow)"/>
+<rect x="990.0" y="552.0" width="70" height="22" fill="white"/>
+<text x="1025.0" y="569.0" font-family="Arial" font-size="12" font-weight="normal" font-style="normal" text-anchor="middle" fill="#111"><tspan x="1025.0" dy="0">ejecuta</tspan></text>
+<polyline points="1280,565 1340,565" fill="none" stroke="#111" stroke-width="1.7" marker-end="url(#arrow)"/>
+<rect x="1275.0" y="552.0" width="70" height="22" fill="white"/>
+<text x="1310.0" y="569.0" font-family="Arial" font-size="12" font-weight="normal" font-style="normal" text-anchor="middle" fill="#111"><tspan x="1310.0" dy="0">aplica</tspan></text>
+<polyline points="760,610 760,690 510,690 510,745" fill="none" stroke="#111" stroke-width="1.7" marker-end="url(#arrow)" marker-start="url(#arrowStart)"/>
+<rect x="553.6" y="677.0" width="162.8" height="22" fill="white"/>
+<text x="635.0" y="694.0" font-family="Arial" font-size="12" font-weight="normal" font-style="normal" text-anchor="middle" fill="#111"><tspan x="635.0" dy="0">EF Core / Npgsql + TLS</tspan></text>
+<polyline points="835,610 835,745" fill="none" stroke="#111" stroke-width="1.7" marker-end="url(#arrow)" marker-start="url(#arrowStart)"/>
+<rect x="794.3" y="664.5" width="81.4" height="22" fill="white"/>
+<text x="835.0" y="681.5" font-family="Arial" font-size="12" font-weight="normal" font-style="normal" text-anchor="middle" fill="#111"><tspan x="835.0" dy="0">HTTPS / SDK</tspan></text>
+<polyline points="920,610 920,680 1090,680 1090,735" fill="none" stroke="#111" stroke-width="1.7" marker-end="url(#arrow)"/>
+<rect x="956.9" y="667.0" width="96.2" height="22" fill="white"/>
+<text x="1005.0" y="684.0" font-family="Arial" font-size="12" font-weight="normal" font-style="normal" text-anchor="middle" fill="#111"><tspan x="1005.0" dy="0">jobs / outbox</tspan></text>
+<polyline points="970,610 970,665 1290,665 1290,785 1320,785" fill="none" stroke="#111" stroke-width="1.7" marker-end="url(#arrow)"/>
+<rect x="1052.3" y="652.0" width="155.4" height="22" fill="white"/>
+<text x="1130.0" y="669.0" font-family="Arial" font-size="12" font-weight="normal" font-style="normal" text-anchor="middle" fill="#111"><tspan x="1130.0" dy="0">validación de compras</tspan></text>
+<polyline points="910,785 960,785" fill="none" stroke="#111" stroke-width="1.7" marker-end="url(#arrow)" marker-start="url(#arrowStart)"/>
+<rect x="864.7" y="772.0" width="140.6" height="22" fill="white"/>
+<text x="935.0" y="789.0" font-family="Arial" font-size="12" font-weight="normal" font-style="normal" text-anchor="middle" fill="#111"><tspan x="935.0" dy="0">lectura de archivos</tspan></text>
+<polyline points="1010,825 1010,880 680,880 680,930" fill="none" stroke="#111" stroke-width="1.7" marker-end="url(#arrow)"/>
+<rect x="810.0" y="867.0" width="70" height="22" fill="white"/>
+<text x="845.0" y="884.0" font-family="Arial" font-size="12" font-weight="normal" font-style="normal" text-anchor="middle" fill="#111"><tspan x="845.0" dy="0">OCR</tspan></text>
+<polyline points="1090,825 1090,900 980,900 980,930" fill="none" stroke="#111" stroke-width="1.7" marker-end="url(#arrow)"/>
+<rect x="964.7" y="887.0" width="140.6" height="22" fill="white"/>
+<text x="1035.0" y="904.0" font-family="Arial" font-size="12" font-weight="normal" font-style="normal" text-anchor="middle" fill="#111"><tspan x="1035.0" dy="0">notificaciones push</tspan></text>
+<polyline points="1170,825 1170,880 1270,880 1270,930" fill="none" stroke="#111" stroke-width="1.7" marker-end="url(#arrow)"/>
+<rect x="1160.8" y="867.0" width="118.4" height="22" fill="white"/>
+<text x="1220.0" y="884.0" font-family="Arial" font-size="12" font-weight="normal" font-style="normal" text-anchor="middle" fill="#111"><tspan x="1220.0" dy="0">envío de correos</tspan></text>
+<rect x="250" y="140" width="230" height="80" rx="7" fill="white" stroke="#111" stroke-width="1.8"/>
+<text x="365.0" y="176.0" font-family="Arial" font-size="16" font-weight="bold" font-style="normal" text-anchor="middle" fill="#111"><tspan x="365.0" dy="0">Aplicación móvil</tspan><tspan x="365.0" dy="21">Flutter</tspan></text>
+<rect x="550" y="140" width="250" height="80" rx="7" fill="white" stroke="#111" stroke-width="1.8"/>
+<text x="675.0" y="186.0" font-family="Arial" font-size="16" font-weight="bold" font-style="normal" text-anchor="middle" fill="#111"><tspan x="675.0" dy="0">Repositorios / Riverpod</tspan></text>
+<rect x="860" y="120" width="210" height="70" rx="7" fill="white" stroke="#111" stroke-width="1.8"/>
+<text x="965.0" y="161.0" font-family="Arial" font-size="16" font-weight="bold" font-style="normal" text-anchor="middle" fill="#111"><tspan x="965.0" dy="0">SQLite cifrada</tspan></text>
+<rect x="1100" y="145" width="260" height="80" rx="7" fill="white" stroke="#111" stroke-width="1.8"/>
+<text x="1230.0" y="181.0" font-family="Arial" font-size="16" font-weight="bold" font-style="normal" text-anchor="middle" fill="#111"><tspan x="1230.0" dy="0">Outbox local /</tspan><tspan x="1230.0" dy="21">cursor de sincronización</tspan></text>
+<path d="M1380,118 H1542 L1560,136 V233 H1380 Z" fill="white" stroke="#888" stroke-width="1.2"/><path d="M1542,118 V136 H1560" fill="none" stroke="#888"/>
+<text x="1390" y="152" font-family="Arial" font-size="13" font-weight="normal" font-style="italic" text-anchor="start" fill="#111"><tspan x="1390" dy="0">Sin conexión: lectura/escritura local.</tspan><tspan x="1390" dy="21">Con conexión: sincronización por API segura.</tspan></text>
+<rect x="300" y="335" width="250" height="70" rx="7" fill="white" stroke="#111" stroke-width="1.8"/>
+<text x="425.0" y="366.0" font-family="Arial" font-size="16" font-weight="bold" font-style="normal" text-anchor="middle" fill="#111"><tspan x="425.0" dy="0">Cloudflare</tspan><tspan x="425.0" dy="21">DNS + TLS Full (Strict)</tspan></text>
+<rect x="650" y="335" width="260" height="70" rx="7" fill="white" stroke="#111" stroke-width="1.8"/>
+<text x="780.0" y="366.0" font-family="Arial" font-size="16" font-weight="bold" font-style="normal" text-anchor="middle" fill="#111"><tspan x="780.0" dy="0">Nginx / reverse proxy</tspan><tspan x="780.0" dy="21">AWS Lightsail</tspan></text>
+<rect x="270" y="500" width="270" height="70" rx="7" fill="white" stroke="#111" stroke-width="1.8"/>
+<text x="405.0" y="531.0" font-family="Arial" font-size="16" font-weight="bold" font-style="normal" text-anchor="middle" fill="#111"><tspan x="405.0" dy="0">Autenticación y</tspan><tspan x="405.0" dy="21">autorización</tspan></text>
+<rect x="270" y="590" width="270" height="60" rx="7" fill="white" stroke="#111" stroke-width="1.8"/>
+<text x="405.0" y="626.0" font-family="Arial" font-size="16" font-weight="bold" font-style="normal" text-anchor="middle" fill="#111"><tspan x="405.0" dy="0">Idempotencia / If-Match</tspan></text>
+<rect x="700" y="525" width="290" height="85" rx="7" fill="white" stroke="#111" stroke-width="1.8"/>
+<text x="845.0" y="573.5" font-family="Arial" font-size="16" font-weight="bold" font-style="normal" text-anchor="middle" fill="#111"><tspan x="845.0" dy="0">API ASP.NET Core .NET 10</tspan></text>
+<rect x="1060" y="525" width="220" height="75" rx="7" fill="white" stroke="#111" stroke-width="1.8"/>
+<text x="1170.0" y="568.5" font-family="Arial" font-size="16" font-weight="bold" font-style="normal" text-anchor="middle" fill="#111"><tspan x="1170.0" dy="0">Casos de uso</tspan></text>
+<rect x="1340" y="525" width="220" height="75" rx="7" fill="white" stroke="#111" stroke-width="1.8"/>
+<text x="1450.0" y="568.5" font-family="Arial" font-size="16" font-weight="bold" font-style="normal" text-anchor="middle" fill="#111"><tspan x="1450.0" dy="0">Reglas de dominio</tspan></text>
+<rect x="390" y="745" width="240" height="75" rx="7" fill="white" stroke="#111" stroke-width="1.8"/>
+<text x="510.0" y="788.5" font-family="Arial" font-size="16" font-weight="bold" font-style="normal" text-anchor="middle" fill="#111"><tspan x="510.0" dy="0">PostgreSQL / Supabase</tspan></text>
+<rect x="690" y="745" width="220" height="75" rx="7" fill="white" stroke="#111" stroke-width="1.8"/>
+<text x="800.0" y="788.5" font-family="Arial" font-size="16" font-weight="bold" font-style="normal" text-anchor="middle" fill="#111"><tspan x="800.0" dy="0">Amazon S3 privado</tspan></text>
+<rect x="960" y="735" width="260" height="90" rx="7" fill="white" stroke="#111" stroke-width="1.8"/>
+<text x="1090.0" y="776.0" font-family="Arial" font-size="16" font-weight="bold" font-style="normal" text-anchor="middle" fill="#111"><tspan x="1090.0" dy="0">Worker .NET /</tspan><tspan x="1090.0" dy="21">outbox servidor</tspan></text>
+<rect x="1320" y="745" width="240" height="80" rx="7" fill="white" stroke="#111" stroke-width="1.8"/>
+<text x="1440.0" y="781.0" font-family="Arial" font-size="16" font-weight="bold" font-style="normal" text-anchor="middle" fill="#111"><tspan x="1440.0" dy="0">Google Play Billing /</tspan><tspan x="1440.0" dy="21">Developer API</tspan></text>
+<rect x="560" y="930" width="240" height="70" rx="7" fill="white" stroke="#111" stroke-width="1.8"/>
+<text x="680.0" y="971.0" font-family="Arial" font-size="16" font-weight="bold" font-style="normal" text-anchor="middle" fill="#111"><tspan x="680.0" dy="0">AWS Textract</tspan></text>
+<rect x="850" y="930" width="260" height="70" rx="7" fill="white" stroke="#111" stroke-width="1.8"/>
+<text x="980.0" y="971.0" font-family="Arial" font-size="16" font-weight="bold" font-style="normal" text-anchor="middle" fill="#111"><tspan x="980.0" dy="0">Firebase Cloud Messaging</tspan></text>
+<rect x="1160" y="930" width="220" height="70" rx="7" fill="white" stroke="#111" stroke-width="1.8"/>
+<text x="1270.0" y="971.0" font-family="Arial" font-size="16" font-weight="bold" font-style="normal" text-anchor="middle" fill="#111"><tspan x="1270.0" dy="0">Amazon SES</tspan></text>
+<rect x="270" y="1085" width="220" height="60" rx="7" fill="white" stroke="#111" stroke-width="1.8"/>
+<text x="380.0" y="1121.0" font-family="Arial" font-size="16" font-weight="bold" font-style="normal" text-anchor="middle" fill="#111"><tspan x="380.0" dy="0">TLS extremo a extremo</tspan></text>
+<rect x="520" y="1085" width="240" height="60" rx="7" fill="white" stroke="#111" stroke-width="1.8"/>
+<text x="640.0" y="1121.0" font-family="Arial" font-size="16" font-weight="bold" font-style="normal" text-anchor="middle" fill="#111"><tspan x="640.0" dy="0">Auditoría y trazabilidad</tspan></text>
+<rect x="790" y="1085" width="210" height="60" rx="7" fill="white" stroke="#111" stroke-width="1.8"/>
+<text x="895.0" y="1121.0" font-family="Arial" font-size="16" font-weight="bold" font-style="normal" text-anchor="middle" fill="#111"><tspan x="895.0" dy="0">Secretos externos</tspan></text>
+<rect x="1030" y="1085" width="210" height="60" rx="7" fill="white" stroke="#111" stroke-width="1.8"/>
+<text x="1135.0" y="1121.0" font-family="Arial" font-size="16" font-weight="bold" font-style="normal" text-anchor="middle" fill="#111"><tspan x="1135.0" dy="0">Mínimo privilegio</tspan></text>
+<rect x="1270" y="1085" width="250" height="60" rx="7" fill="white" stroke="#111" stroke-width="1.8"/>
+<text x="1395.0" y="1121.0" font-family="Arial" font-size="16" font-weight="bold" font-style="normal" text-anchor="middle" fill="#111"><tspan x="1395.0" dy="0">Respaldo y restauración</tspan></text>
+</svg>

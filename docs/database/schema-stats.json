@@ -1,0 +1,19 @@
+{
+  "tables": 50,
+  "columns": 526,
+  "relationships": 68,
+  "indexes": 142,
+  "schemas": [
+    "analitica",
+    "auditoria",
+    "documentos",
+    "familias",
+    "finanzas",
+    "identidad",
+    "infra",
+    "piloto",
+    "seguridad",
+    "sincronizacion",
+    "suscripciones"
+  ]
+}

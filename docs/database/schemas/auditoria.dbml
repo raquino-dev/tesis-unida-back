@@ -1,0 +1,30 @@
+Project Finanza {
+  database_type: 'PostgreSQL'
+  Note: 'DER generado automáticamente desde FinanzasDbContextModelSnapshot'
+}
+
+Table auditoria.eventos [headerColor: #7E57C2] {
+  id uuid [pk, not null]
+  accion "character varying(100)" [not null]
+  correlation_id "character varying(100)" [not null]
+  creado_en "timestamp with time zone" [not null]
+  datos_anteriores jsonb
+  datos_nuevos jsonb [not null]
+  grupo_familiar_id uuid
+  ocurrido_en "timestamp with time zone" [not null]
+  recurso_tipo "character varying(80)" [not null]
+  recurso_id uuid [not null]
+  actor_usuario_id uuid
+
+  indexes {
+    (correlation_id) [name: 'ix_eventos_correlation_id']
+    (grupo_familiar_id) [name: 'ix_eventos_grupo_familiar_id']
+    (actor_usuario_id, ocurrido_en) [name: 'ix_eventos_actor_usuario_id_ocurrido_en']
+    (recurso_tipo, recurso_id, ocurrido_en) [name: 'ix_eventos_recurso_tipo_recurso_id_ocurrido_en']
+  }
+}
+
+
+TableGroup auditoria {
+  auditoria.eventos
+}

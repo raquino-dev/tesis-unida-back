@@ -1,0 +1,93 @@
+Project Finanza {
+  database_type: 'PostgreSQL'
+  Note: 'DER generado automáticamente desde FinanzasDbContextModelSnapshot'
+}
+
+Table documentos.archivos [headerColor: #247BA0] {
+  id uuid [pk, not null]
+  actualizado_en "timestamp with time zone" [not null]
+  ambito "character varying(20)" [not null]
+  clave_objeto "character varying(300)" [not null]
+  creado_en "timestamp with time zone" [not null]
+  eliminado_en "timestamp with time zone"
+  estado "character varying(20)" [not null]
+  grupo_familiar_id uuid
+  hash_idempotencia "character varying(64)" [not null]
+  mime "character varying(100)" [not null]
+  nombre_original "character varying(255)" [not null]
+  sha256 "character varying(64)" [not null]
+  tamano_bytes bigint [not null]
+  tipo "character varying(20)" [not null]
+  usuario_id uuid [not null]
+  version bigint [not null]
+
+  indexes {
+    (clave_objeto) [name: 'ix_archivos_clave_objeto', unique]
+    (grupo_familiar_id) [name: 'ix_archivos_grupo_familiar_id']
+    (usuario_id, hash_idempotencia) [name: 'ix_archivos_usuario_id_hash_idempotencia', unique]
+    (usuario_id, sha256) [name: 'ix_archivos_usuario_id_sha256']
+  }
+}
+
+Table documentos.exportaciones [headerColor: #247BA0] {
+  id uuid [pk, not null]
+  actualizado_en "timestamp with time zone" [not null]
+  ambito "character varying(20)" [not null]
+  cantidad_movimientos bigint [not null]
+  categoria_id uuid
+  clave_objeto "character varying(300)"
+  creado_en "timestamp with time zone" [not null]
+  cuenta_id uuid
+  desde date [not null]
+  documento "character varying(20)" [not null]
+  eliminado_en "timestamp with time zone"
+  estado "character varying(20)" [not null]
+  expira_en "timestamp with time zone"
+  finalizado_en "timestamp with time zone"
+  formato "character varying(10)" [not null]
+  grupo_familiar_id uuid
+  hash_solicitud "character varying(64)" [not null]
+  hasta date [not null]
+  tipo_movimiento "character varying(10)"
+  total_gastos bigint [not null]
+  total_ingresos bigint [not null]
+  total_transferido bigint [not null]
+  usuario_id uuid [not null]
+  version bigint [not null]
+
+  indexes {
+    (grupo_familiar_id) [name: 'ix_exportaciones_grupo_familiar_id']
+    (estado, creado_en) [name: 'ix_exportaciones_estado_creado_en']
+    (usuario_id, hash_solicitud) [name: 'ix_exportaciones_usuario_id_hash_solicitud', unique]
+  }
+}
+
+Table documentos.procesamientos [headerColor: #247BA0] {
+  id uuid [pk, not null]
+  actualizado_en "timestamp with time zone" [not null]
+  confianza "double precision"
+  creado_en "timestamp with time zone" [not null]
+  resultado jsonb [not null]
+  archivo_id uuid [not null]
+  estado "character varying(20)" [not null]
+  completado_en "timestamp with time zone"
+  hash_idempotencia "character varying(64)" [not null]
+  iniciado_en "timestamp with time zone"
+  proveedor "character varying(50)" [not null]
+  tipo "character varying(20)" [not null]
+  version bigint [not null]
+  version_modelo "character varying(50)" [not null]
+
+  indexes {
+    (archivo_id, hash_idempotencia) [name: 'ix_procesamientos_archivo_id_hash_idempotencia', unique]
+    (estado, creado_en) [name: 'ix_procesamientos_estado_creado_en']
+  }
+}
+
+Ref fk_procesamientos_archivos_archivo_id: documentos.procesamientos.archivo_id > documentos.archivos.id [delete: cascade]
+
+TableGroup documentos {
+  documentos.archivos
+  documentos.exportaciones
+  documentos.procesamientos
+}

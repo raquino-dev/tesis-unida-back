@@ -1,0 +1,17 @@
+---
+title: Finanza - Diagrama entidad relación
+config:
+  layout: elk
+---
+erDiagram
+  direction LR
+  sincronizacion__cambios["sincronizacion.cambios"] {
+    bigint secuencia "required"
+    bigint Secuencia PK "required"
+    uuid entidad_id "required"
+    timestamp_with_time_zone ocurrido_en "required"
+    character_varying(20) operacion "required"
+    character_varying(40) tipo_entidad "required"
+    uuid usuario_id "required"
+    bigint version "required"
+  }

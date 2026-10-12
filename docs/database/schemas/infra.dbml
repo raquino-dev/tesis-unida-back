@@ -1,0 +1,65 @@
+Project Finanza {
+  database_type: 'PostgreSQL'
+  Note: 'DER generado automáticamente desde FinanzasDbContextModelSnapshot'
+}
+
+Table infra.idempotencias [headerColor: #607D8B] {
+  id uuid [pk, not null]
+  clave "character varying(100)" [not null]
+  codigo_respuesta smallint
+  creado_en "timestamp with time zone" [not null]
+  cuerpo_respuesta jsonb
+  estado "character varying(20)" [not null]
+  expira_en "timestamp with time zone" [not null]
+  hash_solicitud "character varying(64)" [not null]
+  metodo "character varying(10)" [not null]
+  ruta "character varying(300)" [not null]
+  usuario_id uuid
+
+  indexes {
+    (usuario_id, clave) [name: 'ix_idempotencias_usuario_id_clave', unique]
+  }
+}
+
+Table infra.outbox_entregas [headerColor: #607D8B] {
+  id uuid [pk, not null]
+  canal "character varying(30)" [not null]
+  creado_en "timestamp with time zone" [not null]
+  destinatario_hash "character varying(64)" [not null]
+  enviada_en "timestamp with time zone"
+  estado "character varying(20)" [not null]
+  evento_outbox_id uuid [not null]
+  reservada_en "timestamp with time zone" [not null]
+
+  indexes {
+    (canal, reservada_en) [name: 'ix_outbox_entregas_canal_reservada_en']
+    (evento_outbox_id, canal) [name: 'ix_outbox_entregas_evento_outbox_id_canal', unique]
+  }
+}
+
+Table infra.outbox_eventos [headerColor: #607D8B] {
+  id uuid [pk, not null]
+  agregado_id uuid [not null]
+  agregado_tipo text [not null]
+  correlation_id text
+  ocurrido_en "timestamp with time zone" [not null]
+  disponible_en "timestamp with time zone" [not null]
+  estado text [not null]
+  intentos integer [not null]
+  payload jsonb [not null]
+  procesado_en "timestamp with time zone"
+  tipo text [not null]
+  ultimo_error "character varying(1000)"
+
+  indexes {
+    (estado, disponible_en) [name: 'ix_outbox_eventos_estado_disponible_en']
+  }
+}
+
+Ref fk_outbox_entregas_outbox_eventos_evento_outbox_id: infra.outbox_entregas.evento_outbox_id > infra.outbox_eventos.id [delete: cascade]
+
+TableGroup infra {
+  infra.idempotencias
+  infra.outbox_entregas
+  infra.outbox_eventos
+}

@@ -1,0 +1,45 @@
+---
+title: Finanza - Diagrama entidad relación
+config:
+  layout: elk
+---
+erDiagram
+  direction LR
+  infra__idempotencias["infra.idempotencias"] {
+    uuid id PK "required"
+    character_varying(100) clave "required"
+    smallint? codigo_respuesta "nullable"
+    timestamp_with_time_zone creado_en "required"
+    jsonb? cuerpo_respuesta "nullable"
+    character_varying(20) estado "required"
+    timestamp_with_time_zone expira_en "required"
+    character_varying(64) hash_solicitud "required"
+    character_varying(10) metodo "required"
+    character_varying(300) ruta "required"
+    uuid? usuario_id "nullable"
+  }
+  infra__outbox_entregas["infra.outbox_entregas"] {
+    uuid id PK "required"
+    character_varying(30) canal "required"
+    timestamp_with_time_zone creado_en "required"
+    character_varying(64) destinatario_hash "required"
+    timestamp_with_time_zone? enviada_en "nullable"
+    character_varying(20) estado "required"
+    uuid evento_outbox_id "required"
+    timestamp_with_time_zone reservada_en "required"
+  }
+  infra__outbox_eventos["infra.outbox_eventos"] {
+    uuid id PK "required"
+    uuid agregado_id "required"
+    text agregado_tipo "required"
+    text? correlation_id "nullable"
+    timestamp_with_time_zone ocurrido_en "required"
+    timestamp_with_time_zone disponible_en "required"
+    text estado "required"
+    integer intentos "required"
+    jsonb payload "required"
+    timestamp_with_time_zone? procesado_en "nullable"
+    text tipo "required"
+    character_varying(1000)? ultimo_error "nullable"
+  }
+  infra__outbox_eventos ||--o{ infra__outbox_entregas : "fk_outbox_entregas_outbox_eventos_evento_outbox_id"

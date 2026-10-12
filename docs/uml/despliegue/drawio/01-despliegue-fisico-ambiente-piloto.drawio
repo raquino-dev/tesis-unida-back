@@ -1,0 +1,132 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mxfile host="app.diagrams.net" modified="2026-09-24T12:00:00.000Z" agent="Codex" version="24.7.17" type="device">
+  <diagram id="despliegue-fisico" name="Página-1">
+    <mxGraphModel dx="1500" dy="950" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1500" pageHeight="950" math="0" shadow="0" background="#FFFFFF">
+      <root>
+        <mxCell id="0"/>
+        <mxCell id="1" parent="0"/>
+        <mxCell id="title" value="&lt;b&gt;Despliegue físico del ambiente del piloto&lt;/b&gt;" style="text;whiteSpace=wrap;html=1;strokeColor=none;fillColor=none;fontColor=#111111;fontSize=32;fontStyle=1;fontFamily=Arial;align=center;verticalAlign=middle;" vertex="1" parent="1">
+          <mxGeometry x="25" y="30" width="1450" height="80" as="geometry"/>
+        </mxCell>
+        <mxCell id="android_box" value="" style="rounded=1;arcSize=7;whiteSpace=wrap;html=1;strokeColor=#111111;strokeWidth=2.5;fillColor=#FFFFFF;" vertex="1" parent="1">
+          <mxGeometry x="45" y="155" width="375" height="200" as="geometry"/>
+        </mxCell>
+        <mxCell id="android" value="&lt;b&gt;Android / Google Play&lt;/b&gt;" style="rounded=0;whiteSpace=wrap;html=1;strokeColor=#111111;strokeWidth=1.5;fillColor=#FFFFFF;fontColor=#111111;fontSize=20;fontStyle=1;fontFamily=Arial;align=center;verticalAlign=middle;" vertex="1" parent="1">
+          <mxGeometry x="45" y="155" width="375" height="55" as="geometry"/>
+        </mxCell>
+        <mxCell id="android_item_0" value="Flutter + SQLite cifrada" style="rounded=1;arcSize=10;whiteSpace=wrap;html=1;strokeColor=#777777;strokeWidth=1.2;fillColor=#FFFFFF;fontColor=#111111;fontSize=17;fontFamily=Arial;align=center;verticalAlign=middle;" vertex="1" parent="1">
+          <mxGeometry x="63" y="227.0" width="339" height="51.0" as="geometry"/>
+        </mxCell>
+        <mxCell id="android_item_1" value="Outbox y cursor local" style="rounded=1;arcSize=10;whiteSpace=wrap;html=1;strokeColor=#777777;strokeWidth=1.2;fillColor=#FFFFFF;fontColor=#111111;fontSize=17;fontFamily=Arial;align=center;verticalAlign=middle;" vertex="1" parent="1">
+          <mxGeometry x="63" y="288.0" width="339" height="51.0" as="geometry"/>
+        </mxCell>
+        <mxCell id="cloudflare_box" value="" style="rounded=1;arcSize=7;whiteSpace=wrap;html=1;strokeColor=#111111;strokeWidth=2.5;fillColor=#FFFFFF;" vertex="1" parent="1">
+          <mxGeometry x="565" y="150" width="370" height="145" as="geometry"/>
+        </mxCell>
+        <mxCell id="cloudflare" value="&lt;b&gt;Cloudflare&lt;/b&gt;" style="rounded=0;whiteSpace=wrap;html=1;strokeColor=#111111;strokeWidth=1.5;fillColor=#FFFFFF;fontColor=#111111;fontSize=20;fontStyle=1;fontFamily=Arial;align=center;verticalAlign=middle;" vertex="1" parent="1">
+          <mxGeometry x="565" y="150" width="370" height="55" as="geometry"/>
+        </mxCell>
+        <mxCell id="cloudflare_item_0" value="DNS y TLS Full (Strict)" style="rounded=1;arcSize=10;whiteSpace=wrap;html=1;strokeColor=#777777;strokeWidth=1.2;fillColor=#FFFFFF;fontColor=#111111;fontSize=17;fontFamily=Arial;align=center;verticalAlign=middle;" vertex="1" parent="1">
+          <mxGeometry x="583" y="222.0" width="334" height="57.0" as="geometry"/>
+        </mxCell>
+        <mxCell id="lightsail_box" value="" style="rounded=1;arcSize=7;whiteSpace=wrap;html=1;strokeColor=#111111;strokeWidth=2.5;fillColor=#FFFFFF;" vertex="1" parent="1">
+          <mxGeometry x="565" y="380" width="370" height="190" as="geometry"/>
+        </mxCell>
+        <mxCell id="lightsail" value="&lt;b&gt;AWS Lightsail&lt;/b&gt;" style="rounded=0;whiteSpace=wrap;html=1;strokeColor=#111111;strokeWidth=1.5;fillColor=#FFFFFF;fontColor=#111111;fontSize=20;fontStyle=1;fontFamily=Arial;align=center;verticalAlign=middle;" vertex="1" parent="1">
+          <mxGeometry x="565" y="380" width="370" height="55" as="geometry"/>
+        </mxCell>
+        <mxCell id="lightsail_item_0" value="Nginx + Docker Compose" style="rounded=1;arcSize=10;whiteSpace=wrap;html=1;strokeColor=#777777;strokeWidth=1.2;fillColor=#FFFFFF;fontColor=#111111;fontSize=17;fontFamily=Arial;align=center;verticalAlign=middle;" vertex="1" parent="1">
+          <mxGeometry x="583" y="452.0" width="334" height="46.0" as="geometry"/>
+        </mxCell>
+        <mxCell id="lightsail_item_1" value="API .NET + Worker" style="rounded=1;arcSize=10;whiteSpace=wrap;html=1;strokeColor=#777777;strokeWidth=1.2;fillColor=#FFFFFF;fontColor=#111111;fontSize=17;fontFamily=Arial;align=center;verticalAlign=middle;" vertex="1" parent="1">
+          <mxGeometry x="583" y="508.0" width="334" height="46.0" as="geometry"/>
+        </mxCell>
+        <mxCell id="supabase_box" value="" style="rounded=1;arcSize=7;whiteSpace=wrap;html=1;strokeColor=#111111;strokeWidth=2.5;fillColor=#FFFFFF;" vertex="1" parent="1">
+          <mxGeometry x="1100" y="390" width="355" height="185" as="geometry"/>
+        </mxCell>
+        <mxCell id="supabase" value="&lt;b&gt;Supabase PostgreSQL&lt;/b&gt;" style="rounded=0;whiteSpace=wrap;html=1;strokeColor=#111111;strokeWidth=1.5;fillColor=#FFFFFF;fontColor=#111111;fontSize=20;fontStyle=1;fontFamily=Arial;align=center;verticalAlign=middle;" vertex="1" parent="1">
+          <mxGeometry x="1100" y="390" width="355" height="55" as="geometry"/>
+        </mxCell>
+        <mxCell id="supabase_item_0" value="TLS + roles separados" style="rounded=1;arcSize=10;whiteSpace=wrap;html=1;strokeColor=#777777;strokeWidth=1.2;fillColor=#FFFFFF;fontColor=#111111;fontSize=17;fontFamily=Arial;align=center;verticalAlign=middle;" vertex="1" parent="1">
+          <mxGeometry x="1118" y="462.0" width="319" height="43.5" as="geometry"/>
+        </mxCell>
+        <mxCell id="supabase_item_1" value="M001 - M0028" style="rounded=1;arcSize=10;whiteSpace=wrap;html=1;strokeColor=#777777;strokeWidth=1.2;fillColor=#FFFFFF;fontColor=#111111;fontSize=17;fontFamily=Arial;align=center;verticalAlign=middle;" vertex="1" parent="1">
+          <mxGeometry x="1118" y="515.5" width="319" height="43.5" as="geometry"/>
+        </mxCell>
+        <mxCell id="s3_box" value="" style="rounded=1;arcSize=7;whiteSpace=wrap;html=1;strokeColor=#111111;strokeWidth=2.5;fillColor=#FFFFFF;" vertex="1" parent="1">
+          <mxGeometry x="40" y="700" width="335" height="160" as="geometry"/>
+        </mxCell>
+        <mxCell id="s3" value="&lt;b&gt;AWS S3&lt;/b&gt;" style="rounded=0;whiteSpace=wrap;html=1;strokeColor=#111111;strokeWidth=1.5;fillColor=#FFFFFF;fontColor=#111111;fontSize=20;fontStyle=1;fontFamily=Arial;align=center;verticalAlign=middle;" vertex="1" parent="1">
+          <mxGeometry x="40" y="700" width="335" height="55" as="geometry"/>
+        </mxCell>
+        <mxCell id="s3_item_0" value="Documentos y respaldos&lt;br&gt;privados" style="rounded=1;arcSize=10;whiteSpace=wrap;html=1;strokeColor=#777777;strokeWidth=1.2;fillColor=#FFFFFF;fontColor=#111111;fontSize=17;fontFamily=Arial;align=center;verticalAlign=middle;" vertex="1" parent="1">
+          <mxGeometry x="58" y="772.0" width="299" height="72.0" as="geometry"/>
+        </mxCell>
+        <mxCell id="textract_box" value="" style="rounded=1;arcSize=7;whiteSpace=wrap;html=1;strokeColor=#111111;strokeWidth=2.5;fillColor=#FFFFFF;" vertex="1" parent="1">
+          <mxGeometry x="410" y="700" width="335" height="160" as="geometry"/>
+        </mxCell>
+        <mxCell id="textract" value="&lt;b&gt;AWS Textract&lt;/b&gt;" style="rounded=0;whiteSpace=wrap;html=1;strokeColor=#111111;strokeWidth=1.5;fillColor=#FFFFFF;fontColor=#111111;fontSize=20;fontStyle=1;fontFamily=Arial;align=center;verticalAlign=middle;" vertex="1" parent="1">
+          <mxGeometry x="410" y="700" width="335" height="55" as="geometry"/>
+        </mxCell>
+        <mxCell id="textract_item_0" value="OCR asíncrono" style="rounded=1;arcSize=10;whiteSpace=wrap;html=1;strokeColor=#777777;strokeWidth=1.2;fillColor=#FFFFFF;fontColor=#111111;fontSize=17;fontFamily=Arial;align=center;verticalAlign=middle;" vertex="1" parent="1">
+          <mxGeometry x="428" y="772.0" width="299" height="72.0" as="geometry"/>
+        </mxCell>
+        <mxCell id="messaging_box" value="" style="rounded=1;arcSize=7;whiteSpace=wrap;html=1;strokeColor=#111111;strokeWidth=2.5;fillColor=#FFFFFF;" vertex="1" parent="1">
+          <mxGeometry x="780" y="700" width="335" height="160" as="geometry"/>
+        </mxCell>
+        <mxCell id="messaging" value="&lt;b&gt;Amazon SES / Firebase&lt;/b&gt;" style="rounded=0;whiteSpace=wrap;html=1;strokeColor=#111111;strokeWidth=1.5;fillColor=#FFFFFF;fontColor=#111111;fontSize=20;fontStyle=1;fontFamily=Arial;align=center;verticalAlign=middle;" vertex="1" parent="1">
+          <mxGeometry x="780" y="700" width="335" height="55" as="geometry"/>
+        </mxCell>
+        <mxCell id="messaging_item_0" value="Correo y notificaciones" style="rounded=1;arcSize=10;whiteSpace=wrap;html=1;strokeColor=#777777;strokeWidth=1.2;fillColor=#FFFFFF;fontColor=#111111;fontSize=17;fontFamily=Arial;align=center;verticalAlign=middle;" vertex="1" parent="1">
+          <mxGeometry x="798" y="772.0" width="299" height="72.0" as="geometry"/>
+        </mxCell>
+        <mxCell id="billing_box" value="" style="rounded=1;arcSize=7;whiteSpace=wrap;html=1;strokeColor=#111111;strokeWidth=2.5;fillColor=#FFFFFF;" vertex="1" parent="1">
+          <mxGeometry x="1145" y="700" width="315" height="160" as="geometry"/>
+        </mxCell>
+        <mxCell id="billing" value="&lt;b&gt;Google Play Billing&lt;/b&gt;" style="rounded=0;whiteSpace=wrap;html=1;strokeColor=#111111;strokeWidth=1.5;fillColor=#FFFFFF;fontColor=#111111;fontSize=20;fontStyle=1;fontFamily=Arial;align=center;verticalAlign=middle;" vertex="1" parent="1">
+          <mxGeometry x="1145" y="700" width="315" height="55" as="geometry"/>
+        </mxCell>
+        <mxCell id="billing_item_0" value="Suscripciones verificadas" style="rounded=1;arcSize=10;whiteSpace=wrap;html=1;strokeColor=#777777;strokeWidth=1.2;fillColor=#FFFFFF;fontColor=#111111;fontSize=17;fontFamily=Arial;align=center;verticalAlign=middle;" vertex="1" parent="1">
+          <mxGeometry x="1163" y="772.0" width="279" height="72.0" as="geometry"/>
+        </mxCell>
+        <mxCell id="edge_0" value="HTTPS/TLS" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;endFill=1;strokeColor=#111111;strokeWidth=2;fontColor=#111111;fontSize=16;fontFamily=Arial;labelBackgroundColor=#FFFFFF;" edge="1" parent="1" source="android_box" target="cloudflare_box">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points"/>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="edge_1" value="HTTPS/TLS" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;endFill=1;strokeColor=#111111;strokeWidth=2;fontColor=#111111;fontSize=16;fontFamily=Arial;labelBackgroundColor=#FFFFFF;" edge="1" parent="1" source="cloudflare_box" target="lightsail_box">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points"/>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="edge_2" value="Npgsql/TLS" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;endFill=1;strokeColor=#111111;strokeWidth=2;fontColor=#111111;fontSize=16;fontFamily=Arial;labelBackgroundColor=#FFFFFF;" edge="1" parent="1" source="lightsail_box" target="supabase_box">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points"/>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="edge_3" value="S3 API" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;endFill=1;strokeColor=#111111;strokeWidth=2;fontColor=#111111;fontSize=16;fontFamily=Arial;labelBackgroundColor=#FFFFFF;" edge="1" parent="1" source="lightsail_box" target="s3_box">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="620" y="610"/>
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="edge_4" value="Textract API" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;endFill=1;strokeColor=#111111;strokeWidth=2;fontColor=#111111;fontSize=16;fontFamily=Arial;labelBackgroundColor=#FFFFFF;" edge="1" parent="1" source="lightsail_box" target="textract_box">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points"/>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="edge_5" value="HTTPS" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;endFill=1;strokeColor=#111111;strokeWidth=2;fontColor=#111111;fontSize=16;fontFamily=Arial;labelBackgroundColor=#FFFFFF;" edge="1" parent="1" source="lightsail_box" target="messaging_box">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points"/>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="edge_6" value="HTTPS" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;endFill=1;strokeColor=#111111;strokeWidth=2;fontColor=#111111;fontSize=16;fontFamily=Arial;labelBackgroundColor=#FFFFFF;" edge="1" parent="1" source="lightsail_box" target="billing_box">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points"/>
+          </mxGeometry>
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

@@ -1,0 +1,27 @@
+@startuml
+!include theme-finanza.puml
+title Suscripciones
+left to right direction
+
+actor Usuario
+
+rectangle "Sistema Finanza" {
+  usecase "CU-21 · Gestionar suscripción" as CU21
+  usecase "CU-19 · Validar acción sensible" as CU19
+  usecase "CU-20 · Registrar auditoría" as CU20
+  usecase "CU-14 · Acceder a función premium" as CU14
+
+  CU19 .> CU21 : <<extend>>\n[si la operación es sensible]
+  CU21 .> CU20 : <<include>>
+  CU21 .> CU14 : <<extend>>\n[si el plan no habilita la función]
+}
+
+Usuario -- CU21
+Usuario -- CU14
+
+legend right
+  |= Relación |= Lectura |
+  | <<include>> | Toda gestión de suscripción registra auditoría |
+  | <<extend>> | Flujo condicionado por seguridad o por el plan vigente |
+endlegend
+@enduml

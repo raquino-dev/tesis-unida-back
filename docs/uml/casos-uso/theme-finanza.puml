@@ -1,0 +1,29 @@
+' Estilo compartido de los diagramas de casos de uso de Finanza.
+!pragma layout smetana
+skinparam backgroundColor #F7FFFC
+skinparam shadowing false
+skinparam roundcorner 18
+skinparam defaultFontName Arial
+skinparam defaultFontColor #0B2239
+skinparam defaultFontSize 14
+skinparam ArrowColor #47657A
+skinparam ArrowFontColor #29465B
+skinparam ArrowFontSize 12
+skinparam ActorBorderColor #006B4F
+skinparam ActorFontColor #0B2239
+skinparam ActorBackgroundColor #FFFFFF
+skinparam RectangleBorderColor #8CCFBA
+skinparam RectangleBackgroundColor #ECFBF5
+skinparam RectangleFontColor #006B4F
+skinparam usecase {
+  BackgroundColor #FFFFFF
+  BorderColor #009B72
+  FontColor #0B2239
+  ArrowColor #47657A
+}
+skinparam legend {
+  BackgroundColor #FFFFFF
+  BorderColor #CDE9DF
+  FontColor #29465B
+}
+hide stereotype

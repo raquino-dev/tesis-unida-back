@@ -812,6 +812,8 @@ Retiros y gastos requieren OTP y rol administrativo.
   "id": "019b-export-...",
   "formato": "pdf",
   "estado": "completado",
+  "desde": "2026-07-01",
+  "hasta": "2026-07-31",
   "creadoEn": "2026-07-22T18:30:00Z",
   "finalizadoEn": "2026-07-22T18:30:02Z",
   "cantidadMovimientos": 18,
@@ -910,6 +912,9 @@ La URL prefirmada sólo se obtiene mediante `POST /exportaciones/{exportacionId}
   "version": 1
 }
 ```
+
+`finPeriodoEn` es `null` para el plan gratuito, porque no tiene renovación ni
+fecha de vencimiento.
 
 ## Cliente y dispositivos
 

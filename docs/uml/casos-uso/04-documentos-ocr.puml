@@ -1,0 +1,72 @@
+@startuml
+!pragma layout dot
+hide stereotype
+
+skinparam shadowing false
+skinparam linetype polyline
+skinparam roundcorner 10
+skinparam defaultFontName Arial
+skinparam TitleFontSize 28
+skinparam TitleFontStyle bold
+skinparam backgroundColor #FFFFFF
+skinparam defaultFontColor #111111
+skinparam ArrowColor #111111
+skinparam ArrowFontColor #111111
+skinparam ActorBorderColor #111111
+skinparam ActorFontColor #111111
+skinparam ActorFontStyle bold
+skinparam ActorBackgroundColor #FFFFFF
+skinparam UsecaseMinimumWidth 210
+skinparam usecase {
+  BackgroundColor #FAFAFA
+  BorderColor #111111
+  FontColor #111111
+  ArrowColor #111111
+}
+skinparam rectangle<<Sistema>> {
+  BackgroundColor #FFFFFF
+  BorderColor #111111
+  FontColor #111111
+  FontStyle bold
+  FontSize 22
+  RoundCorner 4
+}
+skinparam rectangle<<Grupo>> {
+  BackgroundColor #FAFAFA
+  BorderColor #AAAAAA
+  FontColor #111111
+  FontStyle bold
+  FontSize 15
+  RoundCorner 12
+  MinimumWidth 430
+}
+
+title Documentos y OCR
+top to bottom direction
+
+rectangle "Sistema Finanza" as Sistema <<Sistema>> {
+  rectangle "Procesamiento" as Procesamiento <<Grupo>> {
+    usecase "CU-07 · Procesar\nimagen o PDF" as CU07
+    usecase "CU-09 · Revisar y\nconfirmar datos" as CU09
+
+    CU07 .right.> CU09 : <<include>>
+  }
+
+  rectangle "Salida" as Salida <<Grupo>> {
+    usecase "CU-08 · Importar\nXML SIFEN" as CU08
+    usecase "CU-15 · Exportar\ninformación" as CU15
+
+    CU08 -[hidden]down- CU15
+  }
+
+  CU07 .down.> CU08 : <<extend>>\n[si existen datos confirmados]
+
+  CU09 -[hidden]down- CU08
+}
+
+actor Usuario
+
+CU07 -[norank]left- Usuario
+CU08 -[norank]left- Usuario
+CU15 -[norank]left- Usuario
+@enduml

@@ -8888,6 +8888,14 @@ components:
         estado:
           type: string
           example: completado
+        desde:
+          type: string
+          format: date
+          example: '2026-07-01'
+        hasta:
+          type: string
+          format: date
+          example: '2026-07-31'
         creadoEn:
           type: string
           format: date-time
@@ -8932,6 +8940,8 @@ components:
       - id
       - formato
       - estado
+      - desde
+      - hasta
       - creadoEn
       - finalizadoEn
       - cantidadMovimientos
@@ -9262,7 +9272,9 @@ components:
           - string
           - 'null'
         finPeriodoEn:
-          type: string
+          type:
+          - string
+          - 'null'
           format: date-time
           example: '2026-08-22T18:30:00Z'
         capacidades:

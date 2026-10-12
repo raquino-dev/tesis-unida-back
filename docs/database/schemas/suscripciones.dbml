@@ -1,0 +1,90 @@
+Project Finanza {
+  database_type: 'PostgreSQL'
+  Note: 'DER generado automáticamente desde FinanzasDbContextModelSnapshot'
+}
+
+Table suscripciones.avisos [headerColor: #F4A261] {
+  id uuid [pk, not null]
+  creado_en "timestamp with time zone" [not null]
+  generado_en "timestamp with time zone" [not null]
+  periodo_fin_en "timestamp with time zone" [not null]
+  suscripcion_id uuid [not null]
+  tipo "character varying(30)" [not null]
+  usuario_id uuid [not null]
+
+  indexes {
+    (suscripcion_id, tipo, periodo_fin_en) [name: 'ix_avisos_suscripcion_id_tipo_periodo_fin_en', unique]
+  }
+}
+
+Table suscripciones.planes [headerColor: #F4A261] {
+  id uuid [pk, not null]
+  activo boolean [not null]
+  codigo "character varying(60)" [not null]
+  creado_en "timestamp with time zone" [not null]
+  descripcion "character varying(500)" [not null]
+  destacado boolean [not null]
+  moneda "character varying(3)" [not null]
+  nombre "character varying(120)" [not null]
+  periodicidad "character varying(20)" [not null]
+  precio bigint [not null]
+
+  indexes {
+    (codigo) [name: 'ix_planes_codigo', unique]
+  }
+}
+
+Table suscripciones.suscripciones [headerColor: #F4A261] {
+  id uuid [pk, not null]
+  actualizado_en "timestamp with time zone" [not null]
+  cancelada_en "timestamp with time zone"
+  creado_en "timestamp with time zone" [not null]
+  estado "character varying(20)" [not null]
+  fin_periodo_en "timestamp with time zone" [not null]
+  hash_comprobante "character varying(64)" [not null]
+  iniciada_en "timestamp with time zone" [not null]
+  motivo_cancelacion "character varying(300)"
+  plan_id uuid [not null]
+  proveedor "character varying(30)" [not null]
+  reemplazada_por_id uuid
+  suscripcion_anterior_id uuid
+  usuario_id uuid [not null]
+  version bigint [not null]
+
+  indexes {
+    (plan_id) [name: 'ix_suscripciones_plan_id']
+    (usuario_id) [name: 'ix_suscripciones_usuario_id', unique]
+    (proveedor, hash_comprobante) [name: 'ix_suscripciones_proveedor_hash_comprobante', unique]
+  }
+}
+
+Table suscripciones.transacciones [headerColor: #F4A261] {
+  id uuid [pk, not null]
+  creado_en "timestamp with time zone" [not null]
+  estado "character varying(30)" [not null]
+  moneda "character varying(3)" [not null]
+  monto bigint [not null]
+  ocurrido_en "timestamp with time zone" [not null]
+  proveedor "character varying(30)" [not null]
+  referencia_externa_hash "character varying(64)" [not null]
+  suscripcion_id uuid [not null]
+  tipo "character varying(30)" [not null]
+  usuario_id uuid [not null]
+
+  indexes {
+    (suscripcion_id) [name: 'ix_transacciones_suscripcion_id']
+    (usuario_id, ocurrido_en) [name: 'ix_transacciones_usuario_id_ocurrido_en']
+    (proveedor, referencia_externa_hash, tipo) [name: 'ix_transacciones_proveedor_referencia_externa_hash_tipo', unique]
+  }
+}
+
+Ref fk_avisos_suscripciones_suscripcion_id: suscripciones.avisos.suscripcion_id > suscripciones.suscripciones.id [delete: cascade]
+Ref fk_suscripciones_planes_plan_id: suscripciones.suscripciones.plan_id > suscripciones.planes.id [delete: restrict]
+Ref fk_transacciones_suscripciones_suscripcion_id: suscripciones.transacciones.suscripcion_id > suscripciones.suscripciones.id [delete: restrict]
+
+TableGroup suscripciones {
+  suscripciones.avisos
+  suscripciones.planes
+  suscripciones.suscripciones
+  suscripciones.transacciones
+}

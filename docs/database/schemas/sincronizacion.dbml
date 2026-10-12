@@ -1,0 +1,24 @@
+Project Finanza {
+  database_type: 'PostgreSQL'
+  Note: 'DER generado automáticamente desde FinanzasDbContextModelSnapshot'
+}
+
+Table sincronizacion.cambios [headerColor: #78909C] {
+  secuencia bigint [not null, increment]
+  Secuencia bigint [pk, not null]
+  entidad_id uuid [not null]
+  ocurrido_en "timestamp with time zone" [not null]
+  operacion "character varying(20)" [not null]
+  tipo_entidad "character varying(40)" [not null]
+  usuario_id uuid [not null]
+  version bigint [not null]
+
+  indexes {
+    (usuario_id, Secuencia) [name: 'ix_cambios_usuario_id_Secuencia']
+  }
+}
+
+
+TableGroup sincronizacion {
+  sincronizacion.cambios
+}

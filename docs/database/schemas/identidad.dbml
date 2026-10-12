@@ -1,0 +1,172 @@
+Project Finanza {
+  database_type: 'PostgreSQL'
+  Note: 'DER generado automáticamente desde FinanzasDbContextModelSnapshot'
+}
+
+Table identidad.consentimientos_privacidad [headerColor: #136F63] {
+  id uuid [pk, not null]
+  aceptado_en "timestamp with time zone" [not null]
+  creado_en "timestamp with time zone" [not null]
+  finalidad "character varying(120)" [not null]
+  politica_id uuid [not null]
+  revocado_en "timestamp with time zone"
+  usuario_id uuid [not null]
+  version_politica "character varying(30)" [not null]
+
+  indexes {
+    (politica_id) [name: 'ix_consentimientos_privacidad_politica_id']
+    (usuario_id, politica_id, finalidad) [name: 'ix_consentimientos_privacidad_usuario_id_politica_id_finalidad', unique]
+  }
+}
+
+Table identidad.desafios_otp [headerColor: #136F63] {
+  id uuid [pk, not null]
+  actualizado_en "timestamp with time zone" [not null]
+  canal "character varying(20)" [not null]
+  creado_en "timestamp with time zone" [not null]
+  destino "character varying(320)" [not null]
+  expira_en "timestamp with time zone" [not null]
+  hash_codigo "character varying(64)" [not null]
+  intentos_restantes integer [not null]
+  motivo "character varying(50)" [not null]
+  usuario_id uuid [not null]
+  verificado_en "timestamp with time zone"
+  version bigint [not null]
+
+  indexes {
+    (usuario_id) [name: 'ix_desafios_otp_usuario_id']
+  }
+}
+
+Table identidad.eliminaciones_perfil [headerColor: #136F63] {
+  id uuid [pk, not null]
+  actualizado_en "timestamp with time zone" [not null]
+  completado_en "timestamp with time zone"
+  creado_en "timestamp with time zone" [not null]
+  error_codigo "character varying(80)"
+  estado "character varying(20)" [not null]
+  usuario_id uuid [not null]
+  version bigint [not null]
+
+  indexes {
+    (usuario_id) [name: 'ix_eliminaciones_perfil_usuario_id', unique]
+  }
+}
+
+Table identidad.politicas_privacidad [headerColor: #136F63] {
+  id uuid [pk, not null]
+  activa boolean [not null]
+  creado_en "timestamp with time zone" [not null]
+  titulo "character varying(160)" [not null]
+  url_documento "character varying(500)" [not null]
+  version_politica "character varying(30)" [not null]
+  vigente_desde "timestamp with time zone" [not null]
+
+  indexes {
+    (version_politica) [name: 'ix_politicas_privacidad_version_politica', unique]
+  }
+}
+
+Table identidad.preferencias [headerColor: #136F63] {
+  usuario_id uuid [pk, not null]
+  actualizado_en "timestamp with time zone" [not null]
+  creado_en "timestamp with time zone" [not null]
+  notificaciones_correo boolean [not null]
+  notificaciones_push boolean [not null]
+  resumen_semanal boolean [not null]
+  tema "character varying(20)" [not null]
+  version bigint [not null]
+}
+
+Table identidad.recuperaciones_contrasena [headerColor: #136F63] {
+  id uuid [pk, not null]
+  consumido_en "timestamp with time zone"
+  creado_en "timestamp with time zone" [not null]
+  expira_en "timestamp with time zone" [not null]
+  hash_token "character varying(64)" [not null]
+  intentos_restantes integer [not null]
+  usuario_id uuid [not null]
+
+  indexes {
+    (usuario_id) [name: 'ix_recuperaciones_contrasena_usuario_id']
+  }
+}
+
+Table identidad.sesiones [headerColor: #136F63] {
+  id uuid [pk, not null]
+  creado_en "timestamp with time zone" [not null]
+  expira_en "timestamp with time zone" [not null]
+  familia_token uuid [not null]
+  hash_refresh_token "character varying(64)" [not null]
+  identificador_dispositivo "character varying(200)" [not null]
+  nombre_dispositivo "character varying(120)" [not null]
+  plataforma_dispositivo "character varying(30)" [not null]
+  revocado_en "timestamp with time zone"
+  usado_en "timestamp with time zone"
+  usuario_id uuid [not null]
+
+  indexes {
+    (hash_refresh_token) [name: 'ix_sesiones_hash_refresh_token', unique]
+    (usuario_id) [name: 'ix_sesiones_usuario_id']
+  }
+}
+
+Table identidad.usuarios [headerColor: #136F63] {
+  id uuid [pk, not null]
+  actualizado_en "timestamp with time zone" [not null]
+  alias citext [not null]
+  anonimizado_en "timestamp with time zone"
+  correo citext [not null]
+  creado_en "timestamp with time zone" [not null]
+  estado "character varying(30)" [not null]
+  hash_contrasena text [not null]
+  idioma "character varying(10)" [not null]
+  moneda "character varying(3)" [not null]
+  nombre "character varying(120)" [not null]
+  rol "character varying(30)" [not null]
+  ubicacion "character varying(160)" [not null]
+  version bigint [not null]
+  zona_horaria "character varying(80)" [not null]
+
+  indexes {
+    (alias) [name: 'ix_usuarios_alias', unique]
+    (correo) [name: 'ix_usuarios_correo', unique]
+  }
+}
+
+Table identidad.verificaciones_otp [headerColor: #136F63] {
+  id uuid [pk, not null]
+  consumido_en "timestamp with time zone"
+  creado_en "timestamp with time zone" [not null]
+  desafio_id uuid [not null]
+  expira_en "timestamp with time zone" [not null]
+  motivo "character varying(50)" [not null]
+  usuario_id uuid [not null]
+
+  indexes {
+    (desafio_id) [name: 'ix_verificaciones_otp_desafio_id', unique]
+    (usuario_id) [name: 'ix_verificaciones_otp_usuario_id']
+  }
+}
+
+Ref fk_consentimientos_privacidad_politicas_privacidad_politica_id: identidad.consentimientos_privacidad.politica_id > identidad.politicas_privacidad.id [delete: restrict]
+Ref fk_consentimientos_privacidad_usuarios_usuario_id: identidad.consentimientos_privacidad.usuario_id > identidad.usuarios.id [delete: cascade]
+Ref fk_desafios_otp_usuarios_usuario_id: identidad.desafios_otp.usuario_id > identidad.usuarios.id [delete: cascade]
+Ref fk_eliminaciones_perfil_usuarios_usuario_id: identidad.eliminaciones_perfil.usuario_id > identidad.usuarios.id [delete: cascade]
+Ref fk_preferencias_usuarios_usuario_id: identidad.preferencias.usuario_id > identidad.usuarios.id [delete: cascade]
+Ref fk_recuperaciones_contrasena_usuarios_usuario_id: identidad.recuperaciones_contrasena.usuario_id > identidad.usuarios.id [delete: cascade]
+Ref fk_sesiones_usuarios_usuario_id: identidad.sesiones.usuario_id > identidad.usuarios.id [delete: cascade]
+Ref fk_verificaciones_otp_desafios_otp_desafio_id: identidad.verificaciones_otp.desafio_id > identidad.desafios_otp.id [delete: cascade]
+Ref fk_verificaciones_otp_usuarios_usuario_id: identidad.verificaciones_otp.usuario_id > identidad.usuarios.id [delete: cascade]
+
+TableGroup identidad {
+  identidad.consentimientos_privacidad
+  identidad.desafios_otp
+  identidad.eliminaciones_perfil
+  identidad.politicas_privacidad
+  identidad.preferencias
+  identidad.recuperaciones_contrasena
+  identidad.sesiones
+  identidad.usuarios
+  identidad.verificaciones_otp
+}

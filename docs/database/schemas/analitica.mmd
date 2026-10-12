@@ -1,0 +1,27 @@
+---
+title: Finanza - Diagrama entidad relación
+config:
+  layout: elk
+---
+erDiagram
+  direction LR
+  analitica__alertas["analitica.alertas"] {
+    uuid id PK "required"
+    timestamp_with_time_zone actualizado_en "required"
+    boolean archivada "required"
+    timestamp_with_time_zone? archivada_en "nullable"
+    character_varying(160) clave_deduplicacion "required"
+    timestamp_with_time_zone creado_en "required"
+    character_varying(500) datos_utilizados "required"
+    character_varying(500) impacto "required"
+    boolean leida "required"
+    timestamp_with_time_zone? leida_en "nullable"
+    character_varying(500) mensaje "required"
+    character_varying(20) nivel "required"
+    character_varying(500) que_ocurrio "required"
+    character_varying(500) recomendacion "required"
+    character_varying(50) tipo "required"
+    character_varying(160) titulo "required"
+    uuid usuario_id "required"
+    bigint version "required"
+  }

@@ -1,0 +1,40 @@
+@startuml
+hide stereotype
+
+title Sincronización sin conexión
+top to bottom direction
+
+rectangle "Sistema Finanza" as Sistema <<Sistema>> {
+  rectangle "Funciones sincronizables" as Funciones <<Grupo>> {
+    usecase "CU-06 · Gestionar movimientos" as CU06
+    usecase "CU-22 · Gestionar cuentas" as CU22
+    usecase "CU-11 · Gestionar presupuestos" as CU11
+    usecase "CU-12 · Gestionar metas" as CU12
+    usecase "CU-25 · Gestionar recurrencias" as CU25
+
+    CU06 -[hidden]down- CU22
+    CU22 -[hidden]down- CU11
+    CU11 -[hidden]down- CU12
+  }
+
+  rectangle "Modo offline" as Offline <<Grupo>> {
+    usecase "CU-26 · Registrar operación offline" as CU26
+
+    CU26 .down.> CU25 : <<extend>>
+  }
+
+  CU26 .up.> CU06 : <<extend>>
+  CU26 .up.> CU22 : <<extend>>
+  CU26 .up.> CU11 : <<extend>>
+  CU26 .up.> CU12 : <<extend>>
+  CU12 -[hidden]down- CU25
+}
+
+actor Usuario
+
+Usuario -> CU11
+Usuario -> CU12
+Usuario -> CU06
+Usuario -> CU22
+Usuario -> CU25
+@enduml

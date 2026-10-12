@@ -1,0 +1,171 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="2850" height="1900" viewBox="0 0 2850 1900">
+<rect width="100%" height="100%" fill="white"/>
+<text x="1425.0" y="66" font-family="Arial" font-size="34" font-weight="bold" text-anchor="middle" fill="#111"><tspan x="1425.0" dy="0">Diagrama de clases del dominio — Sistema Finanza</tspan></text>
+<rect x="40" y="135" width="600" height="470" rx="12" fill="white" stroke="#777" stroke-width="1.5" stroke-dasharray="8 6"/>
+<text x="58" y="169" font-family="Arial" font-size="23" font-weight="bold" text-anchor="start" fill="#111"><tspan x="58" dy="0">Identidad</tspan></text>
+<rect x="40" y="650" width="600" height="690" rx="12" fill="white" stroke="#777" stroke-width="1.5" stroke-dasharray="8 6"/>
+<text x="58" y="684" font-family="Arial" font-size="23" font-weight="bold" text-anchor="start" fill="#111"><tspan x="58" dy="0">Finanzas familiares</tspan></text>
+<rect x="680" y="135" width="2130" height="1090" rx="12" fill="white" stroke="#777" stroke-width="1.5" stroke-dasharray="8 6"/>
+<text x="698" y="169" font-family="Arial" font-size="23" font-weight="bold" text-anchor="start" fill="#111"><tspan x="698" dy="0">Finanzas personales</tspan></text>
+<rect x="680" y="1270" width="990" height="520" rx="12" fill="white" stroke="#777" stroke-width="1.5" stroke-dasharray="8 6"/>
+<text x="698" y="1304" font-family="Arial" font-size="23" font-weight="bold" text-anchor="start" fill="#111"><tspan x="698" dy="0">Documentos y OCR</tspan></text>
+<rect x="1710" y="1270" width="1100" height="520" rx="12" fill="white" stroke="#777" stroke-width="1.5" stroke-dasharray="8 6"/>
+<text x="1728" y="1304" font-family="Arial" font-size="23" font-weight="bold" text-anchor="start" fill="#111"><tspan x="1728" dy="0">Suscripciones</tspan></text>
+<polyline points="370,350 390,350" fill="none" stroke="#777" stroke-width="1.2"/>
+<rect x="327.5" y="338.0" width="105" height="22" fill="white"/>
+<text x="380.0" y="354.0" font-family="Arial" font-size="12" font-weight="normal" text-anchor="middle" fill="#111"><tspan x="380.0" dy="0">1  posee  1</tspan></text>
+<polyline points="320,830 350,830" fill="none" stroke="#777" stroke-width="1.2"/>
+<rect x="272.0" y="818.0" width="126" height="22" fill="white"/>
+<text x="335.0" y="834.0" font-family="Arial" font-size="12" font-weight="normal" text-anchor="middle" fill="#111"><tspan x="335.0" dy="0">1  contiene  1..*</tspan></text>
+<polyline points="195,948 195,1020" fill="none" stroke="#777" stroke-width="1.2"/>
+<rect x="132.0" y="972.0" width="126" height="22" fill="white"/>
+<text x="195.0" y="988.0" font-family="Arial" font-size="12" font-weight="normal" text-anchor="middle" fill="#111"><tspan x="195.0" dy="0">1  registra  0..*</tspan></text>
+<polyline points="270,948 270,985 482,985 482,1020" fill="none" stroke="#777" stroke-width="1.2"/>
+<rect x="323.5" y="973.0" width="105" height="22" fill="white"/>
+<text x="376.0" y="989.0" font-family="Arial" font-size="12" font-weight="normal" text-anchor="middle" fill="#111"><tspan x="376.0" dy="0">1  posee  1</tspan></text>
+<polyline points="1610,360 1720,360" fill="none" stroke="#777" stroke-width="1.2"/>
+<rect x="1581.0" y="348.0" width="168" height="22" fill="white"/>
+<text x="1665.0" y="364.0" font-family="Arial" font-size="12" font-weight="normal" text-anchor="middle" fill="#111"><tspan x="1665.0" dy="0">1  cuenta de pago  0..*</tspan></text>
+<polyline points="1415,553 1415,590" fill="none" stroke="#777" stroke-width="1.2"/>
+<rect x="1352.0" y="559.5" width="126" height="22" fill="white"/>
+<text x="1415.0" y="575.5" font-family="Arial" font-size="12" font-weight="normal" text-anchor="middle" fill="#111"><tspan x="1415.0" dy="0">1  registra  0..*</tspan></text>
+<polyline points="1915,553 1915,565 1650,565 1650,590" fill="none" stroke="#777" stroke-width="1.2"/>
+<rect x="1723.0" y="553.0" width="119" height="22" fill="white"/>
+<text x="1782.5" y="569.0" font-family="Arial" font-size="12" font-weight="normal" text-anchor="middle" fill="#111"><tspan x="1782.5" dy="0">0..1  origina  0..*</tspan></text>
+<polyline points="1300,590 1300,560 915,560 915,480" fill="none" stroke="#777" stroke-width="1.2"/>
+<rect x="1041.0" y="548.0" width="133" height="22" fill="white"/>
+<text x="1107.5" y="564.0" font-family="Arial" font-size="12" font-weight="normal" text-anchor="middle" fill="#111"><tspan x="1107.5" dy="0">0..*  clasifica  0..*</tspan></text>
+<polyline points="1110,730 1220,730" fill="none" stroke="#777" stroke-width="1.2"/>
+<rect x="1109.0" y="718.0" width="112" height="22" fill="white"/>
+<text x="1165.0" y="734.0" font-family="Arial" font-size="12" font-weight="normal" text-anchor="middle" fill="#111"><tspan x="1165.0" dy="0">1  genera  0..*</tspan></text>
+<polyline points="1820,730 1770,730" fill="none" stroke="#777" stroke-width="1.2"/>
+<rect x="1739.0" y="718.0" width="112" height="22" fill="white"/>
+<text x="1795.0" y="734.0" font-family="Arial" font-size="12" font-weight="normal" text-anchor="middle" fill="#111"><tspan x="1795.0" dy="0">1  genera  2</tspan></text>
+<polyline points="2495,210 2495,180 915,180 915,210" fill="none" stroke="#777" stroke-width="1.2"/>
+<rect x="1642.0" y="168.0" width="126" height="22" fill="white"/>
+<text x="1705.0" y="184.0" font-family="Arial" font-size="12" font-weight="normal" text-anchor="middle" fill="#111"><tspan x="1705.0" dy="0">0..*  aplica a  0..*</tspan></text>
+<polyline points="2495,933 2495,970" fill="none" stroke="#777" stroke-width="1.2"/>
+<rect x="2432.0" y="939.5" width="126" height="22" fill="white"/>
+<text x="2495.0" y="955.5" font-family="Arial" font-size="12" font-weight="normal" text-anchor="middle" fill="#111"><tspan x="2495.0" dy="0">1  contiene  0..*</tspan></text>
+<polyline points="1150,1510 1200,1510" fill="none" stroke="#777" stroke-width="1.2"/>
+<rect x="1115.5" y="1498.0" width="119" height="22" fill="white"/>
+<text x="1175.0" y="1514.0" font-family="Arial" font-size="12" font-weight="normal" text-anchor="middle" fill="#111"><tspan x="1175.0" dy="0">1  procesa  0..*</tspan></text>
+<polyline points="2180,1510 2290,1510" fill="none" stroke="#777" stroke-width="1.2"/>
+<rect x="2179.0" y="1498.0" width="112" height="22" fill="white"/>
+<text x="2235.0" y="1514.0" font-family="Arial" font-size="12" font-weight="normal" text-anchor="middle" fill="#111"><tspan x="2235.0" dy="0">1  define  0..*</tspan></text>
+<rect x="70" y="205" width="300" height="343" fill="white" stroke="#111" stroke-width="1.8"/>
+<rect x="70" y="205" width="300" height="54" fill="#f2f2f2" stroke="#111" stroke-width="1.4"/>
+<text x="220.0" y="239" font-family="Arial" font-size="17" font-weight="bold" text-anchor="middle" fill="#111"><tspan x="220.0" dy="0">Usuario</tspan></text>
+<line x1="70" y1="438" x2="370" y2="438" stroke="#111" stroke-width="1.2"/>
+<text x="80" y="284" font-family="Courier New" font-size="14" font-weight="normal" text-anchor="start" fill="#111"><tspan x="80" dy="0">+ Id: Guid</tspan><tspan x="80" dy="23">+ Correo: string</tspan><tspan x="80" dy="23">+ Nombre: string</tspan><tspan x="80" dy="23">+ Alias: string</tspan><tspan x="80" dy="23">+ Moneda: string</tspan><tspan x="80" dy="23">+ Estado: string</tspan><tspan x="80" dy="23">+ Rol: string</tspan></text>
+<text x="80" y="463" font-family="Courier New" font-size="14" font-weight="normal" text-anchor="start" fill="#111"><tspan x="80" dy="0">+ Crear(...) : Usuario</tspan><tspan x="80" dy="23">+ ActualizarPerfil(...) : void</tspan><tspan x="80" dy="23">+ CambiarContrasena(...) : void</tspan><tspan x="80" dy="23">+ Anonimizar() : void</tspan></text>
+<rect x="390" y="300" width="220" height="239" fill="white" stroke="#111" stroke-width="1.8"/>
+<rect x="390" y="300" width="220" height="54" fill="#f2f2f2" stroke="#111" stroke-width="1.4"/>
+<text x="500.0" y="334" font-family="Arial" font-size="17" font-weight="bold" text-anchor="middle" fill="#111"><tspan x="500.0" dy="0">PreferenciasUsuario</tspan></text>
+<line x1="390" y1="487" x2="610" y2="487" stroke="#111" stroke-width="1.2"/>
+<text x="400" y="379" font-family="Courier New" font-size="14" font-weight="normal" text-anchor="start" fill="#111"><tspan x="400" dy="0">+ UsuarioId: Guid</tspan><tspan x="400" dy="23">+ Tema: string</tspan><tspan x="400" dy="23">+ NotificacionesPush: bool</tspan><tspan x="400" dy="23">+ NotificacionesCorreo: bool</tspan><tspan x="400" dy="23">+ ResumenSemanal: bool</tspan></text>
+<text x="400" y="512" font-family="Courier New" font-size="14" font-weight="normal" text-anchor="start" fill="#111"><tspan x="400" dy="0">+ Actualizar(...) : void</tspan></text>
+<rect x="70" y="720" width="250" height="228" fill="white" stroke="#111" stroke-width="1.8"/>
+<rect x="70" y="720" width="250" height="54" fill="#f2f2f2" stroke="#111" stroke-width="1.4"/>
+<text x="195.0" y="754" font-family="Arial" font-size="17" font-weight="bold" text-anchor="middle" fill="#111"><tspan x="195.0" dy="0">GrupoFamiliar</tspan></text>
+<line x1="70" y1="861" x2="320" y2="861" stroke="#111" stroke-width="1.2"/>
+<text x="80" y="799" font-family="Courier New" font-size="14" font-weight="normal" text-anchor="start" fill="#111"><tspan x="80" dy="0">+ Id: Guid</tspan><tspan x="80" dy="23">+ Nombre: string</tspan><tspan x="80" dy="23">+ EliminadoEn: DateTimeOffset?</tspan></text>
+<text x="80" y="886" font-family="Courier New" font-size="14" font-weight="normal" text-anchor="start" fill="#111"><tspan x="80" dy="0">+ Crear(nombre) : GrupoFamiliar</tspan><tspan x="80" dy="23">+ Actualizar(nombre) : void</tspan><tspan x="80" dy="23">+ Eliminar() : void</tspan></text>
+<rect x="350" y="720" width="250" height="251" fill="white" stroke="#111" stroke-width="1.8"/>
+<rect x="350" y="720" width="250" height="54" fill="#f2f2f2" stroke="#111" stroke-width="1.4"/>
+<text x="475.0" y="754" font-family="Arial" font-size="17" font-weight="bold" text-anchor="middle" fill="#111"><tspan x="475.0" dy="0">IntegranteFamiliar</tspan></text>
+<line x1="350" y1="884" x2="600" y2="884" stroke="#111" stroke-width="1.2"/>
+<text x="360" y="799" font-family="Courier New" font-size="14" font-weight="normal" text-anchor="start" fill="#111"><tspan x="360" dy="0">+ GrupoFamiliarId: Guid</tspan><tspan x="360" dy="23">+ UsuarioId: Guid</tspan><tspan x="360" dy="23">+ Rol: string</tspan><tspan x="360" dy="23">+ EliminadoEn: DateTimeOffset?</tspan></text>
+<text x="360" y="909" font-family="Courier New" font-size="14" font-weight="normal" text-anchor="start" fill="#111"><tspan x="360" dy="0">+ Crear(...) : IntegranteFamiliar</tspan><tspan x="360" dy="23">+ CambiarRol(rol) : void</tspan><tspan x="360" dy="23">+ Eliminar() : void</tspan></text>
+<rect x="70" y="1020" width="270" height="320" fill="white" stroke="#111" stroke-width="1.8"/>
+<rect x="70" y="1020" width="270" height="54" fill="#f2f2f2" stroke="#111" stroke-width="1.4"/>
+<text x="205.0" y="1054" font-family="Arial" font-size="17" font-weight="bold" text-anchor="middle" fill="#111"><tspan x="205.0" dy="0">MovimientoFamiliar</tspan></text>
+<line x1="70" y1="1253" x2="340" y2="1253" stroke="#111" stroke-width="1.2"/>
+<text x="80" y="1099" font-family="Courier New" font-size="14" font-weight="normal" text-anchor="start" fill="#111"><tspan x="80" dy="0">+ GrupoFamiliarId: Guid</tspan><tspan x="80" dy="23">+ UsuarioId: Guid</tspan><tspan x="80" dy="23">+ CuentaId: Guid</tspan><tspan x="80" dy="23">+ Tipo: string</tspan><tspan x="80" dy="23">+ Monto: long</tspan><tspan x="80" dy="23">+ Fecha: DateOnly</tspan><tspan x="80" dy="23">+ Estado: string</tspan></text>
+<text x="80" y="1278" font-family="Courier New" font-size="14" font-weight="normal" text-anchor="start" fill="#111"><tspan x="80" dy="0">+ Crear(...) : MovimientoFamiliar</tspan><tspan x="80" dy="23">+ Actualizar(...) : void</tspan><tspan x="80" dy="23">+ Anular() : void</tspan></text>
+<rect x="365" y="1020" width="235" height="188" fill="white" stroke="#111" stroke-width="1.8"/>
+<rect x="365" y="1020" width="235" height="54" fill="#f2f2f2" stroke="#111" stroke-width="1.4"/>
+<text x="482.5" y="1054" font-family="Arial" font-size="17" font-weight="bold" text-anchor="middle" fill="#111"><tspan x="482.5" dy="0">CajaCompartida</tspan></text>
+<line x1="365" y1="1144" x2="600" y2="1144" stroke="#111" stroke-width="1.2"/>
+<text x="375" y="1099" font-family="Courier New" font-size="14" font-weight="normal" text-anchor="start" fill="#111"><tspan x="375" dy="0">+ GrupoFamiliarId: Guid</tspan><tspan x="375" dy="23">+ Saldo: long</tspan></text>
+<text x="375" y="1169" font-family="Courier New" font-size="14" font-weight="normal" text-anchor="start" fill="#111"><tspan x="375" dy="0">+ Crear(grupoId) : CajaCompartida</tspan><tspan x="375" dy="23">+ Aplicar(tipo, monto) : Saldo</tspan></text>
+<rect x="1220" y="210" width="390" height="343" fill="white" stroke="#111" stroke-width="1.8"/>
+<rect x="1220" y="210" width="390" height="54" fill="#f2f2f2" stroke="#111" stroke-width="1.4"/>
+<text x="1415.0" y="244" font-family="Arial" font-size="17" font-weight="bold" text-anchor="middle" fill="#111"><tspan x="1415.0" dy="0">Cuenta</tspan></text>
+<line x1="1220" y1="443" x2="1610" y2="443" stroke="#111" stroke-width="1.2"/>
+<text x="1230" y="289" font-family="Courier New" font-size="14" font-weight="normal" text-anchor="start" fill="#111"><tspan x="1230" dy="0">+ UsuarioId: Guid</tspan><tspan x="1230" dy="23">+ Nombre: string</tspan><tspan x="1230" dy="23">+ Tipo: string</tspan><tspan x="1230" dy="23">+ Moneda: string</tspan><tspan x="1230" dy="23">+ SaldoActual: long</tspan><tspan x="1230" dy="23">+ SaldoInicial: long</tspan><tspan x="1230" dy="23">+ IncluidaEnTotal: bool</tspan></text>
+<text x="1230" y="468" font-family="Courier New" font-size="14" font-weight="normal" text-anchor="start" fill="#111"><tspan x="1230" dy="0">+ Crear(...) : Cuenta</tspan><tspan x="1230" dy="23">+ AplicarMovimiento(tipo, monto) : void</tspan><tspan x="1230" dy="23">+ Actualizar(...) : void</tspan><tspan x="1230" dy="23">+ Eliminar() : void</tspan></text>
+<rect x="1720" y="210" width="390" height="343" fill="white" stroke="#111" stroke-width="1.8"/>
+<rect x="1720" y="210" width="390" height="54" fill="#f2f2f2" stroke="#111" stroke-width="1.4"/>
+<text x="1915.0" y="244" font-family="Arial" font-size="17" font-weight="bold" text-anchor="middle" fill="#111"><tspan x="1915.0" dy="0">TarjetaCredito</tspan></text>
+<line x1="1720" y1="443" x2="2110" y2="443" stroke="#111" stroke-width="1.2"/>
+<text x="1730" y="289" font-family="Courier New" font-size="14" font-weight="normal" text-anchor="start" fill="#111"><tspan x="1730" dy="0">+ UsuarioId: Guid</tspan><tspan x="1730" dy="23">+ CuentaPagoId: Guid</tspan><tspan x="1730" dy="23">+ Alias: string</tspan><tspan x="1730" dy="23">+ DiaCierre: long</tspan><tspan x="1730" dy="23">+ DiaVencimiento: long</tspan><tspan x="1730" dy="23">+ LimiteCredito: long</tspan><tspan x="1730" dy="23">+ SaldoUtilizado: long</tspan></text>
+<text x="1730" y="468" font-family="Courier New" font-size="14" font-weight="normal" text-anchor="start" fill="#111"><tspan x="1730" dy="0">+ CreditoDisponible: long</tspan><tspan x="1730" dy="23">+ AplicarMovimiento(tipo, monto) : void</tspan><tspan x="1730" dy="23">+ Actualizar(...) : void</tspan><tspan x="1730" dy="23">+ Eliminar() : void</tspan></text>
+<rect x="720" y="210" width="390" height="297" fill="white" stroke="#111" stroke-width="1.8"/>
+<rect x="720" y="210" width="390" height="54" fill="#f2f2f2" stroke="#111" stroke-width="1.4"/>
+<text x="915.0" y="244" font-family="Arial" font-size="17" font-weight="bold" text-anchor="middle" fill="#111"><tspan x="915.0" dy="0">Categoria</tspan></text>
+<line x1="720" y1="420" x2="1110" y2="420" stroke="#111" stroke-width="1.2"/>
+<text x="730" y="289" font-family="Courier New" font-size="14" font-weight="normal" text-anchor="start" fill="#111"><tspan x="730" dy="0">+ UsuarioId: Guid?</tspan><tspan x="730" dy="23">+ Nombre: string</tspan><tspan x="730" dy="23">+ Tipo: string</tspan><tspan x="730" dy="23">+ Icono: string?</tspan><tspan x="730" dy="23">+ Color: string?</tspan><tspan x="730" dy="23">+ EsPredeterminada: bool</tspan></text>
+<text x="730" y="445" font-family="Courier New" font-size="14" font-weight="normal" text-anchor="start" fill="#111"><tspan x="730" dy="0">+ Crear(...) : Categoria</tspan><tspan x="730" dy="23">+ Actualizar(...) : void</tspan><tspan x="730" dy="23">+ Eliminar() : void</tspan></text>
+<rect x="1220" y="590" width="550" height="389" fill="white" stroke="#111" stroke-width="1.8"/>
+<rect x="1220" y="590" width="550" height="54" fill="#f2f2f2" stroke="#111" stroke-width="1.4"/>
+<text x="1495.0" y="624" font-family="Arial" font-size="17" font-weight="bold" text-anchor="middle" fill="#111"><tspan x="1495.0" dy="0">Movimiento</tspan></text>
+<line x1="1220" y1="869" x2="1770" y2="869" stroke="#111" stroke-width="1.2"/>
+<text x="1230" y="669" font-family="Courier New" font-size="14" font-weight="normal" text-anchor="start" fill="#111"><tspan x="1230" dy="0">+ UsuarioId: Guid</tspan><tspan x="1230" dy="23">+ CuentaId: Guid</tspan><tspan x="1230" dy="23">+ TarjetaCreditoId: Guid?</tspan><tspan x="1230" dy="23">+ Tipo: string</tspan><tspan x="1230" dy="23">+ Monto: long</tspan><tspan x="1230" dy="23">+ Fecha: DateOnly</tspan><tspan x="1230" dy="23">+ Estado: string</tspan><tspan x="1230" dy="23">+ Origen: string</tspan><tspan x="1230" dy="23">+ DocumentoId: Guid?</tspan></text>
+<text x="1230" y="894" font-family="Courier New" font-size="14" font-weight="normal" text-anchor="start" fill="#111"><tspan x="1230" dy="0">+ Crear(...) : Movimiento</tspan><tspan x="1230" dy="23">+ Actualizar(...) : void</tspan><tspan x="1230" dy="23">+ Anular(motivo) : void</tspan><tspan x="1230" dy="23">+ MontoIngresoAnalitico() : long</tspan></text>
+<rect x="720" y="600" width="390" height="320" fill="white" stroke="#111" stroke-width="1.8"/>
+<rect x="720" y="600" width="390" height="54" fill="#f2f2f2" stroke="#111" stroke-width="1.4"/>
+<text x="915.0" y="634" font-family="Arial" font-size="17" font-weight="bold" text-anchor="middle" fill="#111"><tspan x="915.0" dy="0">MovimientoRecurrente</tspan></text>
+<line x1="720" y1="833" x2="1110" y2="833" stroke="#111" stroke-width="1.2"/>
+<text x="730" y="679" font-family="Courier New" font-size="14" font-weight="normal" text-anchor="start" fill="#111"><tspan x="730" dy="0">+ UsuarioId: Guid</tspan><tspan x="730" dy="23">+ CuentaId: Guid</tspan><tspan x="730" dy="23">+ Tipo: string</tspan><tspan x="730" dy="23">+ Monto: long</tspan><tspan x="730" dy="23">+ Frecuencia: string</tspan><tspan x="730" dy="23">+ ProximaEjecucion: DateOnly</tspan><tspan x="730" dy="23">+ Estado: string</tspan></text>
+<text x="730" y="858" font-family="Courier New" font-size="14" font-weight="normal" text-anchor="start" fill="#111"><tspan x="730" dy="0">+ Crear(...) : MovimientoRecurrente</tspan><tspan x="730" dy="23">+ RegistrarEjecucion(ahora) : void</tspan><tspan x="730" dy="23">+ CambiarEstado(estado) : void</tspan></text>
+<rect x="1820" y="600" width="390" height="297" fill="white" stroke="#111" stroke-width="1.8"/>
+<rect x="1820" y="600" width="390" height="54" fill="#f2f2f2" stroke="#111" stroke-width="1.4"/>
+<text x="2015.0" y="634" font-family="Arial" font-size="17" font-weight="bold" text-anchor="middle" fill="#111"><tspan x="2015.0" dy="0">Transferencia</tspan></text>
+<line x1="1820" y1="810" x2="2210" y2="810" stroke="#111" stroke-width="1.2"/>
+<text x="1830" y="679" font-family="Courier New" font-size="14" font-weight="normal" text-anchor="start" fill="#111"><tspan x="1830" dy="0">+ UsuarioId: Guid</tspan><tspan x="1830" dy="23">+ CuentaOrigenId: Guid</tspan><tspan x="1830" dy="23">+ CuentaDestinoId: Guid</tspan><tspan x="1830" dy="23">+ Monto: long</tspan><tspan x="1830" dy="23">+ Fecha: DateOnly</tspan><tspan x="1830" dy="23">+ Estado: string</tspan></text>
+<text x="1830" y="835" font-family="Courier New" font-size="14" font-weight="normal" text-anchor="start" fill="#111"><tspan x="1830" dy="0">+ Iniciar(...) : Transferencia</tspan><tspan x="1830" dy="23">+ Confirmar(egresoId, ingresoId) : void</tspan><tspan x="1830" dy="23">+ Anular() : void</tspan></text>
+<rect x="2220" y="210" width="550" height="297" fill="white" stroke="#111" stroke-width="1.8"/>
+<rect x="2220" y="210" width="550" height="54" fill="#f2f2f2" stroke="#111" stroke-width="1.4"/>
+<text x="2495.0" y="244" font-family="Arial" font-size="17" font-weight="bold" text-anchor="middle" fill="#111"><tspan x="2495.0" dy="0">Presupuesto</tspan></text>
+<line x1="2220" y1="420" x2="2770" y2="420" stroke="#111" stroke-width="1.2"/>
+<text x="2230" y="289" font-family="Courier New" font-size="14" font-weight="normal" text-anchor="start" fill="#111"><tspan x="2230" dy="0">+ UsuarioId: Guid</tspan><tspan x="2230" dy="23">+ Nombre: string</tspan><tspan x="2230" dy="23">+ Monto: long</tspan><tspan x="2230" dy="23">+ Moneda: string</tspan><tspan x="2230" dy="23">+ Periodo: string</tspan><tspan x="2230" dy="23">+ Estado: string</tspan></text>
+<text x="2230" y="445" font-family="Courier New" font-size="14" font-weight="normal" text-anchor="start" fill="#111"><tspan x="2230" dy="0">+ Crear(...) : Presupuesto</tspan><tspan x="2230" dy="23">+ Actualizar(...) : void</tspan><tspan x="2230" dy="23">+ Eliminar() : void</tspan></text>
+<rect x="2220" y="590" width="550" height="343" fill="white" stroke="#111" stroke-width="1.8"/>
+<rect x="2220" y="590" width="550" height="54" fill="#f2f2f2" stroke="#111" stroke-width="1.4"/>
+<text x="2495.0" y="624" font-family="Arial" font-size="17" font-weight="bold" text-anchor="middle" fill="#111"><tspan x="2495.0" dy="0">MetaAhorro</tspan></text>
+<line x1="2220" y1="846" x2="2770" y2="846" stroke="#111" stroke-width="1.2"/>
+<text x="2230" y="669" font-family="Courier New" font-size="14" font-weight="normal" text-anchor="start" fill="#111"><tspan x="2230" dy="0">+ Ambito: string</tspan><tspan x="2230" dy="23">+ UsuarioId: Guid?</tspan><tspan x="2230" dy="23">+ GrupoFamiliarId: Guid?</tspan><tspan x="2230" dy="23">+ CreadoPor: Guid</tspan><tspan x="2230" dy="23">+ Nombre: string</tspan><tspan x="2230" dy="23">+ MontoObjetivo: long</tspan><tspan x="2230" dy="23">+ FechaObjetivo: DateOnly</tspan><tspan x="2230" dy="23">+ CuentaId: Guid</tspan></text>
+<text x="2230" y="871" font-family="Courier New" font-size="14" font-weight="normal" text-anchor="start" fill="#111"><tspan x="2230" dy="0">+ Crear(...) : MetaAhorro</tspan><tspan x="2230" dy="23">+ Actualizar(...) : void</tspan><tspan x="2230" dy="23">+ Eliminar() : void</tspan></text>
+<rect x="2220" y="970" width="550" height="262" fill="white" stroke="#111" stroke-width="1.8"/>
+<rect x="2220" y="970" width="550" height="54" fill="#f2f2f2" stroke="#111" stroke-width="1.4"/>
+<text x="2495.0" y="1004" font-family="Arial" font-size="17" font-weight="bold" text-anchor="middle" fill="#111"><tspan x="2495.0" dy="0">AporteMeta</tspan></text>
+<line x1="2220" y1="1180" x2="2770" y2="1180" stroke="#111" stroke-width="1.2"/>
+<text x="2230" y="1049" font-family="Courier New" font-size="14" font-weight="normal" text-anchor="start" fill="#111"><tspan x="2230" dy="0">+ MetaAhorroId: Guid</tspan><tspan x="2230" dy="23">+ Monto: long</tspan><tspan x="2230" dy="23">+ CuentaOrigenId: Guid</tspan><tspan x="2230" dy="23">+ Descripcion: string</tspan><tspan x="2230" dy="23">+ AportadoPor: Guid</tspan><tspan x="2230" dy="23">+ Fecha: DateOnly</tspan></text>
+<text x="2230" y="1205" font-family="Courier New" font-size="14" font-weight="normal" text-anchor="start" fill="#111"><tspan x="2230" dy="0">+ Crear(...) : AporteMeta</tspan></text>
+<rect x="720" y="1350" width="430" height="297" fill="white" stroke="#111" stroke-width="1.8"/>
+<rect x="720" y="1350" width="430" height="54" fill="#f2f2f2" stroke="#111" stroke-width="1.4"/>
+<text x="935.0" y="1384" font-family="Arial" font-size="17" font-weight="bold" text-anchor="middle" fill="#111"><tspan x="935.0" dy="0">DocumentoFinanciero</tspan></text>
+<line x1="720" y1="1583" x2="1150" y2="1583" stroke="#111" stroke-width="1.2"/>
+<text x="730" y="1429" font-family="Courier New" font-size="14" font-weight="normal" text-anchor="start" fill="#111"><tspan x="730" dy="0">+ UsuarioId: Guid</tspan><tspan x="730" dy="23">+ Ambito: string</tspan><tspan x="730" dy="23">+ GrupoFamiliarId: Guid?</tspan><tspan x="730" dy="23">+ ClaveObjeto: string</tspan><tspan x="730" dy="23">+ Tipo: string</tspan><tspan x="730" dy="23">+ MimeType: string</tspan><tspan x="730" dy="23">+ EstadoArchivo: string</tspan></text>
+<text x="730" y="1608" font-family="Courier New" font-size="14" font-weight="normal" text-anchor="start" fill="#111"><tspan x="730" dy="0">+ Crear(...) : DocumentoFinanciero</tspan><tspan x="730" dy="23">+ Eliminar() : void</tspan></text>
+<rect x="1200" y="1350" width="430" height="320" fill="white" stroke="#111" stroke-width="1.8"/>
+<rect x="1200" y="1350" width="430" height="54" fill="#f2f2f2" stroke="#111" stroke-width="1.4"/>
+<text x="1415.0" y="1384" font-family="Arial" font-size="17" font-weight="bold" text-anchor="middle" fill="#111"><tspan x="1415.0" dy="0">ProcesamientoDocumental</tspan></text>
+<line x1="1200" y1="1560" x2="1630" y2="1560" stroke="#111" stroke-width="1.2"/>
+<text x="1210" y="1429" font-family="Courier New" font-size="14" font-weight="normal" text-anchor="start" fill="#111"><tspan x="1210" dy="0">+ DocumentoId: Guid</tspan><tspan x="1210" dy="23">+ Tipo: string</tspan><tspan x="1210" dy="23">+ Estado: string</tspan><tspan x="1210" dy="23">+ Proveedor: string</tspan><tspan x="1210" dy="23">+ Confianza: double?</tspan><tspan x="1210" dy="23">+ DatosDetectados: JsonDocument</tspan></text>
+<text x="1210" y="1585" font-family="Courier New" font-size="14" font-weight="normal" text-anchor="start" fill="#111"><tspan x="1210" dy="0">+ Crear(...) : ProcesamientoDocumental</tspan><tspan x="1210" dy="23">+ Iniciar() : void</tspan><tspan x="1210" dy="23">+ Completar(...) : void</tspan><tspan x="1210" dy="23">+ Corregir(datos) : void</tspan></text>
+<rect x="1750" y="1350" width="430" height="233" fill="white" stroke="#111" stroke-width="1.8"/>
+<rect x="1750" y="1350" width="430" height="54" fill="#f2f2f2" stroke="#111" stroke-width="1.4"/>
+<text x="1965.0" y="1384" font-family="Arial" font-size="17" font-weight="bold" text-anchor="middle" fill="#111"><tspan x="1965.0" dy="0">PlanSuscripcion</tspan></text>
+<line x1="1750" y1="1583" x2="2180" y2="1583" stroke="#111" stroke-width="1.2"/>
+<text x="1760" y="1429" font-family="Courier New" font-size="14" font-weight="normal" text-anchor="start" fill="#111"><tspan x="1760" dy="0">+ Codigo: string</tspan><tspan x="1760" dy="23">+ Nombre: string</tspan><tspan x="1760" dy="23">+ Precio: long</tspan><tspan x="1760" dy="23">+ Moneda: string</tspan><tspan x="1760" dy="23">+ Periodo: string</tspan><tspan x="1760" dy="23">+ Capacidades: string[]</tspan><tspan x="1760" dy="23">+ Activo: bool</tspan></text>
+<rect x="2290" y="1350" width="470" height="343" fill="white" stroke="#111" stroke-width="1.8"/>
+<rect x="2290" y="1350" width="470" height="54" fill="#f2f2f2" stroke="#111" stroke-width="1.4"/>
+<text x="2525.0" y="1384" font-family="Arial" font-size="17" font-weight="bold" text-anchor="middle" fill="#111"><tspan x="2525.0" dy="0">Suscripcion</tspan></text>
+<line x1="2290" y1="1583" x2="2760" y2="1583" stroke="#111" stroke-width="1.2"/>
+<text x="2300" y="1429" font-family="Courier New" font-size="14" font-weight="normal" text-anchor="start" fill="#111"><tspan x="2300" dy="0">+ UsuarioId: Guid</tspan><tspan x="2300" dy="23">+ PlanId: Guid</tspan><tspan x="2300" dy="23">+ Proveedor: string</tspan><tspan x="2300" dy="23">+ Estado: string</tspan><tspan x="2300" dy="23">+ IniciadaEn: DateTimeOffset</tspan><tspan x="2300" dy="23">+ FinPeriodoEn: DateTimeOffset</tspan><tspan x="2300" dy="23">+ CanceladaEn: DateTimeOffset?</tspan></text>
+<text x="2300" y="1608" font-family="Courier New" font-size="14" font-weight="normal" text-anchor="start" fill="#111"><tspan x="2300" dy="0">+ Crear(...) : Suscripcion</tspan><tspan x="2300" dy="23">+ Cancelar(motivo) : void</tspan><tspan x="2300" dy="23">+ Restaurar(finPeriodoEn) : void</tspan><tspan x="2300" dy="23">+ SincronizarProveedor(...) : void</tspan></text>
+<path d="M70 1600 H570 L610 1640 V1725 H70 Z" fill="white" stroke="#777"/><path d="M570 1600 V1640 H610" fill="none" stroke="#777"/>
+<text x="90" y="1635" font-family="Arial" font-size="14" font-weight="normal" text-anchor="start" fill="#111"><tspan x="90" dy="0">Vista lógica del dominio principal. Las referencias entre módulos se</tspan><tspan x="90" dy="22">expresan mediante sus atributos ...Id para evitar cruces. Se omiten clases</tspan><tspan x="90" dy="22">técnicas de autenticación, auditoría, outbox y piloto.</tspan></text>
+</svg>

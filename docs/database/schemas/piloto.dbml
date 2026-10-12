@@ -1,0 +1,75 @@
+Project Finanza {
+  database_type: 'PostgreSQL'
+  Note: 'DER generado automáticamente desde FinanzasDbContextModelSnapshot'
+}
+
+Table piloto.instrumentos [headerColor: #E76F51] {
+  id uuid [pk, not null]
+  activo boolean [not null]
+  codigo "character varying(40)" [not null]
+  creado_en "timestamp with time zone" [not null]
+  descripcion "character varying(1000)" [not null]
+  titulo "character varying(160)" [not null]
+  version_instrumento "character varying(30)" [not null]
+
+  indexes {
+    (codigo) [name: 'ix_instrumentos_codigo', unique]
+    (codigo, version_instrumento) [name: 'ix_instrumentos_codigo_version_instrumento', unique]
+  }
+}
+
+Table piloto.preguntas [headerColor: #E76F51] {
+  id uuid [pk, not null]
+  creado_en "timestamp with time zone" [not null]
+  instrumento_id uuid [not null]
+  maximo integer
+  minimo integer
+  orden integer [not null]
+  requerida boolean [not null]
+  texto "character varying(1000)" [not null]
+  tipo "character varying(20)" [not null]
+
+  indexes {
+    (instrumento_id, orden) [name: 'ix_preguntas_instrumento_id_orden', unique]
+  }
+}
+
+Table piloto.respuestas [headerColor: #E76F51] {
+  id uuid [pk, not null]
+  creado_en "timestamp with time zone" [not null]
+  instrumento_id uuid [not null]
+  respondido_en "timestamp with time zone" [not null]
+  usuario_id uuid [not null]
+  version_instrumento "character varying(30)" [not null]
+
+  indexes {
+    (instrumento_id) [name: 'ix_respuestas_instrumento_id']
+    (usuario_id, instrumento_id) [name: 'ix_respuestas_usuario_id_instrumento_id', unique]
+  }
+}
+
+Table piloto.respuestas_detalle [headerColor: #E76F51] {
+  id uuid [pk, not null]
+  creado_en "timestamp with time zone" [not null]
+  pregunta_id uuid [not null]
+  respuesta_id uuid [not null]
+  valor_escala integer
+  valor_texto "character varying(2000)"
+
+  indexes {
+    (pregunta_id) [name: 'ix_respuestas_detalle_pregunta_id']
+    (respuesta_id, pregunta_id) [name: 'ix_respuestas_detalle_respuesta_id_pregunta_id', unique]
+  }
+}
+
+Ref fk_preguntas_instrumentos_instrumento_id: piloto.preguntas.instrumento_id > piloto.instrumentos.id [delete: cascade]
+Ref fk_respuestas_instrumentos_instrumento_id: piloto.respuestas.instrumento_id > piloto.instrumentos.id [delete: restrict]
+Ref fk_respuestas_detalle_preguntas_pregunta_id: piloto.respuestas_detalle.pregunta_id > piloto.preguntas.id [delete: restrict]
+Ref fk_respuestas_detalle_respuestas_respuesta_id: piloto.respuestas_detalle.respuesta_id > piloto.respuestas.id [delete: cascade]
+
+TableGroup piloto {
+  piloto.instrumentos
+  piloto.preguntas
+  piloto.respuestas
+  piloto.respuestas_detalle
+}

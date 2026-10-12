@@ -59,13 +59,12 @@ public sealed class FirebasePushSender(
             .SingleOrDefaultAsync(cancellationToken);
         if (!permitePush) return;
 
-        var tokens = await db.Dispositivos.AsNoTracking()
+        var dispositivos = await db.Dispositivos
             .Where(x => x.UsuarioId == usuarioId &&
                 x.RevocadoEn == null &&
                 x.TokenPushProtegido != string.Empty)
-            .Select(x => x.TokenPushProtegido)
             .ToListAsync(cancellationToken);
-        if (tokens.Count == 0) return;
+        if (dispositivos.Count == 0) return;
 
         _credential ??= (await GoogleCredential.GetApplicationDefaultAsync())
             .CreateScoped(Scopes);
@@ -74,9 +73,10 @@ public sealed class FirebasePushSender(
         var endpoint =
             $"https://fcm.googleapis.com/v1/projects/{Uri.EscapeDataString(_options.ProjectId)}/messages:send";
 
-        foreach (var tokenProtegido in tokens)
+        var huboRevocaciones = false;
+        foreach (var dispositivo in dispositivos)
         {
-            var token = protector.Desproteger(tokenProtegido);
+            var token = protector.Desproteger(dispositivo.TokenPushProtegido);
             using var request = new HttpRequestMessage(HttpMethod.Post, endpoint)
             {
                 Content = JsonContent.Create(new
@@ -102,8 +102,19 @@ public sealed class FirebasePushSender(
                     "FCM rechazó un push para {UsuarioId}: {StatusCode} {Detail}",
                     usuarioId, (int)response.StatusCode,
                     detail.Length > 500 ? detail[..500] : detail);
+                if (detail.Contains("UNREGISTERED", StringComparison.OrdinalIgnoreCase))
+                {
+                    dispositivo.Revocar();
+                    huboRevocaciones = true;
+                    logger.LogInformation(
+                        "Se revocó el dispositivo {DispositivoId} porque FCM indicó que su token ya no está registrado.",
+                        dispositivo.Id);
+                }
             }
         }
+
+        if (huboRevocaciones)
+            await db.SaveChangesAsync(cancellationToken);
     }
 
     public void Dispose() => _http.Dispose();

@@ -1,0 +1,117 @@
+---
+title: Finanza - Diagrama entidad relación
+config:
+  layout: elk
+---
+erDiagram
+  direction LR
+  identidad__consentimientos_privacidad["identidad.consentimientos_privacidad"] {
+    uuid id PK "required"
+    timestamp_with_time_zone aceptado_en "required"
+    timestamp_with_time_zone creado_en "required"
+    character_varying(120) finalidad "required"
+    uuid politica_id "required"
+    timestamp_with_time_zone? revocado_en "nullable"
+    uuid usuario_id "required"
+    character_varying(30) version_politica "required"
+  }
+  identidad__desafios_otp["identidad.desafios_otp"] {
+    uuid id PK "required"
+    timestamp_with_time_zone actualizado_en "required"
+    character_varying(20) canal "required"
+    timestamp_with_time_zone creado_en "required"
+    character_varying(320) destino "required"
+    timestamp_with_time_zone expira_en "required"
+    character_varying(64) hash_codigo "required"
+    integer intentos_restantes "required"
+    character_varying(50) motivo "required"
+    uuid usuario_id "required"
+    timestamp_with_time_zone? verificado_en "nullable"
+    bigint version "required"
+  }
+  identidad__eliminaciones_perfil["identidad.eliminaciones_perfil"] {
+    uuid id PK "required"
+    timestamp_with_time_zone actualizado_en "required"
+    timestamp_with_time_zone? completado_en "nullable"
+    timestamp_with_time_zone creado_en "required"
+    character_varying(80)? error_codigo "nullable"
+    character_varying(20) estado "required"
+    uuid usuario_id UK "required"
+    bigint version "required"
+  }
+  identidad__politicas_privacidad["identidad.politicas_privacidad"] {
+    uuid id PK "required"
+    boolean activa "required"
+    timestamp_with_time_zone creado_en "required"
+    character_varying(160) titulo "required"
+    character_varying(500) url_documento "required"
+    character_varying(30) version_politica UK "required"
+    timestamp_with_time_zone vigente_desde "required"
+  }
+  identidad__preferencias["identidad.preferencias"] {
+    uuid usuario_id PK "required"
+    timestamp_with_time_zone actualizado_en "required"
+    timestamp_with_time_zone creado_en "required"
+    boolean notificaciones_correo "required"
+    boolean notificaciones_push "required"
+    boolean resumen_semanal "required"
+    character_varying(20) tema "required"
+    bigint version "required"
+  }
+  identidad__recuperaciones_contrasena["identidad.recuperaciones_contrasena"] {
+    uuid id PK "required"
+    timestamp_with_time_zone? consumido_en "nullable"
+    timestamp_with_time_zone creado_en "required"
+    timestamp_with_time_zone expira_en "required"
+    character_varying(64) hash_token "required"
+    integer intentos_restantes "required"
+    uuid usuario_id "required"
+  }
+  identidad__sesiones["identidad.sesiones"] {
+    uuid id PK "required"
+    timestamp_with_time_zone creado_en "required"
+    timestamp_with_time_zone expira_en "required"
+    uuid familia_token "required"
+    character_varying(64) hash_refresh_token UK "required"
+    character_varying(200) identificador_dispositivo "required"
+    character_varying(120) nombre_dispositivo "required"
+    character_varying(30) plataforma_dispositivo "required"
+    timestamp_with_time_zone? revocado_en "nullable"
+    timestamp_with_time_zone? usado_en "nullable"
+    uuid usuario_id "required"
+  }
+  identidad__usuarios["identidad.usuarios"] {
+    uuid id PK "required"
+    timestamp_with_time_zone actualizado_en "required"
+    citext alias UK "required"
+    timestamp_with_time_zone? anonimizado_en "nullable"
+    citext correo UK "required"
+    timestamp_with_time_zone creado_en "required"
+    character_varying(30) estado "required"
+    text hash_contrasena "required"
+    character_varying(10) idioma "required"
+    character_varying(3) moneda "required"
+    character_varying(120) nombre "required"
+    character_varying(30) rol "required"
+    character_varying(160) ubicacion "required"
+    bigint version "required"
+    character_varying(80) zona_horaria "required"
+  }
+  identidad__verificaciones_otp["identidad.verificaciones_otp"] {
+    uuid id PK "required"
+    timestamp_with_time_zone? consumido_en "nullable"
+    timestamp_with_time_zone creado_en "required"
+    uuid desafio_id UK "required"
+    timestamp_with_time_zone expira_en "required"
+    character_varying(50) motivo "required"
+    uuid usuario_id "required"
+  }
+  identidad__politicas_privacidad ||--o{ identidad__consentimientos_privacidad : "fk_consentimientos_privacidad_politicas_privacidad_politica_id"
+  identidad__usuarios ||--o{ identidad__consentimientos_privacidad : "fk_consentimientos_privacidad_usuarios_usuario_id"
+  identidad__usuarios ||--o{ identidad__desafios_otp : "fk_desafios_otp_usuarios_usuario_id"
+  identidad__usuarios ||--o{ identidad__eliminaciones_perfil : "fk_eliminaciones_perfil_usuarios_usuario_id"
+  identidad__usuarios ||--o{ identidad__preferencias : "fk_preferencias_usuarios_usuario_id"
+  identidad__usuarios ||--o{ identidad__recuperaciones_contrasena : "fk_recuperaciones_contrasena_usuarios_usuario_id"
+  identidad__usuarios ||--o{ identidad__sesiones : "fk_sesiones_usuarios_usuario_id"
+  identidad__desafios_otp ||--o{ identidad__verificaciones_otp : "fk_verificaciones_otp_desafios_otp_desafio_id"
+  identidad__usuarios ||--o{ identidad__verificaciones_otp : "fk_verificaciones_otp_usuarios_usuario_id"

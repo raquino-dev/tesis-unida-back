@@ -1,0 +1,204 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Finanza · Mapa de tablas</title>
+  <style>
+    body { margin: 0; font-family: system-ui, sans-serif; color: #0b2239; background: #f4fffb; }
+    header { position: sticky; top: 0; z-index: 1; padding: 16px 24px; background: #006b4f; color: white; }
+    header h1 { margin: 0; font-size: 20px; }
+    header p { margin: 4px 0 0; opacity: .85; }
+    main { min-width: max-content; padding: 24px; }
+    .mermaid { background: white; border: 1px solid #cde9df; border-radius: 16px; padding: 20px; }
+  </style>
+</head>
+<body>
+  <header><h1>Finanza · Mapa de tablas</h1><p>Generado desde el snapshot vigente de Entity Framework Core</p></header>
+  <main><pre class="mermaid">---
+title: Finanza - Mapa de tablas
+config:
+  layout: elk
+  flowchart:
+    curve: basis
+---
+flowchart LR
+  subgraph schema_analitica["analitica"]
+    direction TB
+    analitica__alertas["alertas"]
+  end
+  subgraph schema_auditoria["auditoria"]
+    direction TB
+    auditoria__eventos["eventos"]
+  end
+  subgraph schema_documentos["documentos"]
+    direction TB
+    documentos__archivos["archivos"]
+    documentos__exportaciones["exportaciones"]
+    documentos__procesamientos["procesamientos"]
+  end
+  subgraph schema_familias["familias"]
+    direction TB
+    familias__cajas_compartidas["cajas_compartidas"]
+    familias__categorias["categorias"]
+    familias__cuentas_compartidas["cuentas_compartidas"]
+    familias__eliminaciones["eliminaciones"]
+    familias__grupos_familiares["grupos_familiares"]
+    familias__integrantes["integrantes"]
+    familias__invitaciones["invitaciones"]
+    familias__movimientos["movimientos"]
+    familias__operaciones_caja["operaciones_caja"]
+    familias__presupuestos["presupuestos"]
+  end
+  subgraph schema_finanzas["finanzas"]
+    direction TB
+    finanzas__aportes_meta["aportes_meta"]
+    finanzas__categorias["categorias"]
+    finanzas__cuentas["cuentas"]
+    finanzas__metas_ahorro["metas_ahorro"]
+    finanzas__movimientos["movimientos"]
+    finanzas__movimientos_categorias["movimientos_categorias"]
+    finanzas__presupuesto_categorias["presupuesto_categorias"]
+    finanzas__presupuestos["presupuestos"]
+    finanzas__recurrencia_categorias["recurrencia_categorias"]
+    finanzas__recurrencias["recurrencias"]
+    finanzas__tarjetas_credito["tarjetas_credito"]
+    finanzas__transferencias["transferencias"]
+  end
+  subgraph schema_identidad["identidad"]
+    direction TB
+    identidad__consentimientos_privacidad["consentimientos_privacidad"]
+    identidad__desafios_otp["desafios_otp"]
+    identidad__eliminaciones_perfil["eliminaciones_perfil"]
+    identidad__politicas_privacidad["politicas_privacidad"]
+    identidad__preferencias["preferencias"]
+    identidad__recuperaciones_contrasena["recuperaciones_contrasena"]
+    identidad__sesiones["sesiones"]
+    identidad__usuarios["usuarios"]
+    identidad__verificaciones_otp["verificaciones_otp"]
+  end
+  subgraph schema_infra["infra"]
+    direction TB
+    infra__idempotencias["idempotencias"]
+    infra__outbox_entregas["outbox_entregas"]
+    infra__outbox_eventos["outbox_eventos"]
+  end
+  subgraph schema_piloto["piloto"]
+    direction TB
+    piloto__instrumentos["instrumentos"]
+    piloto__preguntas["preguntas"]
+    piloto__respuestas["respuestas"]
+    piloto__respuestas_detalle["respuestas_detalle"]
+  end
+  subgraph schema_seguridad["seguridad"]
+    direction TB
+    seguridad__dispositivos["dispositivos"]
+    seguridad__eventos["eventos"]
+  end
+  subgraph schema_sincronizacion["sincronizacion"]
+    direction TB
+    sincronizacion__cambios["cambios"]
+  end
+  subgraph schema_suscripciones["suscripciones"]
+    direction TB
+    suscripciones__avisos["avisos"]
+    suscripciones__planes["planes"]
+    suscripciones__suscripciones["suscripciones"]
+    suscripciones__transacciones["transacciones"]
+  end
+  analitica__alertas --&gt; identidad__usuarios
+  auditoria__eventos --&gt; familias__grupos_familiares
+  auditoria__eventos --&gt; identidad__usuarios
+  documentos__archivos --&gt; familias__grupos_familiares
+  documentos__archivos --&gt; identidad__usuarios
+  documentos__exportaciones --&gt; familias__grupos_familiares
+  documentos__exportaciones --&gt; identidad__usuarios
+  documentos__procesamientos --&gt; documentos__archivos
+  familias__cajas_compartidas --&gt; familias__grupos_familiares
+  familias__categorias --&gt; familias__grupos_familiares
+  familias__cuentas_compartidas --&gt; familias__grupos_familiares
+  familias__cuentas_compartidas --&gt; finanzas__cuentas
+  familias__eliminaciones --&gt; familias__grupos_familiares
+  familias__integrantes --&gt; familias__grupos_familiares
+  familias__integrantes --&gt; identidad__usuarios
+  familias__invitaciones --&gt; familias__grupos_familiares
+  familias__movimientos --&gt; familias__grupos_familiares
+  familias__movimientos --&gt; finanzas__cuentas
+  familias__operaciones_caja --&gt; familias__grupos_familiares
+  familias__operaciones_caja --&gt; finanzas__cuentas
+  familias__presupuestos --&gt; familias__grupos_familiares
+  finanzas__aportes_meta --&gt; finanzas__cuentas
+  finanzas__aportes_meta --&gt; finanzas__metas_ahorro
+  finanzas__aportes_meta --&gt; identidad__usuarios
+  finanzas__metas_ahorro --&gt; familias__grupos_familiares
+  finanzas__metas_ahorro --&gt; finanzas__cuentas
+  finanzas__metas_ahorro --&gt; identidad__usuarios
+  finanzas__movimientos --&gt; documentos__archivos
+  finanzas__movimientos --&gt; finanzas__cuentas
+  finanzas__movimientos --&gt; finanzas__recurrencias
+  finanzas__movimientos --&gt; finanzas__tarjetas_credito
+  finanzas__movimientos --&gt; finanzas__transferencias
+  finanzas__movimientos_categorias --&gt; finanzas__categorias
+  finanzas__movimientos_categorias --&gt; finanzas__movimientos
+  finanzas__presupuesto_categorias --&gt; finanzas__categorias
+  finanzas__presupuesto_categorias --&gt; finanzas__presupuestos
+  finanzas__presupuestos --&gt; identidad__usuarios
+  finanzas__recurrencia_categorias --&gt; finanzas__categorias
+  finanzas__recurrencia_categorias --&gt; finanzas__recurrencias
+  finanzas__recurrencias --&gt; finanzas__cuentas
+  finanzas__recurrencias --&gt; identidad__usuarios
+  finanzas__tarjetas_credito --&gt; finanzas__cuentas
+  finanzas__transferencias --&gt; finanzas__cuentas
+  finanzas__transferencias --&gt; identidad__usuarios
+  identidad__consentimientos_privacidad --&gt; identidad__politicas_privacidad
+  identidad__consentimientos_privacidad --&gt; identidad__usuarios
+  identidad__desafios_otp --&gt; identidad__usuarios
+  identidad__eliminaciones_perfil --&gt; identidad__usuarios
+  identidad__preferencias --&gt; identidad__usuarios
+  identidad__recuperaciones_contrasena --&gt; identidad__usuarios
+  identidad__sesiones --&gt; identidad__usuarios
+  identidad__verificaciones_otp --&gt; identidad__desafios_otp
+  identidad__verificaciones_otp --&gt; identidad__usuarios
+  infra__outbox_entregas --&gt; infra__outbox_eventos
+  piloto__preguntas --&gt; piloto__instrumentos
+  piloto__respuestas --&gt; identidad__usuarios
+  piloto__respuestas --&gt; piloto__instrumentos
+  piloto__respuestas_detalle --&gt; piloto__preguntas
+  piloto__respuestas_detalle --&gt; piloto__respuestas
+  seguridad__dispositivos --&gt; identidad__usuarios
+  seguridad__eventos --&gt; identidad__usuarios
+  seguridad__eventos --&gt; seguridad__dispositivos
+  suscripciones__avisos --&gt; suscripciones__suscripciones
+  suscripciones__suscripciones --&gt; identidad__usuarios
+  suscripciones__suscripciones --&gt; suscripciones__planes
+  suscripciones__transacciones --&gt; suscripciones__suscripciones
+  classDef table_analitica fill:#ffffff,stroke:#2A9D8F,stroke-width:2px,color:#0B2239
+  class analitica__alertas table_analitica
+  classDef table_auditoria fill:#ffffff,stroke:#7E57C2,stroke-width:2px,color:#0B2239
+  class auditoria__eventos table_auditoria
+  classDef table_documentos fill:#ffffff,stroke:#247BA0,stroke-width:2px,color:#0B2239
+  class documentos__archivos,documentos__exportaciones,documentos__procesamientos table_documentos
+  classDef table_familias fill:#ffffff,stroke:#4C956C,stroke-width:2px,color:#0B2239
+  class familias__cajas_compartidas,familias__categorias,familias__cuentas_compartidas,familias__eliminaciones,familias__grupos_familiares,familias__integrantes,familias__invitaciones,familias__movimientos,familias__operaciones_caja,familias__presupuestos table_familias
+  classDef table_finanzas fill:#ffffff,stroke:#00A676,stroke-width:2px,color:#0B2239
+  class finanzas__aportes_meta,finanzas__categorias,finanzas__cuentas,finanzas__metas_ahorro,finanzas__movimientos,finanzas__movimientos_categorias,finanzas__presupuesto_categorias,finanzas__presupuestos,finanzas__recurrencia_categorias,finanzas__recurrencias,finanzas__tarjetas_credito,finanzas__transferencias table_finanzas
+  classDef table_identidad fill:#ffffff,stroke:#136F63,stroke-width:2px,color:#0B2239
+  class identidad__consentimientos_privacidad,identidad__desafios_otp,identidad__eliminaciones_perfil,identidad__politicas_privacidad,identidad__preferencias,identidad__recuperaciones_contrasena,identidad__sesiones,identidad__usuarios,identidad__verificaciones_otp table_identidad
+  classDef table_infra fill:#ffffff,stroke:#607D8B,stroke-width:2px,color:#0B2239
+  class infra__idempotencias,infra__outbox_entregas,infra__outbox_eventos table_infra
+  classDef table_piloto fill:#ffffff,stroke:#E76F51,stroke-width:2px,color:#0B2239
+  class piloto__instrumentos,piloto__preguntas,piloto__respuestas,piloto__respuestas_detalle table_piloto
+  classDef table_seguridad fill:#ffffff,stroke:#5C6BC0,stroke-width:2px,color:#0B2239
+  class seguridad__dispositivos,seguridad__eventos table_seguridad
+  classDef table_sincronizacion fill:#ffffff,stroke:#78909C,stroke-width:2px,color:#0B2239
+  class sincronizacion__cambios table_sincronizacion
+  classDef table_suscripciones fill:#ffffff,stroke:#F4A261,stroke-width:2px,color:#0B2239
+  class suscripciones__avisos,suscripciones__planes,suscripciones__suscripciones,suscripciones__transacciones table_suscripciones
+  linkStyle default stroke:#8AA39B,stroke-width:1px
+</pre></main>
+  <script type="module">
+    import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs';
+    mermaid.initialize({ startOnLoad: true, layout: 'elk', theme: 'neutral', securityLevel: 'loose' });
+  </script>
+</body>
+</html>

@@ -1,0 +1,273 @@
+Project Finanza {
+  database_type: 'PostgreSQL'
+  Note: 'DER generado automáticamente desde FinanzasDbContextModelSnapshot'
+}
+
+Table finanzas.aportes_meta [headerColor: #00A676] {
+  id uuid [pk, not null]
+  aportado_por uuid [not null]
+  creado_en "timestamp with time zone" [not null]
+  cuenta_origen_id uuid [not null]
+  descripcion "character varying(300)" [not null]
+  fecha date [not null]
+  hash_idempotencia "character varying(64)" [not null]
+  meta_id uuid [not null]
+  monto bigint [not null]
+
+  indexes {
+    (aportado_por) [name: 'ix_aportes_meta_aportado_por']
+    (cuenta_origen_id) [name: 'ix_aportes_meta_cuenta_origen_id']
+    (meta_id, hash_idempotencia) [name: 'ix_aportes_meta_meta_id_hash_idempotencia', unique]
+    (meta_id, fecha, id) [name: 'ix_aportes_meta_meta_id_fecha_id']
+  }
+}
+
+Table finanzas.categorias [headerColor: #00A676] {
+  id uuid [pk, not null]
+  actualizado_en "timestamp with time zone" [not null]
+  color "character varying(7)"
+  creado_en "timestamp with time zone" [not null]
+  eliminado_en "timestamp with time zone"
+  es_predeterminada boolean [not null]
+  icono "character varying(50)"
+  nombre "character varying(100)" [not null]
+  tipo "character varying(20)" [not null]
+  usuario_id uuid
+  version bigint [not null]
+}
+
+Table finanzas.cuentas [headerColor: #00A676] {
+  id uuid [pk, not null]
+  actualizado_en "timestamp with time zone" [not null]
+  color "character varying(7)"
+  creado_en "timestamp with time zone" [not null]
+  eliminado_en "timestamp with time zone"
+  icono "character varying(50)"
+  incluida_en_total boolean [not null]
+  moneda "character varying(3)" [not null]
+  nombre "character varying(120)" [not null]
+  saldo_actual bigint [not null]
+  saldo_inicial bigint [not null]
+  tipo "character varying(40)" [not null]
+  usuario_id uuid [not null]
+  version bigint [not null]
+
+  indexes {
+    (usuario_id, nombre) [name: 'ix_cuentas_usuario_id_nombre', unique]
+  }
+}
+
+Table finanzas.metas_ahorro [headerColor: #00A676] {
+  id uuid [pk, not null]
+  actualizado_en "timestamp with time zone" [not null]
+  ambito "character varying(20)" [not null]
+  creado_en "timestamp with time zone" [not null]
+  creado_por uuid [not null]
+  cuenta_id uuid [not null]
+  eliminado_en "timestamp with time zone"
+  estado "character varying(20)" [not null]
+  fecha_objetivo date [not null]
+  grupo_familiar_id uuid
+  moneda "character varying(3)" [not null]
+  monto_objetivo bigint [not null]
+  nombre "character varying(120)" [not null]
+  usuario_id uuid
+  version bigint [not null]
+
+  indexes {
+    (creado_por) [name: 'ix_metas_ahorro_creado_por']
+    (cuenta_id) [name: 'ix_metas_ahorro_cuenta_id']
+    (grupo_familiar_id, estado) [name: 'ix_metas_ahorro_grupo_familiar_id_estado']
+    (usuario_id, estado) [name: 'ix_metas_ahorro_usuario_id_estado']
+  }
+}
+
+Table finanzas.movimientos [headerColor: #00A676] {
+  id uuid [pk, not null]
+  anulado_en "timestamp with time zone"
+  creado_en "timestamp with time zone" [not null]
+  cuenta_id uuid [not null]
+  descripcion "character varying(300)" [not null]
+  documento_id uuid
+  estado "character varying(20)" [not null]
+  fecha date [not null]
+  hora "time without time zone"
+  moneda "character varying(3)" [not null]
+  monto bigint [not null]
+  motivo_anulacion "character varying(300)"
+  operacion_tarjeta "character varying(20)"
+  origen "character varying(30)" [not null]
+  periodo_recurrencia date
+  recurrencia_id uuid
+  tarjeta_credito_id uuid
+  tipo "character varying(10)" [not null]
+  transferencia_id uuid
+  usuario_id uuid [not null]
+  version bigint [not null]
+
+  indexes {
+    (cuenta_id) [name: 'ix_movimientos_cuenta_id']
+    (documento_id) [name: 'ix_movimientos_documento_id']
+    (tarjeta_credito_id) [name: 'ix_movimientos_tarjeta_credito_id']
+    (transferencia_id) [name: 'ix_movimientos_transferencia_id']
+    (recurrencia_id, periodo_recurrencia) [name: 'ix_movimientos_recurrencia_id_periodo_recurrencia', unique]
+    (usuario_id, fecha, id) [name: 'ix_movimientos_usuario_id_fecha_id']
+  }
+}
+
+Table finanzas.movimientos_categorias [headerColor: #00A676] {
+  movimiento_id uuid [not null]
+  categoria_id uuid [not null]
+
+  indexes {
+    (movimiento_id, categoria_id) [name: 'pk_movimientos_categorias', pk]
+    (categoria_id) [name: 'ix_movimientos_categorias_categoria_id']
+  }
+}
+
+Table finanzas.presupuesto_categorias [headerColor: #00A676] {
+  presupuesto_id uuid [not null]
+  categoria_id uuid [not null]
+
+  indexes {
+    (presupuesto_id, categoria_id) [name: 'pk_presupuesto_categorias', pk]
+    (categoria_id) [name: 'ix_presupuesto_categorias_categoria_id']
+  }
+}
+
+Table finanzas.presupuestos [headerColor: #00A676] {
+  id uuid [pk, not null]
+  actualizado_en "timestamp with time zone" [not null]
+  creado_en "timestamp with time zone" [not null]
+  eliminado_en "timestamp with time zone"
+  estado "character varying(20)" [not null]
+  moneda "character varying(3)" [not null]
+  monto bigint [not null]
+  nombre "character varying(120)" [not null]
+  periodo "character varying(20)" [not null]
+  usuario_id uuid [not null]
+  version bigint [not null]
+
+  indexes {
+    (usuario_id, estado) [name: 'ix_presupuestos_usuario_id_estado']
+  }
+}
+
+Table finanzas.recurrencia_categorias [headerColor: #00A676] {
+  recurrencia_id uuid [not null]
+  categoria_id uuid [not null]
+
+  indexes {
+    (recurrencia_id, categoria_id) [name: 'pk_recurrencia_categorias', pk]
+    (categoria_id) [name: 'ix_recurrencia_categorias_categoria_id']
+  }
+}
+
+Table finanzas.recurrencias [headerColor: #00A676] {
+  id uuid [pk, not null]
+  actualizado_en "timestamp with time zone" [not null]
+  cantidad_ocurrencias bigint
+  creado_en "timestamp with time zone" [not null]
+  cuenta_id uuid [not null]
+  descripcion "character varying(300)" [not null]
+  eliminado_en "timestamp with time zone"
+  estado "character varying(20)" [not null]
+  fecha_fin date
+  fecha_inicio date [not null]
+  frecuencia "character varying(20)" [not null]
+  moneda "character varying(3)" [not null]
+  monto bigint [not null]
+  ocurrencias_completadas bigint [not null]
+  proxima_ejecucion date [not null]
+  tipo "character varying(10)" [not null]
+  ultima_ejecucion_en "timestamp with time zone"
+  usuario_id uuid [not null]
+  version bigint [not null]
+
+  indexes {
+    (cuenta_id) [name: 'ix_recurrencias_cuenta_id']
+    (estado, proxima_ejecucion) [name: 'ix_recurrencias_estado_proxima_ejecucion']
+    (usuario_id, cuenta_id, descripcion) [name: 'ix_recurrencias_usuario_id_cuenta_id_descripcion', unique]
+  }
+}
+
+Table finanzas.tarjetas_credito [headerColor: #00A676] {
+  id uuid [pk, not null]
+  actualizado_en "timestamp with time zone" [not null]
+  alias "character varying(120)" [not null]
+  color "character varying(7)" [not null]
+  creado_en "timestamp with time zone" [not null]
+  cuenta_pago_id uuid [not null]
+  dia_cierre bigint [not null]
+  dia_vencimiento bigint [not null]
+  eliminado_en "timestamp with time zone"
+  limite_credito bigint [not null]
+  moneda "character varying(3)" [not null]
+  saldo_utilizado bigint [not null]
+  usuario_id uuid [not null]
+  version bigint [not null]
+
+  indexes {
+    (cuenta_pago_id) [name: 'ix_tarjetas_credito_cuenta_pago_id']
+    (usuario_id, alias) [name: 'ix_tarjetas_credito_usuario_id_alias', unique]
+  }
+}
+
+Table finanzas.transferencias [headerColor: #00A676] {
+  id uuid [pk, not null]
+  actualizado_en "timestamp with time zone" [not null]
+  anulada_en "timestamp with time zone"
+  creado_en "timestamp with time zone" [not null]
+  cuenta_destino_id uuid [not null]
+  cuenta_origen_id uuid [not null]
+  descripcion "character varying(300)" [not null]
+  estado "character varying(20)" [not null]
+  fecha date [not null]
+  hash_idempotencia "character varying(64)" [not null]
+  moneda "character varying(3)" [not null]
+  monto bigint [not null]
+  movimiento_egreso_id uuid
+  movimiento_ingreso_id uuid
+  usuario_id uuid [not null]
+  version bigint [not null]
+
+  indexes {
+    (cuenta_destino_id) [name: 'ix_transferencias_cuenta_destino_id']
+    (cuenta_origen_id) [name: 'ix_transferencias_cuenta_origen_id']
+    (usuario_id, hash_idempotencia) [name: 'ix_transferencias_usuario_id_hash_idempotencia', unique]
+    (usuario_id, fecha, id) [name: 'ix_transferencias_usuario_id_fecha_id']
+  }
+}
+
+Ref fk_aportes_meta_cuentas_cuenta_origen_id: finanzas.aportes_meta.cuenta_origen_id > finanzas.cuentas.id [delete: restrict]
+Ref fk_aportes_meta_metas_ahorro_meta_id: finanzas.aportes_meta.meta_id > finanzas.metas_ahorro.id [delete: restrict]
+Ref fk_metas_ahorro_cuentas_cuenta_id: finanzas.metas_ahorro.cuenta_id > finanzas.cuentas.id [delete: restrict]
+Ref fk_movimientos_cuentas_cuenta_id: finanzas.movimientos.cuenta_id > finanzas.cuentas.id [delete: restrict]
+Ref fk_movimientos_recurrencias_recurrencia_id: finanzas.movimientos.recurrencia_id > finanzas.recurrencias.id [delete: restrict]
+Ref fk_movimientos_tarjetas_credito_tarjeta_credito_id: finanzas.movimientos.tarjeta_credito_id > finanzas.tarjetas_credito.id [delete: restrict]
+Ref fk_movimientos_transferencias_transferencia_id: finanzas.movimientos.transferencia_id > finanzas.transferencias.id [delete: restrict]
+Ref fk_movimientos_categorias_categorias_categoria_id: finanzas.movimientos_categorias.categoria_id > finanzas.categorias.id [delete: restrict]
+Ref fk_movimientos_categorias_movimientos_movimiento_id: finanzas.movimientos_categorias.movimiento_id > finanzas.movimientos.id [delete: cascade]
+Ref fk_presupuesto_categorias_categorias_categoria_id: finanzas.presupuesto_categorias.categoria_id > finanzas.categorias.id [delete: restrict]
+Ref fk_presupuesto_categorias_presupuestos_presupuesto_id: finanzas.presupuesto_categorias.presupuesto_id > finanzas.presupuestos.id [delete: cascade]
+Ref fk_recurrencia_categorias_categorias_categoria_id: finanzas.recurrencia_categorias.categoria_id > finanzas.categorias.id [delete: restrict]
+Ref fk_recurrencia_categorias_recurrencias_recurrencia_id: finanzas.recurrencia_categorias.recurrencia_id > finanzas.recurrencias.id [delete: cascade]
+Ref fk_recurrencias_cuentas_cuenta_id: finanzas.recurrencias.cuenta_id > finanzas.cuentas.id [delete: restrict]
+Ref fk_tarjetas_credito_cuentas_cuenta_pago_id: finanzas.tarjetas_credito.cuenta_pago_id > finanzas.cuentas.id [delete: restrict]
+Ref fk_transferencias_cuentas_cuenta_destino_id: finanzas.transferencias.cuenta_destino_id > finanzas.cuentas.id [delete: restrict]
+Ref fk_transferencias_cuentas_cuenta_origen_id: finanzas.transferencias.cuenta_origen_id > finanzas.cuentas.id [delete: restrict]
+
+TableGroup finanzas {
+  finanzas.aportes_meta
+  finanzas.categorias
+  finanzas.cuentas
+  finanzas.metas_ahorro
+  finanzas.movimientos
+  finanzas.movimientos_categorias
+  finanzas.presupuesto_categorias
+  finanzas.presupuestos
+  finanzas.recurrencia_categorias
+  finanzas.recurrencias
+  finanzas.tarjetas_credito
+  finanzas.transferencias
+}
