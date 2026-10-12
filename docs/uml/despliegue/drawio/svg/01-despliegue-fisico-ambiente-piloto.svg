@@ -1,0 +1,75 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1500" height="950" viewBox="0 0 1500 950">
+<defs>
+<linearGradient id="blue" x1="0" x2="1"><stop offset="0" stop-color="#FFFFFF"/><stop offset="1" stop-color="#FFFFFF"/></linearGradient>
+<marker id="arrow" markerWidth="10" markerHeight="8" refX="9" refY="4" orient="auto"><path d="M0,0 L10,4 L0,8 z" fill="#111111"/></marker>
+</defs>
+<rect width="100%" height="100%" fill="#FFFFFF"/>
+<text x="750" y="80" font-family="Arial" font-size="32" font-weight="bold" font-style="normal" text-anchor="middle" fill="#111111"><tspan x="750" dy="0">Despliegue físico del ambiente del piloto</tspan></text>
+<polyline points="420,250 565,250" fill="none" stroke="#111111" stroke-width="2" marker-end="url(#arrow)"/>
+<rect x="449.5" y="208" width="85" height="25" rx="3" fill="#FFFFFF"/>
+<text x="492" y="226" font-family="Arial" font-size="16" font-weight="normal" font-style="normal" text-anchor="middle" fill="#111111"><tspan x="492" dy="0">HTTPS/TLS</tspan></text>
+<polyline points="750,295 750,380" fill="none" stroke="#111111" stroke-width="2" marker-end="url(#arrow)"/>
+<rect x="749.5" y="322" width="85" height="25" rx="3" fill="#FFFFFF"/>
+<text x="792" y="340" font-family="Arial" font-size="16" font-weight="normal" font-style="normal" text-anchor="middle" fill="#111111"><tspan x="792" dy="0">HTTPS/TLS</tspan></text>
+<polyline points="935,475 1100,475" fill="none" stroke="#111111" stroke-width="2" marker-end="url(#arrow)"/>
+<rect x="973.0" y="432" width="90" height="25" rx="3" fill="#FFFFFF"/>
+<text x="1018" y="450" font-family="Arial" font-size="16" font-weight="normal" font-style="normal" text-anchor="middle" fill="#111111"><tspan x="1018" dy="0">Npgsql/TLS</tspan></text>
+<polyline points="620,570 620,610 207,700" fill="none" stroke="#111111" stroke-width="2" marker-end="url(#arrow)"/>
+<rect x="337.5" y="602" width="85" height="25" rx="3" fill="#FFFFFF"/>
+<text x="380" y="620" font-family="Arial" font-size="16" font-weight="normal" font-style="normal" text-anchor="middle" fill="#111111"><tspan x="380" dy="0">S3 API</tspan></text>
+<polyline points="680,570 577,700" fill="none" stroke="#111111" stroke-width="2" marker-end="url(#arrow)"/>
+<rect x="606.0" y="617" width="108" height="25" rx="3" fill="#FFFFFF"/>
+<text x="660" y="635" font-family="Arial" font-size="16" font-weight="normal" font-style="normal" text-anchor="middle" fill="#111111"><tspan x="660" dy="0">Textract API</tspan></text>
+<polyline points="820,570 947,700" fill="none" stroke="#111111" stroke-width="2" marker-end="url(#arrow)"/>
+<rect x="827.5" y="617" width="85" height="25" rx="3" fill="#FFFFFF"/>
+<text x="870" y="635" font-family="Arial" font-size="16" font-weight="normal" font-style="normal" text-anchor="middle" fill="#111111"><tspan x="870" dy="0">HTTPS</tspan></text>
+<polyline points="885,570 1302,700" fill="none" stroke="#111111" stroke-width="2" marker-end="url(#arrow)"/>
+<rect x="1077.5" y="602" width="85" height="25" rx="3" fill="#FFFFFF"/>
+<text x="1120" y="620" font-family="Arial" font-size="16" font-weight="normal" font-style="normal" text-anchor="middle" fill="#111111"><tspan x="1120" dy="0">HTTPS</tspan></text>
+<rect x="45" y="155" width="375" height="200" rx="10" fill="#FFFFFF" stroke="#111111" stroke-width="2.5"/>
+<path d="M55,155 H410 Q420,155 420,165 V210 H45 V165 Q45,155 55,155 Z" fill="#FFFFFF" stroke="#111111" stroke-width="1.2"/>
+<text x="232.5" y="191" font-family="Arial" font-size="20" font-weight="bold" font-style="normal" text-anchor="middle" fill="#111111"><tspan x="232.5" dy="0">Android / Google Play</tspan></text>
+<rect x="63" y="227.0" width="339" height="51.0" rx="7" fill="#FFFFFF" stroke="#777777" stroke-width="1.2"/>
+<text x="232.5" y="258.5" font-family="Arial" font-size="17" font-weight="normal" font-style="normal" text-anchor="middle" fill="#111111"><tspan x="232.5" dy="0">Flutter + SQLite cifrada</tspan></text>
+<rect x="63" y="288.0" width="339" height="51.0" rx="7" fill="#FFFFFF" stroke="#777777" stroke-width="1.2"/>
+<text x="232.5" y="319.5" font-family="Arial" font-size="17" font-weight="normal" font-style="normal" text-anchor="middle" fill="#111111"><tspan x="232.5" dy="0">Outbox y cursor local</tspan></text>
+<rect x="565" y="150" width="370" height="145" rx="10" fill="#FFFFFF" stroke="#111111" stroke-width="2.5"/>
+<path d="M575,150 H925 Q935,150 935,160 V205 H565 V160 Q565,150 575,150 Z" fill="#FFFFFF" stroke="#111111" stroke-width="1.2"/>
+<text x="750.0" y="186" font-family="Arial" font-size="20" font-weight="bold" font-style="normal" text-anchor="middle" fill="#111111"><tspan x="750.0" dy="0">Cloudflare</tspan></text>
+<rect x="583" y="222.0" width="334" height="57.0" rx="7" fill="#FFFFFF" stroke="#777777" stroke-width="1.2"/>
+<text x="750.0" y="256.5" font-family="Arial" font-size="17" font-weight="normal" font-style="normal" text-anchor="middle" fill="#111111"><tspan x="750.0" dy="0">DNS y TLS Full (Strict)</tspan></text>
+<rect x="565" y="380" width="370" height="190" rx="10" fill="#FFFFFF" stroke="#111111" stroke-width="2.5"/>
+<path d="M575,380 H925 Q935,380 935,390 V435 H565 V390 Q565,380 575,380 Z" fill="#FFFFFF" stroke="#111111" stroke-width="1.2"/>
+<text x="750.0" y="416" font-family="Arial" font-size="20" font-weight="bold" font-style="normal" text-anchor="middle" fill="#111111"><tspan x="750.0" dy="0">AWS Lightsail</tspan></text>
+<rect x="583" y="452.0" width="334" height="46.0" rx="7" fill="#FFFFFF" stroke="#777777" stroke-width="1.2"/>
+<text x="750.0" y="481.0" font-family="Arial" font-size="17" font-weight="normal" font-style="normal" text-anchor="middle" fill="#111111"><tspan x="750.0" dy="0">Nginx + Docker Compose</tspan></text>
+<rect x="583" y="508.0" width="334" height="46.0" rx="7" fill="#FFFFFF" stroke="#777777" stroke-width="1.2"/>
+<text x="750.0" y="537.0" font-family="Arial" font-size="17" font-weight="normal" font-style="normal" text-anchor="middle" fill="#111111"><tspan x="750.0" dy="0">API .NET + Worker</tspan></text>
+<rect x="1100" y="390" width="355" height="185" rx="10" fill="#FFFFFF" stroke="#111111" stroke-width="2.5"/>
+<path d="M1110,390 H1445 Q1455,390 1455,400 V445 H1100 V400 Q1100,390 1110,390 Z" fill="#FFFFFF" stroke="#111111" stroke-width="1.2"/>
+<text x="1277.5" y="426" font-family="Arial" font-size="20" font-weight="bold" font-style="normal" text-anchor="middle" fill="#111111"><tspan x="1277.5" dy="0">Supabase PostgreSQL</tspan></text>
+<rect x="1118" y="462.0" width="319" height="43.5" rx="7" fill="#FFFFFF" stroke="#777777" stroke-width="1.2"/>
+<text x="1277.5" y="489.75" font-family="Arial" font-size="17" font-weight="normal" font-style="normal" text-anchor="middle" fill="#111111"><tspan x="1277.5" dy="0">TLS + roles separados</tspan></text>
+<rect x="1118" y="515.5" width="319" height="43.5" rx="7" fill="#FFFFFF" stroke="#777777" stroke-width="1.2"/>
+<text x="1277.5" y="543.25" font-family="Arial" font-size="17" font-weight="normal" font-style="normal" text-anchor="middle" fill="#111111"><tspan x="1277.5" dy="0">M001 - M0028</tspan></text>
+<rect x="40" y="700" width="335" height="160" rx="10" fill="#FFFFFF" stroke="#111111" stroke-width="2.5"/>
+<path d="M50,700 H365 Q375,700 375,710 V755 H40 V710 Q40,700 50,700 Z" fill="#FFFFFF" stroke="#111111" stroke-width="1.2"/>
+<text x="207.5" y="736" font-family="Arial" font-size="20" font-weight="bold" font-style="normal" text-anchor="middle" fill="#111111"><tspan x="207.5" dy="0">AWS S3</tspan></text>
+<rect x="58" y="772.0" width="299" height="72.0" rx="7" fill="#FFFFFF" stroke="#777777" stroke-width="1.2"/>
+<text x="207.5" y="804.0" font-family="Arial" font-size="17" font-weight="normal" font-style="normal" text-anchor="middle" fill="#111111"><tspan x="207.5" dy="0">Documentos y respaldos</tspan><tspan x="207.5" dy="20">privados</tspan></text>
+<rect x="410" y="700" width="335" height="160" rx="10" fill="#FFFFFF" stroke="#111111" stroke-width="2.5"/>
+<path d="M420,700 H735 Q745,700 745,710 V755 H410 V710 Q410,700 420,700 Z" fill="#FFFFFF" stroke="#111111" stroke-width="1.2"/>
+<text x="577.5" y="736" font-family="Arial" font-size="20" font-weight="bold" font-style="normal" text-anchor="middle" fill="#111111"><tspan x="577.5" dy="0">AWS Textract</tspan></text>
+<rect x="428" y="772.0" width="299" height="72.0" rx="7" fill="#FFFFFF" stroke="#777777" stroke-width="1.2"/>
+<text x="577.5" y="814.0" font-family="Arial" font-size="17" font-weight="normal" font-style="normal" text-anchor="middle" fill="#111111"><tspan x="577.5" dy="0">OCR asíncrono</tspan></text>
+<rect x="780" y="700" width="335" height="160" rx="10" fill="#FFFFFF" stroke="#111111" stroke-width="2.5"/>
+<path d="M790,700 H1105 Q1115,700 1115,710 V755 H780 V710 Q780,700 790,700 Z" fill="#FFFFFF" stroke="#111111" stroke-width="1.2"/>
+<text x="947.5" y="736" font-family="Arial" font-size="20" font-weight="bold" font-style="normal" text-anchor="middle" fill="#111111"><tspan x="947.5" dy="0">Amazon SES / Firebase</tspan></text>
+<rect x="798" y="772.0" width="299" height="72.0" rx="7" fill="#FFFFFF" stroke="#777777" stroke-width="1.2"/>
+<text x="947.5" y="814.0" font-family="Arial" font-size="17" font-weight="normal" font-style="normal" text-anchor="middle" fill="#111111"><tspan x="947.5" dy="0">Correo y notificaciones</tspan></text>
+<rect x="1145" y="700" width="315" height="160" rx="10" fill="#FFFFFF" stroke="#111111" stroke-width="2.5"/>
+<path d="M1155,700 H1450 Q1460,700 1460,710 V755 H1145 V710 Q1145,700 1155,700 Z" fill="#FFFFFF" stroke="#111111" stroke-width="1.2"/>
+<text x="1302.5" y="736" font-family="Arial" font-size="20" font-weight="bold" font-style="normal" text-anchor="middle" fill="#111111"><tspan x="1302.5" dy="0">Google Play Billing</tspan></text>
+<rect x="1163" y="772.0" width="279" height="72.0" rx="7" fill="#FFFFFF" stroke="#777777" stroke-width="1.2"/>
+<text x="1302.5" y="814.0" font-family="Arial" font-size="17" font-weight="normal" font-style="normal" text-anchor="middle" fill="#111111"><tspan x="1302.5" dy="0">Suscripciones verificadas</tspan></text>
+</svg>

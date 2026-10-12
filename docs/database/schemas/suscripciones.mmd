@@ -1,0 +1,61 @@
+---
+title: Finanza - Diagrama entidad relación
+config:
+  layout: elk
+---
+erDiagram
+  direction LR
+  suscripciones__avisos["suscripciones.avisos"] {
+    uuid id PK "required"
+    timestamp_with_time_zone creado_en "required"
+    timestamp_with_time_zone generado_en "required"
+    timestamp_with_time_zone periodo_fin_en "required"
+    uuid suscripcion_id "required"
+    character_varying(30) tipo "required"
+    uuid usuario_id "required"
+  }
+  suscripciones__planes["suscripciones.planes"] {
+    uuid id PK "required"
+    boolean activo "required"
+    character_varying(60) codigo UK "required"
+    timestamp_with_time_zone creado_en "required"
+    character_varying(500) descripcion "required"
+    boolean destacado "required"
+    character_varying(3) moneda "required"
+    character_varying(120) nombre "required"
+    character_varying(20) periodicidad "required"
+    bigint precio "required"
+  }
+  suscripciones__suscripciones["suscripciones.suscripciones"] {
+    uuid id PK "required"
+    timestamp_with_time_zone actualizado_en "required"
+    timestamp_with_time_zone? cancelada_en "nullable"
+    timestamp_with_time_zone creado_en "required"
+    character_varying(20) estado "required"
+    timestamp_with_time_zone fin_periodo_en "required"
+    character_varying(64) hash_comprobante "required"
+    timestamp_with_time_zone iniciada_en "required"
+    character_varying(300)? motivo_cancelacion "nullable"
+    uuid plan_id "required"
+    character_varying(30) proveedor "required"
+    uuid? reemplazada_por_id "nullable"
+    uuid? suscripcion_anterior_id "nullable"
+    uuid usuario_id UK "required"
+    bigint version "required"
+  }
+  suscripciones__transacciones["suscripciones.transacciones"] {
+    uuid id PK "required"
+    timestamp_with_time_zone creado_en "required"
+    character_varying(30) estado "required"
+    character_varying(3) moneda "required"
+    bigint monto "required"
+    timestamp_with_time_zone ocurrido_en "required"
+    character_varying(30) proveedor "required"
+    character_varying(64) referencia_externa_hash "required"
+    uuid suscripcion_id "required"
+    character_varying(30) tipo "required"
+    uuid usuario_id "required"
+  }
+  suscripciones__suscripciones ||--o{ suscripciones__avisos : "fk_avisos_suscripciones_suscripcion_id"
+  suscripciones__planes ||--o{ suscripciones__suscripciones : "fk_suscripciones_planes_plan_id"
+  suscripciones__suscripciones ||--o{ suscripciones__transacciones : "fk_transacciones_suscripciones_suscripcion_id"

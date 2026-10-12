@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Finanza · Diagrama entidad relación</title>
+  <style>
+    body { margin: 0; font-family: system-ui, sans-serif; color: #0b2239; background: #f4fffb; }
+    header { position: sticky; top: 0; z-index: 1; padding: 16px 24px; background: #006b4f; color: white; }
+    header h1 { margin: 0; font-size: 20px; }
+    header p { margin: 4px 0 0; opacity: .85; }
+    main { min-width: max-content; padding: 24px; }
+    .mermaid { background: white; border: 1px solid #cde9df; border-radius: 16px; padding: 20px; }
+  </style>
+</head>
+<body>
+  <header><h1>Finanza · Diagrama entidad relación</h1><p>Generado desde el snapshot vigente de Entity Framework Core</p></header>
+  <main><pre class="mermaid">---
+title: Finanza - Diagrama entidad relación
+config:
+  layout: elk
+---
+erDiagram
+  direction LR
+  auditoria__eventos["auditoria.eventos"] {
+    uuid id PK "required"
+    character_varying(100) accion "required"
+    character_varying(100) correlation_id "required"
+    timestamp_with_time_zone creado_en "required"
+    jsonb? datos_anteriores "nullable"
+    jsonb datos_nuevos "required"
+    uuid? grupo_familiar_id "nullable"
+    timestamp_with_time_zone ocurrido_en "required"
+    character_varying(80) recurso_tipo "required"
+    uuid recurso_id "required"
+    uuid? actor_usuario_id "nullable"
+  }
+</pre></main>
+  <script type="module">
+    import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs';
+    mermaid.initialize({ startOnLoad: true, layout: 'elk', theme: 'neutral', securityLevel: 'loose' });
+  </script>
+</body>
+</html>

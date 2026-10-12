@@ -1,0 +1,25 @@
+@startuml
+!include theme-finanza.puml
+title Seguridad adaptativa
+left to right direction
+
+actor Usuario
+
+rectangle "Sistema Finanza" {
+  usecase "CU-18 · Usar autenticación biométrica" as CU18
+  usecase "CU-19 · Validar OTP adaptativo" as CU19
+  usecase "CU-20 · Consultar trazabilidad de seguridad" as CU20
+  usecase "CU-01 · Autenticarse" as CU01
+
+  CU18 .> CU01 : <<extend>>\n[si habilitó biometría]
+  CU19 .> CU01 : <<extend>>\n[si el nivel de riesgo exige OTP]
+}
+
+Usuario -- CU20
+Usuario -- CU01
+
+legend right
+  |= Relación |= Lectura |
+  | <<extend>> | Mecanismo aplicado únicamente cuando corresponde |
+endlegend
+@enduml

@@ -1,0 +1,35 @@
+Project Finanza {
+  database_type: 'PostgreSQL'
+  Note: 'DER generado automáticamente desde FinanzasDbContextModelSnapshot'
+}
+
+Table analitica.alertas [headerColor: #2A9D8F] {
+  id uuid [pk, not null]
+  actualizado_en "timestamp with time zone" [not null]
+  archivada boolean [not null]
+  archivada_en "timestamp with time zone"
+  clave_deduplicacion "character varying(160)" [not null]
+  creado_en "timestamp with time zone" [not null]
+  datos_utilizados "character varying(500)" [not null]
+  impacto "character varying(500)" [not null]
+  leida boolean [not null]
+  leida_en "timestamp with time zone"
+  mensaje "character varying(500)" [not null]
+  nivel "character varying(20)" [not null]
+  que_ocurrio "character varying(500)" [not null]
+  recomendacion "character varying(500)" [not null]
+  tipo "character varying(50)" [not null]
+  titulo "character varying(160)" [not null]
+  usuario_id uuid [not null]
+  version bigint [not null]
+
+  indexes {
+    (usuario_id, clave_deduplicacion) [name: 'ix_alertas_usuario_id_clave_deduplicacion', unique]
+    (usuario_id, creado_en) [name: 'ix_alertas_usuario_id_creado_en']
+  }
+}
+
+
+TableGroup analitica {
+  analitica.alertas
+}

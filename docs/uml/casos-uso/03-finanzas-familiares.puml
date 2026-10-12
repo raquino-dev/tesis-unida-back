@@ -1,0 +1,34 @@
+@startuml
+!include theme-finanza.puml
+title Finanzas familiares
+left to right direction
+
+actor "Propietario /\nadministrador" as Administrador
+
+rectangle "Sistema Finanza" {
+  usecase "CU-03 · Crear grupo familiar" as CU03
+  usecase "CU-04 · Administrar integrantes" as CU04
+  usecase "CU-05 · Registrar movimiento familiar" as CU05
+  usecase "CU-11 · Gestionar presupuesto familiar" as CU11
+  usecase "CU-12 · Gestionar meta compartida" as CU12
+  usecase "CU-13 · Gestionar caja compartida" as CU13
+
+  CU04 .> CU03 : <<extend>>\n[después de crear el grupo]
+  CU11 .> CU05 : <<extend>>\n[si registra un gasto desde el presupuesto]
+  CU13 .> CU05 : <<include>>
+}
+
+Administrador -- CU03
+Administrador -- CU04
+Administrador -- CU05
+Administrador -- CU11
+Administrador -- CU12
+Administrador -- CU13
+
+legend right
+  |= Relación |= Lectura |
+  | <<include>> | Toda operación de caja registra un movimiento familiar |
+  | <<extend>> | Flujo disponible solo bajo la condición indicada |
+endlegend
+@enduml
+

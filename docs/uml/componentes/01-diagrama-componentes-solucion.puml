@@ -1,0 +1,149 @@
+@startuml
+!pragma layout dot
+hide stereotype
+
+skinparam shadowing false
+skinparam linetype ortho
+skinparam roundcorner 8
+skinparam nodesep 74
+skinparam ranksep 58
+skinparam defaultFontName Arial
+skinparam backgroundColor #FFFFFF
+skinparam defaultFontColor #111111
+skinparam ArrowColor #111111
+skinparam ArrowFontColor #111111
+skinparam ArrowFontSize 12
+skinparam ArrowThickness 2
+skinparam TitleFontSize 26
+skinparam TitleFontStyle bold
+skinparam componentStyle uml2
+skinparam component {
+  BackgroundColor #FFFFFF
+  BorderColor #111111
+  FontColor #111111
+  FontStyle bold
+}
+skinparam note {
+  BackgroundColor #FAFAFA
+  BorderColor #999999
+  FontColor #111111
+}
+skinparam rectangle<<Capa>> {
+  BackgroundColor #FFFFFF
+  BorderColor #111111
+  FontColor #111111
+  FontStyle bold
+  FontSize 18
+  RoundCorner 8
+}
+skinparam legend {
+  BackgroundColor #FFFFFF
+  BorderColor transparent
+  FontColor #111111
+  FontSize 14
+}
+
+title Diagrama de componentes de la solución
+top to bottom direction
+
+together {
+rectangle "Capa de Presentación" as Presentacion <<Capa>> {
+  component "Aplicación móvil\nFlutter" as Flutter
+  note as NotaFlutter
+    * Vistas
+    * ViewModels / Riverpod
+    * Repositorios
+    * Cliente HTTPS
+  end note
+
+  Flutter -[hidden]down- NotaFlutter
+}
+
+rectangle "Capa de Aplicación" as Aplicacion <<Capa>> {
+  component "API ASP.NET Core" as Api
+  note as NotaApi
+    * Endpoints / OpenAPI
+    * Casos de uso
+    * Dominio
+    * Autenticación y autorización
+  end note
+  note as NotaValidaciones
+    Aplica validaciones, idempotencia
+    y auditoría.
+  end note
+
+  Api -[hidden]down- NotaApi
+  NotaApi -[hidden]down- NotaValidaciones
+}
+
+rectangle "Capa de Datos" as Datos <<Capa>> {
+  component "PostgreSQL /\nSupabase" as PostgreSql
+  note as NotaPostgreSql
+    Persistencia principal.
+    La comunicación se realiza
+    mediante EF Core / Npgsql + TLS.
+  end note
+
+  component "Amazon S3" as S3
+  note as NotaS3
+    Almacenamiento privado
+    de comprobantes y archivos.
+  end note
+
+  NotaPostgreSql -[hidden]right- PostgreSql
+  PostgreSql -[hidden]down- S3
+  NotaPostgreSql -[hidden]down- NotaS3
+  S3 -[hidden]right- NotaS3
+}
+
+}
+
+together {
+rectangle "Capa de Procesamiento" as Procesamiento <<Capa>> {
+  component "Worker .NET" as Worker
+  note as NotaWorker
+    * Outbox
+    * OCR / SIFEN
+    * Recurrencias
+    * Analítica y notificaciones
+  end note
+
+  Worker -[hidden]down- NotaWorker
+}
+
+rectangle "Capa de Integración Externa" as Integracion <<Capa>> {
+  component "AWS Textract" as Textract
+  component "Firebase Cloud\nMessaging" as Firebase
+  component "Amazon SES" as Ses
+  component "Google Play Billing" as PlayBilling
+
+  Textract -[hidden]down- Firebase
+  Firebase -[hidden]down- Ses
+  Ses -[hidden]down- PlayBilling
+}
+
+}
+
+Api <-left- Flutter : <back:white>  HTTPS / REST / JSON  </back>
+Api -right-> PostgreSql : <back:white>  EF Core / Npgsql + TLS  </back>
+Api -down-> S3 : <back:white>  HTTPS / SDK  </back>
+Api -down-> Worker : <back:white>  jobs / outbox  </back>
+Worker -up-> PostgreSql : <back:white>  lectura / escritura  </back>
+Worker -up-> S3 : <back:white>  lectura de archivos  </back>
+Worker -right-> Textract : <back:white>  OCR  </back>
+Worker -right-> Firebase : <back:white>  notificaciones push  </back>
+Worker -right-> Ses : <back:white>  envío de correos  </back>
+Api -right-> PlayBilling : <back:white>  validación de compras  </back>
+
+
+NotaValidaciones -[hidden]down- Worker
+NotaS3 -[hidden]down- Textract
+NotaFlutter -[hidden]right- NotaApi
+NotaFlutter -[hidden]right- NotaValidaciones
+NotaApi -[hidden]right- NotaPostgreSql
+NotaValidaciones -[hidden]right- NotaS3
+
+legend bottom
+  Las capas agrupan componentes reales de la solución. Las notas describen responsabilidades internas o tecnologías de soporte.
+endlegend
+@enduml

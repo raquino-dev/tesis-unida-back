@@ -1,0 +1,92 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Finanza · Diagrama entidad relación</title>
+  <style>
+    body { margin: 0; font-family: system-ui, sans-serif; color: #0b2239; background: #f4fffb; }
+    header { position: sticky; top: 0; z-index: 1; padding: 16px 24px; background: #006b4f; color: white; }
+    header h1 { margin: 0; font-size: 20px; }
+    header p { margin: 4px 0 0; opacity: .85; }
+    main { min-width: max-content; padding: 24px; }
+    .mermaid { background: white; border: 1px solid #cde9df; border-radius: 16px; padding: 20px; }
+  </style>
+</head>
+<body>
+  <header><h1>Finanza · Diagrama entidad relación</h1><p>Generado desde el snapshot vigente de Entity Framework Core</p></header>
+  <main><pre class="mermaid">---
+title: Finanza - Diagrama entidad relación
+config:
+  layout: elk
+---
+erDiagram
+  direction LR
+  documentos__archivos["documentos.archivos"] {
+    uuid id PK "required"
+    timestamp_with_time_zone actualizado_en "required"
+    character_varying(20) ambito "required"
+    character_varying(300) clave_objeto UK "required"
+    timestamp_with_time_zone creado_en "required"
+    timestamp_with_time_zone? eliminado_en "nullable"
+    character_varying(20) estado "required"
+    uuid? grupo_familiar_id "nullable"
+    character_varying(64) hash_idempotencia "required"
+    character_varying(100) mime "required"
+    character_varying(255) nombre_original "required"
+    character_varying(64) sha256 "required"
+    bigint tamano_bytes "required"
+    character_varying(20) tipo "required"
+    uuid usuario_id "required"
+    bigint version "required"
+  }
+  documentos__exportaciones["documentos.exportaciones"] {
+    uuid id PK "required"
+    timestamp_with_time_zone actualizado_en "required"
+    character_varying(20) ambito "required"
+    bigint cantidad_movimientos "required"
+    uuid? categoria_id "nullable"
+    character_varying(300)? clave_objeto "nullable"
+    timestamp_with_time_zone creado_en "required"
+    uuid? cuenta_id "nullable"
+    date desde "required"
+    character_varying(20) documento "required"
+    timestamp_with_time_zone? eliminado_en "nullable"
+    character_varying(20) estado "required"
+    timestamp_with_time_zone? expira_en "nullable"
+    timestamp_with_time_zone? finalizado_en "nullable"
+    character_varying(10) formato "required"
+    uuid? grupo_familiar_id "nullable"
+    character_varying(64) hash_solicitud "required"
+    date hasta "required"
+    character_varying(10)? tipo_movimiento "nullable"
+    bigint total_gastos "required"
+    bigint total_ingresos "required"
+    bigint total_transferido "required"
+    uuid usuario_id "required"
+    bigint version "required"
+  }
+  documentos__procesamientos["documentos.procesamientos"] {
+    uuid id PK "required"
+    timestamp_with_time_zone actualizado_en "required"
+    double_precision? confianza "nullable"
+    timestamp_with_time_zone creado_en "required"
+    jsonb resultado "required"
+    uuid archivo_id "required"
+    character_varying(20) estado "required"
+    timestamp_with_time_zone? completado_en "nullable"
+    character_varying(64) hash_idempotencia "required"
+    timestamp_with_time_zone? iniciado_en "nullable"
+    character_varying(50) proveedor "required"
+    character_varying(20) tipo "required"
+    bigint version "required"
+    character_varying(50) version_modelo "required"
+  }
+  documentos__archivos ||--o{ documentos__procesamientos : "fk_procesamientos_archivos_archivo_id"
+</pre></main>
+  <script type="module">
+    import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs';
+    mermaid.initialize({ startOnLoad: true, layout: 'elk', theme: 'neutral', securityLevel: 'loose' });
+  </script>
+</body>
+</html>

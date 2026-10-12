@@ -1,0 +1,103 @@
+@startuml
+!pragma layout dot
+hide stereotype
+
+skinparam shadowing false
+skinparam linetype ortho
+skinparam roundcorner 10
+skinparam defaultFontName Arial
+skinparam TitleFontSize 28
+skinparam TitleFontStyle bold
+skinparam backgroundColor #FFFFFF
+skinparam defaultFontColor #111111
+skinparam ArrowColor #111111
+skinparam ArrowFontColor #111111
+skinparam ActorBorderColor #111111
+skinparam ActorFontColor #111111
+skinparam ActorFontStyle bold
+skinparam ActorBackgroundColor #FFFFFF
+skinparam UsecaseMinimumWidth 180
+skinparam usecase {
+  BackgroundColor #FAFAFA
+  BorderColor #111111
+  FontColor #111111
+  ArrowColor #111111
+}
+skinparam rectangle<<Sistema>> {
+  BackgroundColor #FFFFFF
+  BorderColor #111111
+  FontColor #111111
+  FontStyle bold
+  FontSize 22
+  RoundCorner 4
+}
+skinparam rectangle<<Grupo>> {
+  BackgroundColor #FAFAFA
+  BorderColor #AAAAAA
+  FontColor #111111
+  FontStyle bold
+  FontSize 15
+  RoundCorner 12
+}
+
+title Finanzas personales
+top to bottom direction
+
+rectangle "Sistema Finanza" as Sistema <<Sistema>> {
+  rectangle "Operaciones principales" as Operaciones <<Grupo>> {
+    usecase "CU-05 · Registrar\ningresos y gastos" as CU05
+    usecase "CU-06 · Gestionar\nmovimientos" as CU06
+
+    CU05 .down.> CU06 : <<extend>>
+  }
+
+  rectangle "Configuración y soporte" as Configuracion <<Grupo>> {
+    usecase "CU-10 · Gestionar\ncategorías" as CU10
+    usecase "CU-11 · Gestionar\npresupuestos" as CU11
+
+    CU11 .up.> CU10 : <<include>>
+  }
+
+  rectangle "Gestión de cuentas y tarjetas" as CuentasTarjetas <<Grupo>> {
+    usecase "CU-22 · Gestionar\ncuentas" as CU22
+    usecase "CU-23 · Gestionar\nalias de tarjetas" as CU23
+    usecase "CU-24 · Transferir\nentre cuentas" as CU24
+
+    CU23 .up.> CU22 : <<extend>>
+    CU24 .up.> CU22 : <<include>>
+    CU23 -[hidden]right- CU24
+  }
+
+  rectangle "Otros" as Otros <<Grupo>> {
+    usecase "CU-25 · Gestionar\nrecurrencias" as CU25
+    usecase "CU-12 · Gestionar\nmetas de ahorro" as CU12
+    usecase "CU-26 · Sincronizar\ncambios offline" as CU26
+
+    CU25 -[hidden]down- CU12
+    CU12 -[hidden]down- CU26
+  }
+
+  CU10 .up.> CU05 : <<extend>>
+  CU22 .up.> CU05 : <<extend>>
+  CU25 .up.> CU05 : <<extend>>
+
+  CU06 -[hidden]down- CU10
+  CU11 -[hidden]down- CU22
+  CU24 -[hidden]down- CU25
+
+}
+
+actor Usuario
+
+CU22 -[norank]left- Usuario
+CU23 -[norank]left- Usuario
+CU24 -[norank]left- Usuario
+CU05 -[norank]left- Usuario
+CU06 -[norank]left- Usuario
+CU10 -[norank]left- Usuario
+CU11 -[norank]left- Usuario
+CU25 -[norank]left- Usuario
+CU12 -[norank]left- Usuario
+CU26 -[norank]left- Usuario
+
+@enduml

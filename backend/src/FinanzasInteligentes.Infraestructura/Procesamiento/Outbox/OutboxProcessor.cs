@@ -142,6 +142,12 @@ public sealed class OutboxProcessor(
         var usuario = await db.Usuarios.AsNoTracking().Include(x => x.Preferencias)
             .SingleOrDefaultAsync(x => x.Id == usuarioId, ct);
         if (usuario is null) return;
+        var suscripcion = await db.Suscripciones.AsNoTracking()
+            .SingleOrDefaultAsync(x => x.Id == evento.AgregadoId, ct);
+        var plan = suscripcion is null
+            ? null
+            : await db.PlanesSuscripcion.AsNoTracking()
+                .SingleOrDefaultAsync(x => x.Id == suscripcion.PlanId, ct);
         var accion = tipo switch
         {
             "suscripcion.activada" => "activada",
@@ -150,7 +156,38 @@ public sealed class OutboxProcessor(
         };
         var texto = $"Tu suscripción fue {accion}.";
         if (usuario.Preferencias.NotificacionesCorreo)
-            await EnviarCorreoUnaVez(evento, usuario.Correo, $"Suscripción {accion}", texto, $"<p>{texto}</p>", ct);
+        {
+            var contenido = suscripcion is null || plan is null
+                ? null
+                : tipo switch
+                {
+                    "suscripcion.activada" => PlantillasCorreoSuscripcion.PagoProcesado(
+                        usuario.Nombre,
+                        plan.Nombre,
+                        suscripcion.IniciadaEn,
+                        suscripcion.FinPeriodoEn,
+                        NombreProveedor(suscripcion.Proveedor),
+                        correoOptions.Value.UrlAplicacion),
+                    "suscripcion.cancelada" => PlantillasCorreoSuscripcion.Cancelacion(
+                        usuario.Nombre,
+                        plan.Nombre,
+                        suscripcion.CanceladaEn ?? DateTimeOffset.UtcNow,
+                        suscripcion.FinPeriodoEn,
+                        correoOptions.Value.UrlAplicacion),
+                    _ => PlantillasCorreoSuscripcion.Restauracion(
+                        usuario.Nombre,
+                        plan.Nombre,
+                        suscripcion.FinPeriodoEn,
+                        correoOptions.Value.UrlAplicacion)
+                };
+            await EnviarCorreoUnaVez(
+                evento,
+                usuario.Correo,
+                contenido?.Asunto ?? $"Suscripción {accion}",
+                contenido?.Texto ?? texto,
+                contenido?.Html ?? $"<p>{texto}</p>",
+                ct);
+        }
         await push.Enviar(
             usuarioId,
             $"Suscripción {accion}",
@@ -162,6 +199,13 @@ public sealed class OutboxProcessor(
             },
             ct);
     }
+
+    private static string NombreProveedor(string proveedor) => proveedor switch
+    {
+        "google-play" => "Google Play",
+        "app-store" => "App Store",
+        _ => "Finanza"
+    };
 
     private async Task EnviarAvisoVencimiento(
         EventoOutbox evento, CancellationToken ct)
@@ -368,7 +412,13 @@ public sealed class OutboxProcessor(
                         ? 0
                         : x.OperacionTarjeta == "reintegro"
                             ? -x.Monto
-                            : x.Tipo == "gasto" ? x.Monto : 0))
+                            : x.Tipo == "gasto" ? x.Monto : 0,
+                    x.CuentaId,
+                    x.TarjetaCreditoId,
+                    null,
+                    x.Categorias.OrderBy(c => c.Nombre).Select(c => c.Nombre).FirstOrDefault()
+                        ?? "Sin categoría",
+                    string.Empty))
                 .ToListAsync(ct))
             : (await db.MovimientosFamiliares.AsNoTracking().Where(x =>
                 x.GrupoFamiliarId == exportacion.GrupoFamiliarId &&
@@ -380,9 +430,42 @@ public sealed class OutboxProcessor(
                 .OrderBy(x => x.Fecha).Select(x => new ExportRow(
                     x.Fecha, x.Tipo, x.Monto, x.Descripcion, false, null,
                     x.Tipo == "ingreso" ? x.Monto : 0,
-                    x.Tipo == "gasto" ? x.Monto : 0)).ToListAsync(ct));
+                    x.Tipo == "gasto" ? x.Monto : 0,
+                    x.CuentaId,
+                    null,
+                    x.CategoriaIds.Length > 0 ? x.CategoriaIds[0] : (Guid?)null,
+                    "Sin categoría",
+                    string.Empty)).ToListAsync(ct));
+        var cuentaIds = filas.Select(x => x.CuentaId).Distinct().ToArray();
+        var tarjetaIds = filas.Where(x => x.TarjetaCreditoId.HasValue)
+            .Select(x => x.TarjetaCreditoId!.Value).Distinct().ToArray();
+        var cuentas = await db.Cuentas.AsNoTracking()
+            .Where(x => cuentaIds.Contains(x.Id))
+            .ToDictionaryAsync(x => x.Id, x => x.Nombre, ct);
+        var tarjetas = await db.TarjetasCredito.AsNoTracking()
+            .Where(x => tarjetaIds.Contains(x.Id))
+            .ToDictionaryAsync(x => x.Id, x => x.Alias, ct);
+        var categoriaFamiliarIds = filas.Where(x => x.CategoriaFamiliarId.HasValue)
+            .Select(x => x.CategoriaFamiliarId!.Value).Distinct().ToArray();
+        var categoriasFamiliares = await db.CategoriasFamiliares.AsNoTracking()
+            .Where(x => categoriaFamiliarIds.Contains(x.Id))
+            .ToDictionaryAsync(x => x.Id, x => x.Nombre, ct);
+        filas = filas.Select(x => x with
+        {
+            Metodo = x.TarjetaCreditoId.HasValue &&
+                     tarjetas.TryGetValue(x.TarjetaCreditoId.Value, out var tarjeta)
+                ? tarjeta
+                : cuentas.GetValueOrDefault(x.CuentaId, "Cuenta"),
+            Categoria = x.CategoriaFamiliarId.HasValue
+                ? categoriasFamiliares.GetValueOrDefault(
+                    x.CategoriaFamiliarId.Value, "Sin categoría")
+                : x.Categoria
+        }).ToList();
         var clave = $"exportaciones/{exportacion.UsuarioId:N}/{exportacion.Id:N}.{exportacion.Formato}";
-        await using var bytes = new MemoryStream(CrearArchivo(exportacion.Formato, filas));
+        var cuenta = exportacion.CuentaId.HasValue
+            ? cuentas.GetValueOrDefault(exportacion.CuentaId.Value, "Cuenta seleccionada")
+            : "Todas las cuentas";
+        await using var bytes = new MemoryStream(CrearArchivo(exportacion, cuenta, filas));
         await storage.Guardar(clave, bytes, ct);
         exportacion.Completar(
             clave, filas.Count,
@@ -391,11 +474,14 @@ public sealed class OutboxProcessor(
             filas.Where(x => x.EsTransferencia).Sum(x => x.Monto));
     }
 
-    private static byte[] CrearArchivo(string formato, IReadOnlyCollection<ExportRow> filas) =>
-        formato switch
+    private static byte[] CrearArchivo(
+        FinanzasInteligentes.Dominio.Documentos.Exportacion exportacion,
+        string cuenta,
+        IReadOnlyCollection<ExportRow> filas) =>
+        exportacion.Formato switch
         {
             "xlsx" => CrearXlsx(filas),
-            "pdf" => CrearPdf(filas),
+            "pdf" => CrearPdf(exportacion, cuenta, filas),
             _ => Encoding.UTF8.GetBytes(CrearCsv(filas))
         };
 
@@ -451,39 +537,27 @@ public sealed class OutboxProcessor(
         writer.Write(contenido);
     }
 
-    private static byte[] CrearPdf(IEnumerable<ExportRow> filas)
-    {
-        var lineas = new[]
-            { "Reporte financiero", "Fecha | Tipo | Monto | Descripcion | Operacion tarjeta" }
-            .Concat(filas.Take(35).Select(x =>
-                $"{x.Fecha} | {x.Tipo} | {x.Monto} | {x.Descripcion} | {x.OperacionTarjeta}"));
-        var stream = new StringBuilder("BT /F1 9 Tf 40 800 Td ");
-        foreach (var linea in lineas)
-            stream.Append('(').Append(linea.Replace("\\", "\\\\").Replace("(", "\\(").Replace(")", "\\)"))
-                .Append(") Tj 0 -18 Td ");
-        stream.Append("ET");
-        var objects = new[]
-        {
-            "<< /Type /Catalog /Pages 2 0 R >>",
-            "<< /Type /Pages /Kids [3 0 R] /Count 1 >>",
-            "<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595 842] /Resources << /Font << /F1 5 0 R >> >> /Contents 4 0 R >>",
-            $"<< /Length {Encoding.ASCII.GetByteCount(stream.ToString())} >>\nstream\n{stream}\nendstream",
-            "<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>"
-        };
-        var pdf = new StringBuilder("%PDF-1.4\n");
-        var offsets = new List<int> { 0 };
-        for (var i = 0; i < objects.Length; i++)
-        {
-            offsets.Add(Encoding.ASCII.GetByteCount(pdf.ToString()));
-            pdf.Append(i + 1).Append(" 0 obj\n").Append(objects[i]).Append("\nendobj\n");
-        }
-        var xref = Encoding.ASCII.GetByteCount(pdf.ToString());
-        pdf.Append("xref\n0 ").Append(objects.Length + 1).Append("\n0000000000 65535 f \n");
-        foreach (var offset in offsets.Skip(1)) pdf.Append(offset.ToString("D10")).Append(" 00000 n \n");
-        pdf.Append("trailer << /Size ").Append(objects.Length + 1)
-            .Append(" /Root 1 0 R >>\nstartxref\n").Append(xref).Append("\n%%EOF");
-        return Encoding.ASCII.GetBytes(pdf.ToString());
-    }
+    private static byte[] CrearPdf(
+        FinanzasInteligentes.Dominio.Documentos.Exportacion exportacion,
+        string cuenta,
+        IEnumerable<ExportRow> filas) =>
+        ExtractoPdfGenerator.Crear(
+            new ExtractoPdfMetadata(
+                exportacion.Desde,
+                exportacion.Hasta,
+                cuenta,
+                DateOnly.FromDateTime(DateTime.UtcNow),
+                filas.Sum(x => x.IngresoAnalitico),
+                filas.Sum(x => x.GastoAnalitico)),
+            filas.Select(x => new ExtractoPdfMovimiento(
+                x.Fecha,
+                x.Descripcion,
+                x.Categoria,
+                x.Metodo,
+                x.OperacionTarjeta ?? x.Tipo,
+                x.Monto,
+                x.IngresoAnalitico,
+                x.GastoAnalitico)).ToArray());
 
     private sealed record ExportRow(
         DateOnly Fecha,
@@ -493,7 +567,12 @@ public sealed class OutboxProcessor(
         bool EsTransferencia,
         string? OperacionTarjeta,
         long IngresoAnalitico,
-        long GastoAnalitico);
+        long GastoAnalitico,
+        Guid CuentaId,
+        Guid? TarjetaCreditoId,
+        Guid? CategoriaFamiliarId,
+        string Categoria,
+        string Metodo);
 
     private async Task ProcesarEliminacionPerfil(
         Guid eliminacionId,

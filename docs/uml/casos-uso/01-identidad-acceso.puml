@@ -1,0 +1,27 @@
+@startuml
+!include theme-finanza.puml
+title Identidad y acceso
+left to right direction
+
+actor Usuario
+
+rectangle "Sistema Finanza" {
+  usecase "CU-01 · Registrarse e iniciar sesión" as CU01
+  usecase "CU-02 · Recuperar o cambiar contraseña" as CU02
+  usecase "CU-18 · Autenticarse con biometría" as CU18
+  usecase "CU-19 · Validar acción mediante OTP" as CU19
+
+  CU18 .> CU01 : <<extend>>\n[si habilitó biometría]
+  CU02 .> CU19 : <<include>>
+  CU19 .> CU01 : <<extend>>\n[si se requiere segundo factor]
+}
+
+Usuario -- CU01
+Usuario -- CU02
+
+legend right
+  |= Relación |= Lectura |
+  | <<include>> | Comportamiento obligatorio reutilizado |
+  | <<extend>> | Comportamiento opcional o condicionado |
+endlegend
+@enduml

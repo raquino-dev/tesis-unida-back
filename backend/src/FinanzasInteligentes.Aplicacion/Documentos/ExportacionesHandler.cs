@@ -12,7 +12,8 @@ public sealed record FiltrosExportacionRequest(
     string? Tipo, Guid? CategoriaId, Guid? CuentaId, string Documento);
 public sealed record TotalesExportacionResponse(long Ingresos, long Gastos, long Transferido);
 public sealed record ExportacionResponse(
-    Guid Id, string Formato, string Estado, DateTimeOffset CreadoEn,
+    Guid Id, string Formato, string Estado, DateOnly Desde, DateOnly Hasta,
+    DateTimeOffset CreadoEn,
     DateTimeOffset FinalizadoEn, long CantidadMovimientos,
     TotalesExportacionResponse Totales, DateTimeOffset ExpiraEn, long Version);
 public sealed record PaginaExportacionResponse(
@@ -114,7 +115,8 @@ public sealed class ExportacionesHandler(
         ?? throw new NotFoundException("exportacion_no_encontrada", "La exportación no existe.");
 
     private static ExportacionResponse Map(Exportacion x) =>
-        new(x.Id, x.Formato, x.Estado, x.CreadoEn, x.FinalizadoEn ?? x.CreadoEn,
+        new(x.Id, x.Formato, x.Estado, x.Desde, x.Hasta, x.CreadoEn,
+            x.FinalizadoEn ?? x.CreadoEn,
             x.CantidadMovimientos,
             new(x.TotalIngresos, x.TotalGastos, x.TotalTransferido),
             x.ExpiraEn ?? x.CreadoEn.AddDays(7), x.Version);

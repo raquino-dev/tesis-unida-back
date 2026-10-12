@@ -1,0 +1,28 @@
+@startuml
+!include theme-finanza.puml
+title Analítica financiera
+left to right direction
+
+actor Usuario
+
+rectangle "Sistema Finanza" {
+  usecase "CU-14 · Consultar dashboard y reportes" as CU14
+  usecase "CU-16 · Consultar proyecciones" as CU16
+  usecase "CU-17 · Recibir alertas explicables" as CU17
+  usecase "CU-11 · Consultar presupuesto" as CU11
+
+  CU16 .> CU14 : <<extend>>\n[si consulta una predicción]
+  CU11 .> CU14 : <<extend>>\n[si abre el detalle del presupuesto]
+}
+
+Usuario -- CU14
+Usuario -- CU16
+Usuario -- CU17
+Usuario -- CU11
+
+legend right
+  |= Relación |= Lectura |
+  | <<extend>> | Detalle opcional abierto desde el dashboard |
+endlegend
+@enduml
+

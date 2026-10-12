@@ -409,6 +409,13 @@ schema_sources = {
 }
 schema_sources.each { |name, (heading, index)| add_example_schema(schemas, name, sections, heading, index) }
 
+# El plan gratuito no vence. Las suscripciones pagas conservan la fecha del
+# final del período, por lo que la respuesta admite ambos valores.
+schemas["SuscripcionResponse"]["properties"]["finPeriodoEn"] = {
+  "type" => %w[string null], "format" => "date-time",
+  "example" => "2026-08-22T18:30:00Z"
+}
+
 schemas["UsuarioAdministracionResponse"] = {
   "type" => "object", "additionalProperties" => false,
   "required" => %w[id correo nombre estado rol creadoEn actualizadoEn version],

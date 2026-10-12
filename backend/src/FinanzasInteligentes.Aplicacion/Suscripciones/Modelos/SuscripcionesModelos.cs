@@ -18,7 +18,7 @@ public sealed record SuscripcionResponse(
     PlanSuscripcionResumenResponse Plan,
     DateTimeOffset IniciadaEn,
     DateTimeOffset? CanceladaEn,
-    DateTimeOffset FinPeriodoEn,
+    DateTimeOffset? FinPeriodoEn,
     IReadOnlyCollection<string> Capacidades,
     long Version);
 

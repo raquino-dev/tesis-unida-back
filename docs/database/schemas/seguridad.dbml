@@ -1,0 +1,51 @@
+Project Finanza {
+  database_type: 'PostgreSQL'
+  Note: 'DER generado automáticamente desde FinanzasDbContextModelSnapshot'
+}
+
+Table seguridad.dispositivos [headerColor: #5C6BC0] {
+  id uuid [pk, not null]
+  actualizado_en "timestamp with time zone" [not null]
+  confiable boolean [not null]
+  creado_en "timestamp with time zone" [not null]
+  identificador_instalacion "character varying(200)" [not null]
+  nombre "character varying(120)" [not null]
+  plataforma "character varying(20)" [not null]
+  revocado_en "timestamp with time zone"
+  push_token_cifrado "character varying(6000)" [not null]
+  ultimo_acceso_en "timestamp with time zone" [not null]
+  usuario_id uuid [not null]
+  version bigint [not null]
+  version_app "character varying(50)" [not null]
+  version_so "character varying(50)" [not null]
+  zona_horaria "character varying(80)" [not null]
+
+  indexes {
+    (usuario_id, identificador_instalacion) [name: 'ix_dispositivos_usuario_id_identificador_instalacion', unique]
+  }
+}
+
+Table seguridad.eventos [headerColor: #5C6BC0] {
+  id uuid [pk, not null]
+  creado_en "timestamp with time zone" [not null]
+  descripcion "character varying(500)" [not null]
+  dispositivo "character varying(120)" [not null]
+  dispositivo_id uuid
+  exitoso boolean [not null]
+  ocurrido_en "timestamp with time zone" [not null]
+  origen_aproximado "character varying(120)" [not null]
+  tipo "character varying(80)" [not null]
+  usuario_id uuid [not null]
+
+  indexes {
+    (dispositivo_id) [name: 'ix_eventos_dispositivo_id']
+    (usuario_id, ocurrido_en) [name: 'ix_eventos_usuario_id_ocurrido_en']
+  }
+}
+
+Ref fk_eventos_dispositivos_dispositivo_id: seguridad.eventos.dispositivo_id > seguridad.dispositivos.id [delete: set null]
+
+TableGroup seguridad {
+  seguridad.dispositivos
+  seguridad.eventos
+}

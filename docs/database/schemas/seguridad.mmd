@@ -1,0 +1,37 @@
+---
+title: Finanza - Diagrama entidad relación
+config:
+  layout: elk
+---
+erDiagram
+  direction LR
+  seguridad__dispositivos["seguridad.dispositivos"] {
+    uuid id PK "required"
+    timestamp_with_time_zone actualizado_en "required"
+    boolean confiable "required"
+    timestamp_with_time_zone creado_en "required"
+    character_varying(200) identificador_instalacion "required"
+    character_varying(120) nombre "required"
+    character_varying(20) plataforma "required"
+    timestamp_with_time_zone? revocado_en "nullable"
+    character_varying(6000) push_token_cifrado "required"
+    timestamp_with_time_zone ultimo_acceso_en "required"
+    uuid usuario_id "required"
+    bigint version "required"
+    character_varying(50) version_app "required"
+    character_varying(50) version_so "required"
+    character_varying(80) zona_horaria "required"
+  }
+  seguridad__eventos["seguridad.eventos"] {
+    uuid id PK "required"
+    timestamp_with_time_zone creado_en "required"
+    character_varying(500) descripcion "required"
+    character_varying(120) dispositivo "required"
+    uuid? dispositivo_id "nullable"
+    boolean exitoso "required"
+    timestamp_with_time_zone ocurrido_en "required"
+    character_varying(120) origen_aproximado "required"
+    character_varying(80) tipo "required"
+    uuid usuario_id "required"
+  }
+  seguridad__dispositivos ||--o{ seguridad__eventos : "fk_eventos_dispositivos_dispositivo_id"
